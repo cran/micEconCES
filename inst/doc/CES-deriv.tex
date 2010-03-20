@@ -1,0 +1,605 @@
+% %% LyX 1.6.4 created this file.  For more info, see http://www.lyx.org/.
+% %% Do not edit unless you really know what you are doing.
+% \documentclass[english]{scrartcl}
+% \usepackage[T1]{fontenc}
+% \usepackage[latin9]{inputenc}
+% \usepackage[letterpaper]{geometry}
+% \geometry{verbose,tmargin=2cm,bmargin=2cm,lmargin=2cm,rmargin=2cm}
+% \usepackage[authoryear]{natbib}
+% 
+% \makeatletter
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+% \usepackage{url}
+% 
+% \makeatother
+% 
+% \usepackage{babel}
+% 
+% \begin{document}
+
+\section{Derivations of Taylor series approximations}
+
+The derivation of the Taylor series (Kmenta) approximation of the
+CES function in section~\ref{sec:cesDerivKmenta} is based on \citet{uebe00}.
+The derivation of the Talor series approximation of the partial derivatives
+of the CES function with respect to the coefficients in section~\ref{sec:cesDerivTaylorDeriv}
+is novel but inspired by \citet{uebe00}.
+
+
+\subsection{CES function (Kmenta approximation)}
+
+\label{sec:cesDerivKmenta}
+
+\begin{eqnarray}
+y & = & \gamma\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}}\end{eqnarray}
+Logarithmized CES function:\begin{eqnarray}
+\ln y & = & \ln\gamma-\frac{\nu}{\rho}\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\end{eqnarray}
+Define function\begin{eqnarray}
+f\left(\rho\right) & \equiv & -\frac{\nu}{\rho}\:\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\end{eqnarray}
+so that\begin{eqnarray}
+\ln y & = & \ln\gamma+f\left(\rho\right).\end{eqnarray}
+Now we can approximate the logarithmized CES by a first-order Taylor
+series approximation around $\rho=0:$\begin{equation}
+\ln y\approx\ln\gamma+f\left(0\right)+\rho f'\left(0\right)\end{equation}
+We define function\begin{eqnarray}
+g\left(\rho\right) & \equiv & \delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\end{eqnarray}
+so that\begin{eqnarray}
+f\left(\rho\right) & = & -\frac{\nu}{\rho}\ln\left(g\left(\rho\right)\right).\end{eqnarray}
+Now we can calculate the first partial derivative of $f\left(\rho\right)$:\begin{eqnarray}
+f'\left(\rho\right) & = & \frac{\nu}{\rho^{2}}\,\ln\left(g\left(\rho\right)\right)-\frac{\nu}{\rho}\frac{g'\left(\rho\right)}{g\left(\rho\right)}\end{eqnarray}
+and the first three derivatives of $g\left(\rho\right)$\begin{eqnarray}
+g'\left(\rho\right) & = & -\delta\, x_{1}^{-\rho}\,\ln x_{1}-\left(1-\delta\right)\, x_{2}^{-\rho}\,\ln x_{2}\\
+g''\left(\rho\right) & = & \delta\, x_{1}^{-\rho}\,\left(\ln x_{1}\right)^{2}+\left(1-\delta\right)\, x_{2}^{-\rho}\,\left(\ln x_{2}\right)^{2}\\
+g'''\left(\rho\right) & = & -\delta\, x_{1}^{-\rho}\,\left(\ln x_{1}\right)^{3}-\left(1-\delta\right)\, x_{2}^{-\rho}\,\left(\ln x_{2}\right)^{3}.\end{eqnarray}
+At the point of approximation $\rho=0$ we have\begin{eqnarray}
+g\left(0\right) & = & 1\\
+g'\left(0\right) & = & -\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\\
+g''(0) & = & \delta\,\left(\ln x_{1}\right)^{2}+\left(1-\delta\right)\,\left(\ln x_{2}\right)^{2}\\
+g'''(0) & = & -\delta\,\left(\ln x_{1}\right)^{3}-\left(1-\delta\right)\,\left(\ln x_{2}\right)^{3}\end{eqnarray}
+Now we calculate the limit of $f\left(\rho\right)$ for $\rho\rightarrow0$:\begin{eqnarray}
+f\left(0\right) & = & \lim_{\rho\rightarrow0}f\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\frac{-\nu\ln\left(g\left(\rho\right)\right)}{\rho}\\
+ & = & \lim_{\rho\rightarrow0}\frac{-\nu\frac{g'\left(\rho\right)}{g\left(\rho\right)}}{1}\\
+ & = & \nu\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)\end{eqnarray}
+and the limit of $f'\left(\rho\right)$ for $\rho\rightarrow0$:\begin{eqnarray}
+f'\left(0\right) & = & \lim_{\rho\rightarrow0}f'\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(\frac{\nu}{\rho^{2}}\,\ln\left(g\left(\rho\right)\right)-\frac{\nu}{\rho}\frac{g'\left(\rho\right)}{g\left(\rho\right)}\right)\\
+ & = & \lim_{\rho\rightarrow0}\frac{\nu\,\ln\left(g\left(\rho\right)\right)-\nu\,\rho\,\frac{g'\left(\rho\right)}{g\left(\rho\right)}}{\rho^{2}}\\
+ & = & \lim_{\rho\rightarrow0}\frac{\nu\,\frac{g'\left(\rho\right)}{g\left(\rho\right)}-\nu\,\frac{g'\left(\rho\right)}{g\left(\rho\right)}-\nu\,\rho\,\frac{g''\left(\rho\right)g\left(\rho\right)-\left(g'\left(\rho\right)\right)^{2}}{\left(g\left(\rho\right)\right)^{2}}}{2\rho}\\
+ & = & \lim_{\rho\rightarrow0}-\frac{\nu}{2}\,\frac{g''\left(\rho\right)g\left(\rho\right)-\left(g'\left(\rho\right)\right)^{2}}{\left(g\left(\rho\right)\right)^{2}}\\
+ & = & -\frac{\nu}{2}\,\frac{g''\left(0\right)g\left(0\right)-\left(g'\left(0\right)\right)^{2}}{\left(g\left(0\right)\right)^{2}}\\
+ & = & -\frac{\nu}{2}\left(\delta\left(\ln x_{1}\right)^{2}+\left(1-\delta\right)\left(\ln x_{2}\right)^{2}-\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)^{2}\right)\\
+ & = & -\frac{\nu}{2}\biggl(\delta\left(\ln x_{1}\right)^{2}+\left(1-\delta\right)\left(\ln x_{2}\right)^{2}-\delta^{2}\left(\ln x_{1}\right)^{2}\\
+ &  & -2\delta\left(1-\delta\right)\,\ln x_{1}\ln x_{2}-\left(1-\delta\right)^{2}\left(\ln x_{2}\right)^{2}\biggr)\nonumber \\
+ & = & -\frac{\nu}{2}\biggl(\left(\delta-\delta^{2}\right)\left(\ln x_{1}\right)^{2}+\left(\left(1-\delta\right)-\left(1-\delta\right)^{2}\right)\left(\ln x_{2}\right)^{2}\\
+ &  & -2\delta\left(1-\delta\right)\,\ln x_{1}\ln x_{2}\biggr)\nonumber \\
+ & = & -\frac{\nu}{2}\biggl(\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}+\left(1-\delta\right)\left(1-\left(1-\delta\right)\right)\left(\ln x_{2}\right)^{2}\\
+ &  & -2\delta\left(1-\delta\right)\,\ln x_{1}\ln x_{2}\biggr)\nonumber \\
+ & = & -\frac{\nu\delta\left(1-\delta\right)}{2}\left(\left(\ln x_{1}\right)^{2}-2\,\ln x_{1}\ln x_{2}+\left(\ln x_{2}\right)^{2}\right)\\
+ & = & -\frac{\nu\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\end{eqnarray}
+so that we get following first-order Taylor series approximation around
+$\rho=0:$\begin{eqnarray}
+\ln y & \approx & \ln\gamma+\nu\delta\,\ln x_{1}+\nu\left(1-\delta\right)\,\ln x_{2}-\nu\rho\,\delta\,\left(1-\delta\right)\,\left(\ln x_{1}-\ln x_{2}\right)^{2}\end{eqnarray}
+
+
+
+\subsection{Derivatives with respect to coefficients}
+
+\label{sec:cesDerivTaylorDeriv}
+
+\begin{eqnarray}
+\frac{\partial y}{\partial\gamma} & = & \left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}}\\
+\frac{\partial y}{\partial\delta} & = & -\gamma\frac{\nu}{\rho}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}-1}\left(x_{1}^{-\rho}-x_{2}^{-\rho}\right)\\
+\frac{\partial y}{\partial\nu} & = & -\frac{\gamma}{\rho}\,\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\,\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}}\\
+\frac{\partial y}{\partial\rho} & = & \frac{\gamma\nu}{\rho^{2}}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}}\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\\
+ &  & +\frac{\gamma\nu}{\rho}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\left(\frac{\nu}{\rho}+1\right)}\left(\delta\, x_{1}^{-\rho}\ln x_{1}+\left(1-\delta\right)\, x_{2}^{-\rho}\ln x_{2}\right)\nonumber \end{eqnarray}
+
+
+
+\subsubsection{Derivatives with respect to Gamma}
+
+\begin{eqnarray}
+\frac{\partial y}{\partial\gamma} & = & \exp\left(-\frac{\nu}{\rho}\,\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\right)\\
+ & = & \exp\left(f\left(\rho\right)\right)\\
+ & \approx & \exp\left(f\left(0\right)+\rho f'\left(0\right)\right)\\
+ & = & \exp\left(\nu\delta\,\ln x_{1}+\nu\left(1-\delta\right)\,\ln x_{2}-\frac{1}{2}\nu\rho\,\delta\,\left(1-\delta\right)\,\left(\ln x_{1}-\ln x_{2}\right)^{2}\right)\\
+ & = & x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\exp\left(-\frac{1}{2}\nu\rho\,\delta\,\left(1-\delta\right)\,\left(\ln x_{1}-\ln x_{2}\right)^{2}\right)\end{eqnarray}
+
+
+
+\subsubsection{Derivatives with respect to Delta}
+
+\begin{eqnarray}
+\frac{\partial y}{\partial\delta} & = & -\gamma\frac{\nu}{\rho}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}-1}\left(x_{1}^{-\rho}-x_{2}^{-\rho}\right)\\
+ & = & -\gamma\nu\frac{x_{1}^{-\rho}-x_{2}^{-\rho}}{\rho}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}-1}\end{eqnarray}
+Now we define the function $f_{\delta}\left(\rho\right)$\begin{eqnarray}
+f_{\delta}\left(\rho\right) & = & \frac{x_{1}^{-\rho}-x_{2}^{-\rho}}{\rho}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}-1}\\
+ & = & \frac{x_{1}^{-\rho}-x_{2}^{-\rho}}{\rho}\exp\left(-\left(\frac{\nu}{\rho}+1\right)\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\right)\end{eqnarray}
+so that we can approximate $\partial y/\partial\delta$ by using the
+first-order Taylor series approximation of $f_{\delta}\left(\rho\right)$:
+\begin{eqnarray}
+\frac{\partial y}{\partial\delta} & = & -\gamma\nu\, f_{\delta}\left(\rho\right)\\
+ & \approx & -\gamma\nu\,\left(f_{\delta}\left(0\right)+\rho f_{\delta}'\left(0\right)\right)\end{eqnarray}
+Now we define the helper functions $g_{\delta}\left(\rho\right)$
+and $h_{\delta}\left(\rho\right)$\begin{eqnarray}
+g_{\delta}\left(\rho\right) & = & \left(\frac{\nu}{\rho}+1\right)\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\\
+ & = & \left(\frac{\nu}{\rho}+1\right)\ln\left(g\left(\rho\right)\right)\\
+h_{\delta}\left(\rho\right) & = & \frac{x_{1}^{-\rho}-x_{2}^{-\rho}}{\rho}\end{eqnarray}
+with first derivatives\begin{eqnarray}
+g_{\delta}'\left(\rho\right) & = & -\frac{\nu}{\rho^{2}}\ln\left(g\left(\rho\right)\right)+\left(\frac{\nu}{\rho}+1\right)\frac{g'\left(\rho\right)}{g\left(\rho\right)}\\
+h_{\delta}'\left(\rho\right) & = & \frac{-\rho\left(\ln x_{1}\, x_{1}^{-\rho}-\ln x_{2}\, x_{2}^{-\rho}\right)-x_{1}^{-\rho}+x_{2}^{-\rho}}{\rho^{2}}\end{eqnarray}
+so that\begin{equation}
+f_{\delta}\left(\rho\right)=h_{\delta}\left(\rho\right)\,\exp\left(-g_{\delta}\left(\rho\right)\right)\end{equation}
+and\begin{eqnarray}
+f_{\delta}'\left(\rho\right) & = & h_{\delta}'\left(\rho\right)\,\exp\left(-g_{\delta}\left(\rho\right)\right)-h_{\delta}\left(\rho\right)\,\exp\left(-g_{\delta}\left(\rho\right)\right)g_{\delta}'\left(\rho\right)\end{eqnarray}
+Now we can calculate the limits of $g_{\delta}\left(\rho\right)$,
+$g_{\delta}'\left(\rho\right)$, $h_{\delta}\left(\rho\right)$and
+$h_{\delta}'\left(\rho\right)$ for $\rho\rightarrow0$ by\begin{eqnarray}
+g_{\delta}\left(0\right) & = & \lim_{\rho\rightarrow0}g_{\delta}\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(\left(\frac{\nu}{\rho}+1\right)\ln\left(g\left(\rho\right)\right)\right)\\
+ & = & \lim_{\rho\rightarrow0}\frac{\left(\nu+\rho\right)\ln\left(g\left(\rho\right)\right)}{\rho}\\
+ & = & \lim_{\rho\rightarrow0}\frac{\ln\left(g\left(\rho\right)\right)+\left(\nu+\rho\right)\,\frac{g'\left(\rho\right)}{g\left(\rho\right)}}{1}\\
+ & = & \ln\left(g\left(0\right)\right)+\nu\,\frac{g'\left(0\right)}{g\left(0\right)}\\
+ & = & -\nu\delta\,\ln x_{1}-\nu\left(1-\delta\right)\,\ln x_{2}\end{eqnarray}
+\begin{eqnarray}
+g_{\delta}'\left(0\right) & = & \lim_{\rho\rightarrow0}\frac{-\nu\ln\left(g\left(\rho\right)\right)+\rho\left(\nu+\rho\right)\frac{g'\left(\rho\right)}{g\left(\rho\right)}}{\rho^{2}}\\
+ & = & \lim_{\rho\rightarrow0}\frac{-\nu\frac{g'\left(\rho\right)}{g\left(\rho\right)}+\left(\nu+\rho\right)\frac{g'\left(\rho\right)}{g\left(\rho\right)}+\rho\frac{g'\left(\rho\right)}{g\left(\rho\right)}+\rho\left(\nu+\rho\right)\frac{g''\left(\rho\right)g\left(\rho\right)-\left(g'\left(\rho\right)\right)^{2}}{\left(g\left(\rho\right)\right)^{2}}}{2\rho}\\
+ & = & \lim_{\rho\rightarrow0}\left(\frac{-\nu\frac{g'\left(\rho\right)}{g\left(\rho\right)}+\nu\frac{g'\left(\rho\right)}{g\left(\rho\right)}+\rho\frac{g'\left(\rho\right)}{g\left(\rho\right)}+\rho\frac{g'\left(\rho\right)}{g\left(\rho\right)}+\rho\left(\nu+\rho\right)\frac{g''\left(\rho\right)g\left(\rho\right)-\left(g'\left(\rho\right)\right)^{2}}{\left(g\left(\rho\right)\right)^{2}}}{2\rho}\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(\frac{g'\left(\rho\right)}{g\left(\rho\right)}+\frac{1}{2}\left(\nu+\rho\right)\frac{g''\left(\rho\right)g\left(\rho\right)-\left(g'\left(\rho\right)\right)^{2}}{\left(g\left(\rho\right)\right)^{2}}\right)\\
+ & = & \frac{g'\left(0\right)}{g\left(0\right)}+\frac{1}{2}\nu\frac{g''\left(0\right)g\left(0\right)-\left(g'\left(0\right)\right)^{2}}{\left(g\left(0\right)\right)^{2}}\\
+ & = & -\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}+\frac{\nu\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\end{eqnarray}
+\begin{eqnarray}
+h_{\delta}\left(0\right) & = & \lim_{\rho\rightarrow0}\frac{x_{1}^{-\rho}-x_{2}^{-\rho}}{\rho}\\
+ & = & \lim_{\rho\rightarrow0}\frac{-\ln x_{1}\, x_{1}^{-\rho}+\ln x_{2}\, x_{2}^{-\rho}}{1}\\
+ & = & -\ln x_{1}+\ln x_{2}\end{eqnarray}
+\begin{eqnarray}
+h_{\delta}'\left(0\right) & = & \lim_{\rho\rightarrow0}\frac{-\rho\left(\ln x_{1}\, x_{1}^{-\rho}-\ln x_{2}\, x_{2}^{-\rho}\right)-x_{1}^{-\rho}+x_{2}^{-\rho}}{\rho^{2}}\\
+ & = & \lim_{\rho\rightarrow0}\left(\frac{-\left(\ln x_{1}\, x_{1}^{-\rho}-\ln x_{2}\, x_{2}^{-\rho}\right)+\rho\left(\left(\ln x_{1}\right)^{2}\, x_{1}^{-\rho}-\left(\ln x_{2}\right)^{2}\, x_{2}^{-\rho}\right)}{2\rho}\right.\\
+ &  & \left.+\frac{\ln x_{1}\, x_{1}^{-\rho}-\ln x_{2}\, x_{2}^{-\rho}}{2\rho}\right)\nonumber \\
+ & = & \lim_{\rho\rightarrow0}\frac{1}{2}\left(\left(\ln x_{1}\right)^{2}\, x_{1}^{-\rho}-\left(\ln x_{2}\right)^{2}\, x_{2}^{-\rho}\right)\\
+ & = & \frac{1}{2}\left(\left(\ln x_{1}\right)^{2}-\left(\ln x_{2}\right)^{2}\right)\end{eqnarray}
+so that we can calculate the limit of $f_{\delta}\left(\rho\right)$and
+$f_{\delta}'\left(\rho\right)$ for $\rho\rightarrow0$ by\begin{eqnarray}
+f_{\delta}\left(0\right) & = & \lim_{\rho\rightarrow0}f_{\delta}\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(h_{\delta}\left(\rho\right)\,\exp\left(-g_{\delta}\left(\rho\right)\right)\right)\\
+ & = & \lim_{\rho\rightarrow0}h_{\delta}\left(\rho\right)\,\lim_{\rho\rightarrow0}\exp\left(-g_{\delta}\left(\rho\right)\right)\\
+ & = & \lim_{\rho\rightarrow0}h_{\delta}\left(\rho\right)\,\exp\left(-\lim_{\rho\rightarrow0}g_{\delta}\left(\rho\right)\right)\\
+ & = & h_{\delta}\left(0\right)\,\exp\left(-g_{\delta}\left(0\right)\right)\\
+ & = & \left(-\ln x_{1}+\ln x_{2}\right)\exp\left(\nu\delta\,\ln x_{1}+\nu\left(1-\delta\right)\,\ln x_{2}\right)\\
+ & = & \left(-\ln x_{1}+\ln x_{2}\right)x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\end{eqnarray}
+\begin{eqnarray}
+f'_{\delta}\left(0\right) & = & \lim_{\rho\rightarrow0}f'_{\delta}\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(h_{\delta}'\left(\rho\right)\,\exp\left(-g_{\delta}\left(\rho\right)\right)-h_{\delta}\left(\rho\right)\,\exp\left(-g_{\delta}\left(\rho\right)\right)g_{\delta}'\left(\rho\right)\right)\\
+ & = & \lim_{\rho\rightarrow0}h_{\delta}'\left(\rho\right)\,\lim_{\rho\rightarrow0}\exp\left(-g_{\delta}\left(\rho\right)\right)\\
+ &  & -\lim_{\rho\rightarrow0}h_{\delta}\left(\rho\right)\,\lim_{\rho\rightarrow0}\exp\left(-g_{\delta}\left(\rho\right)\right)\lim_{\rho\rightarrow0}g_{\delta}'\left(\rho\right)\nonumber \\
+ & = & \lim_{\rho\rightarrow0}h_{\delta}'\left(\rho\right)\,\exp\left(-\lim_{\rho\rightarrow0}g_{\delta}\left(\rho\right)\right)\\
+ &  & -\lim_{\rho\rightarrow0}h_{\delta}\left(\rho\right)\,\exp\left(-\lim_{\rho\rightarrow0}g_{\delta}\left(\rho\right)\right)\lim_{\rho\rightarrow0}g_{\delta}'\left(\rho\right)\nonumber \\
+ & = & h_{\delta}'\left(0\right)\,\exp\left(-g_{\delta}\left(0\right)\right)-h_{\delta}\left(0\right)\,\exp\left(-g_{\delta}\left(0\right)\right)g_{\delta}'\left(0\right)\\
+ & = & \exp\left(-g_{\delta}\left(0\right)\right)\,\left(h_{\delta}'\left(0\right)-h_{\delta}\left(0\right)\, g_{\delta}'\left(0\right)\right)\\
+ & = & \exp\left(\nu\delta\,\ln x_{1}+\nu\left(1-\delta\right)\,\ln x_{2}\right)\left(\frac{1}{2}\left(\left(\ln x_{1}\right)^{2}-\left(\ln x_{2}\right)^{2}\right)\right.\\
+ &  & -\left(-\ln x_{1}+\ln x_{2}\right)\nonumber \\
+ &  & \left.\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}+\frac{\nu\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\right)\right)\nonumber \\
+ & = & x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\frac{1}{2}\left(\ln x_{1}\right)^{2}-\frac{1}{2}\left(\ln x_{2}\right)^{2}\right.\\
+ &  & +\left(\ln x_{1}-\ln x_{2}\right)\nonumber \\
+ &  & \left.\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}+\frac{\nu\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\right)\right)\nonumber \\
+ & = & x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\frac{1}{2}\left(\ln x_{1}\right)^{2}-\frac{1}{2}\left(\ln x_{2}\right)^{2}-\delta\,\left(\ln x_{1}\right)^{2}\right.\\
+ &  & -\left(1-\delta\right)\ln x_{1}\,\ln x_{2}+\frac{\nu\delta\left(1-\delta\right)}{2}\ln x_{1}\left(\ln x_{1}-\ln x_{2}\right)^{2}\nonumber \\
+ &  & \left.+\delta\,\ln x_{1}\,\ln x_{2}+\left(1-\delta\right)\left(\ln x_{2}\right)^{2}-\frac{\nu\delta\left(1-\delta\right)}{2}\ln x_{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\right)\nonumber \\
+ & = & x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\left(\frac{1}{2}-\delta\right)\left(\ln x_{1}\right)^{2}+\left(\frac{1}{2}-\delta\right)\left(\ln x_{2}\right)^{2}\right.\\
+ &  & \left.-2\left(\frac{1}{2}-\delta\right)\ln x_{1}\,\ln x_{2}+\frac{\nu\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)\left(\ln x_{1}-\ln x_{2}\right)^{2}\right)\nonumber \\
+ & = & x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\left(\frac{1}{2}-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)^{2}\right.\\
+ &  & \left.+\frac{\nu\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)\left(\ln x_{1}-\ln x_{2}\right)^{2}\right)\nonumber \\
+ & = & x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\frac{1}{2}-\delta+\frac{\nu\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)\right)\left(\ln x_{1}-\ln x_{2}\right)^{2}\\
+ & = & \frac{1-2\delta+\nu\delta\left(1-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)}{2}\, x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\ln x_{1}-\ln x_{2}\right)^{2}\end{eqnarray}
+and approximate $\partial y/\partial\delta$ by\begin{eqnarray}
+\frac{\partial y}{\partial\delta} & \approx & -\gamma\nu\,\left(f_{\delta}\left(0\right)+\rho f_{\delta}'\left(0\right)\right)\\
+ & = & -\gamma\nu\,\left(\left(-\ln x_{1}+\ln x_{2}\right)x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\right.\\
+ &  & \left.+\rho\frac{1-2\delta+\nu\delta\left(1-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)}{2}\, x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\ln x_{1}-\ln x_{2}\right)^{2}\right)\nonumber \\
+ & = & \gamma\nu\,\left(\left(\ln x_{1}-\ln x_{2}\right)x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\right.\\
+ &  & \left.-\rho\frac{1-2\delta+\nu\delta\left(1-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)}{2}\, x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\ln x_{1}-\ln x_{2}\right)^{2}\right)\nonumber \\
+ & = & \gamma\nu\,\left(\ln x_{1}-\ln x_{2}\right)x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\\
+ &  & \left(1-\rho\frac{1-2\delta+\nu\delta\left(1-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)}{2}\,\left(\ln x_{1}-\ln x_{2}\right)\right)\nonumber \end{eqnarray}
+
+
+
+\subsubsection{Derivatives with respect to Nu}
+
+\begin{equation}
+\frac{\partial y}{\partial\nu}=-\frac{\gamma}{\rho}\,\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\,\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}}\end{equation}
+Now we define the function $f_{\nu}\left(\rho\right)$\begin{eqnarray}
+f_{\nu}\left(\rho\right) & = & \frac{1}{\rho}\,\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\,\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}}\\
+ & = & \frac{1}{\rho}\,\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\,\exp\left(-\frac{\nu}{\rho}\,\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\right)\end{eqnarray}
+so that we can approximate $\partial y/\partial\nu$ by using the
+first-order Taylor series approximation of $f_{\nu}\left(\rho\right)$:
+\begin{eqnarray}
+\frac{\partial y}{\partial\nu} & = & -\gamma\, f_{\nu}\left(\rho\right)\\
+ & \approx & -\gamma\,\left(f_{\nu}\left(0\right)+\rho f_{\nu}'\left(0\right)\right)\end{eqnarray}
+Now we define the helper function $g_{\nu}\left(\rho\right)$ \begin{eqnarray}
+g_{\nu}\left(\rho\right) & = & \frac{1}{\rho}\,\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\\
+ & = & \frac{1}{\rho}\,\ln\left(g\left(\rho\right)\right)\end{eqnarray}
+with first and second derivative\begin{eqnarray}
+g_{\nu}'\left(\rho\right) & = & \frac{\rho\frac{g'\left(\rho\right)}{g\left(\rho\right)}-\ln\left(g\left(\rho\right)\right)}{\rho^{2}}\\
+ & = & \frac{1}{\rho}\,\frac{g'\left(\rho\right)}{g\left(\rho\right)}-\frac{\ln\left(g\left(\rho\right)\right)}{\rho^{2}}\\
+g_{\nu}''\left(\rho\right) & = & -\frac{1}{\rho^{2}}\,\frac{g'\left(\rho\right)}{g\left(\rho\right)}+\frac{1}{\rho}\,\frac{g''\left(\rho\right)}{g\left(\rho\right)}-\frac{1}{\rho}\,\frac{\left(g'\left(\rho\right)\right)^{2}}{\left(g\left(\rho\right)\right)^{2}}+2\frac{\ln\left(g\left(\rho\right)\right)}{\rho^{3}}-\frac{1}{\rho^{2}}\frac{g'\left(\rho\right)}{g\left(\rho\right)}\\
+ & = & \frac{-2\rho\,\frac{g'\left(\rho\right)}{g\left(\rho\right)}+\rho^{2}\,\frac{g''\left(\rho\right)}{g\left(\rho\right)}-\rho^{2}\,\frac{\left(g'\left(\rho\right)\right)^{2}}{\left(g\left(\rho\right)\right)^{2}}+2\ln\left(g\left(\rho\right)\right)}{\rho^{3}}\end{eqnarray}
+and use the function $f\left(\rho\right)$ defined above so that\begin{equation}
+f_{\nu}\left(\rho\right)=g_{\nu}\left(\rho\right)\,\exp\left(f\left(\rho\right)\right)\end{equation}
+and\begin{eqnarray}
+f_{\nu}'\left(\rho\right) & = & g_{\nu}'\left(\rho\right)\,\exp\left(f\left(\rho\right)\right)+g_{\nu}\left(\rho\right)\,\exp\left(f\left(\rho\right)\right)\, f'\left(\rho\right)\end{eqnarray}
+Now we can calculate the limits of $g_{\nu}\left(\rho\right)$, $g_{\nu}'\left(\rho\right)$,
+and $g_{\nu}''\left(\rho\right)$ for $\rho\rightarrow0$ by\begin{eqnarray}
+g_{\nu}\left(0\right) & = & \lim_{\rho\rightarrow0}g_{\nu}\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\frac{\ln\left(g\left(\rho\right)\right)}{\rho}\\
+ & = & \lim_{\rho\rightarrow0}\frac{\frac{g'\left(\rho\right)}{g\left(\rho\right)}}{1}\\
+ & = & -\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\end{eqnarray}
+\begin{eqnarray}
+g_{\nu}'\left(0\right) & = & \lim_{\rho\rightarrow0}g_{\nu}'\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(\frac{1}{\rho}\,\frac{g'\left(\rho\right)}{g\left(\rho\right)}-\frac{\ln\left(g\left(\rho\right)\right)}{\rho^{2}}\right)\\
+ & = & \lim_{\rho\rightarrow0}\frac{\rho\,\frac{g'\left(\rho\right)}{g\left(\rho\right)}-\ln\left(g\left(\rho\right)\right)}{\rho^{2}}\\
+ & = & \lim_{\rho\rightarrow0}\frac{\frac{g'\left(\rho\right)}{g\left(\rho\right)}+\rho\,\frac{g''\left(\rho\right)g\left(\rho\right)-\left(g'\left(\rho\right)\right)^{2}}{\left(g\left(\rho\right)\right)^{2}}-\frac{g'\left(\rho\right)}{g\left(\rho\right)}}{2\rho}\\
+ & = & \lim_{\rho\rightarrow0}\frac{g''\left(\rho\right)g\left(\rho\right)-\left(g'\left(\rho\right)\right)^{2}}{2\left(g\left(\rho\right)\right)^{2}}\\
+ & = & \frac{g''\left(0\right)g\left(0\right)-\left(g'\left(0\right)\right)^{2}}{2\left(g\left(0\right)\right)^{2}}\\
+ & = & \frac{1}{2}\left(\delta\left(\ln x_{1}\right)^{2}+\left(1-\delta\right)\left(\ln x_{2}\right)^{2}-\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)^{2}\right)\\
+ & = & \frac{1}{2}\biggl(\delta\left(\ln x_{1}\right)^{2}+\left(1-\delta\right)\left(\ln x_{2}\right)^{2}-\delta^{2}\left(\ln x_{1}\right)^{2}\\
+ &  & -2\delta\left(1-\delta\right)\,\ln x_{1}\ln x_{2}-\left(1-\delta\right)^{2}\left(\ln x_{2}\right)^{2}\biggr)\nonumber \\
+ & = & \frac{1}{2}\biggl(\left(\delta-\delta^{2}\right)\left(\ln x_{1}\right)^{2}+\left(\left(1-\delta\right)-\left(1-\delta\right)^{2}\right)\left(\ln x_{2}\right)^{2}\\
+ &  & -2\delta\left(1-\delta\right)\,\ln x_{1}\ln x_{2}\biggr)\nonumber \\
+ & = & \frac{1}{2}\biggl(\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}+\left(1-\delta\right)\left(1-\left(1-\delta\right)\right)\left(\ln x_{2}\right)^{2}\\
+ &  & -2\delta\left(1-\delta\right)\,\ln x_{1}\ln x_{2}\biggr)\nonumber \\
+ & = & \frac{\delta\left(1-\delta\right)}{2}\left(\left(\ln x_{1}\right)^{2}-2\,\ln x_{1}\ln x_{2}+\left(\ln x_{2}\right)^{2}\right)\\
+ & = & \frac{\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\end{eqnarray}
+\begin{eqnarray}
+g_{\nu}''\left(0\right) & = & \lim_{\rho\rightarrow0}g_{\nu}''\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(\frac{-2\rho\,\frac{g'\left(\rho\right)}{g\left(\rho\right)}+\rho^{2}\,\frac{g''\left(\rho\right)}{g\left(\rho\right)}-\rho^{2}\,\frac{\left(g'\left(\rho\right)\right)^{2}}{\left(g\left(\rho\right)\right)^{2}}+2\ln\left(g\left(\rho\right)\right)}{\rho^{3}}\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(\frac{-2\frac{g'\left(\rho\right)}{g\left(\rho\right)}-2\rho\,\frac{g''\left(\rho\right)}{g\left(\rho\right)}+2\rho\,\frac{\left(g'\left(\rho\right)\right)^{2}}{\left(g\left(\rho\right)\right)^{2}}+2\rho\,\frac{g''\left(\rho\right)}{g\left(\rho\right)}+\rho^{2}\,\frac{g'''\left(\rho\right)}{g\left(\rho\right)}}{3\rho^{2}}\right.\\
+ &  & \left.+\frac{-\rho^{2}\,\frac{g''\left(\rho\right)g'\left(\rho\right)}{\left(g\left(\rho\right)\right)^{2}}-2\rho\,\frac{\left(g'\left(\rho\right)\right)^{2}}{\left(g\left(\rho\right)\right)^{2}}-2\rho^{2}\,\frac{g'\left(\rho\right)g''\left(\rho\right)}{\left(g\left(\rho\right)\right)^{2}}+2\rho^{2}\,\frac{\left(g'\left(\rho\right)\right)^{3}}{\left(g\left(\rho\right)\right)^{3}}+2\frac{g'\left(\rho\right)}{g\left(\rho\right)}}{3\rho^{2}}\right)\nonumber \\
+ & = & \lim_{\rho\rightarrow0}\left(\frac{\rho^{2}\,\frac{g'''\left(\rho\right)}{g\left(\rho\right)}-3\rho^{2}\,\frac{g''\left(\rho\right)g'\left(\rho\right)}{\left(g\left(\rho\right)\right)^{2}}+2\rho^{2}\,\frac{\left(g'\left(\rho\right)\right)^{3}}{\left(g\left(\rho\right)\right)^{3}}}{3\rho^{2}}\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(\frac{1}{3}\,\frac{g'''\left(\rho\right)}{g\left(\rho\right)}-\frac{g''\left(\rho\right)g'\left(\rho\right)}{\left(g\left(\rho\right)\right)^{2}}+\frac{2}{3}\,\frac{\left(g'\left(\rho\right)\right)^{3}}{\left(g\left(\rho\right)\right)^{3}}\right)\\
+ & = & \frac{1}{3}\,\frac{g'''\left(0\right)}{g\left(0\right)}-\frac{g''\left(0\right)g'\left(0\right)}{\left(g\left(0\right)\right)^{2}}+\frac{2}{3}\,\frac{\left(g'\left(0\right)\right)^{3}}{\left(g\left(0\right)\right)^{3}}\\
+ & = & \frac{1}{3}\,\left(-\delta\left(\ln x_{1}\right)^{3}-\left(1-\delta\right)\left(\ln x_{2}\right)^{3}\right)\\
+ &  & -\left(\delta\left(\ln x_{1}\right)^{2}+\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\right)\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)\nonumber \\
+ &  & +\frac{2}{3}\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\ln x_{2}\right)^{3}\nonumber \\
+ & = & -\frac{1}{3}\delta\left(\ln x_{1}\right)^{3}-\frac{1}{3}\left(1-\delta\right)\left(\ln x_{2}\right)^{3}+\delta^{2}\left(\ln x_{1}\right)^{3}\\
+ &  & +\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}+\delta\left(1-\delta\right)\ln x_{1}\,\left(\ln x_{2}\right)^{2}+\left(1-\delta\right)^{2}\left(\ln x_{2}\right)^{3}\nonumber \\
+ &  & +\frac{2}{3}\left(\delta^{2}\left(\ln x_{1}\right)^{2}+2\delta\left(1-\delta\right)\ln x_{1}\,\ln x_{2}+\left(1-\delta\right)^{2}\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ &  & \left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)\nonumber \\
+ & = & \left(\delta^{2}-\frac{1}{3}\delta\right)\left(\ln x_{1}\right)^{3}+\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\\
+ &  & +\delta\left(1-\delta\right)\ln x_{1}\,\left(\ln x_{2}\right)^{2}+\left(\left(1-\delta\right)^{2}-\frac{1}{3}\left(1-\delta\right)\right)\left(\ln x_{2}\right)^{3}\nonumber \\
+ &  & +\frac{2}{3}\left(\delta^{2}\left(\ln x_{1}\right)^{2}+2\delta\left(1-\delta\right)\ln x_{1}\,\ln x_{2}+\left(1-\delta\right)^{2}\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ &  & \left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)\nonumber \\
+ & = & \left(\delta^{2}-\frac{1}{3}\delta\right)\left(\ln x_{1}\right)^{3}+\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\\
+ &  & +\delta\left(1-\delta\right)\ln x_{1}\,\left(\ln x_{2}\right)^{2}+\left(\left(1-\delta\right)^{2}-\frac{1}{3}\left(1-\delta\right)\right)\left(\ln x_{2}\right)^{3}\nonumber \\
+ &  & -\frac{2}{3}\left(\delta^{3}\left(\ln x_{1}\right)^{3}+\delta^{2}\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\,\ln x_{2}+2\delta^{2}\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\right.\nonumber \\
+ &  & \left.+2\delta\left(1-\delta\right)^{2}\ln x_{1}\left(\ln x_{2}\right)^{2}+\delta\left(1-\delta\right)^{2}\ln x_{1}\left(\ln x_{2}\right)^{2}+\left(1-\delta\right)^{3}\left(\ln x_{2}\right)^{3}\right)\nonumber \\
+ & = & \left(\delta^{2}-\frac{1}{3}\delta\right)\left(\ln x_{1}\right)^{3}+\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\\
+ &  & +\delta\left(1-\delta\right)\ln x_{1}\,\left(\ln x_{2}\right)^{2}+\left(\left(1-\delta\right)^{2}-\frac{1}{3}\left(1-\delta\right)\right)\left(\ln x_{2}\right)^{3}\nonumber \\
+ &  & -\frac{2}{3}\delta^{3}\left(\ln x_{1}\right)^{3}-2\delta^{2}\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\,\ln x_{2}-2\delta\left(1-\delta\right)^{2}\ln x_{1}\left(\ln x_{2}\right)^{2}\nonumber \\
+ &  & -\frac{2}{3}\left(1-\delta\right)^{3}\left(\ln x_{2}\right)^{3}\nonumber \\
+ & = & \left(\delta^{2}-\frac{1}{3}\delta-\frac{2}{3}\delta^{3}\right)\left(\ln x_{1}\right)^{3}+\left(\delta\left(1-\delta\right)-2\delta^{2}\left(1-\delta\right)\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\\
+ &  & +\left(\delta\left(1-\delta-2\delta\left(1-\delta\right)^{2}\right)\right)\ln x_{1}\,\left(\ln x_{2}\right)^{2}\nonumber \\
+ &  & +\left(\left(1-\delta\right)^{2}-\frac{1}{3}\left(1-\delta\right)-\frac{2}{3}\left(1-\delta\right)^{3}\right)\left(\ln x_{2}\right)^{3}\nonumber \\
+ & = & \left(\delta-\frac{1}{3}-\frac{2}{3}\delta^{2}\right)\delta\left(\ln x_{1}\right)^{3}+\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\\
+ &  & +\left(1-2\left(1-\delta\right)\right)\delta\left(1-\delta\right)\ln x_{1}\,\left(\ln x_{2}\right)^{2}\nonumber \\
+ &  & +\left(\left(1-\delta\right)-\frac{1}{3}-\frac{2}{3}\left(1-\delta\right)^{2}\right)\left(1-\delta\right)\left(\ln x_{2}\right)^{3}\nonumber \\
+ & = & \left(-\frac{1}{3}+\frac{2}{3}\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{3}+\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\\
+ &  & +\left(2\delta-1\right)\delta\left(1-\delta\right)\ln x_{1}\,\left(\ln x_{2}\right)^{2}\nonumber \\
+ &  & +\left(1-\delta-\frac{1}{3}-\frac{2}{3}+\frac{4}{3}\delta-\frac{2}{3}\delta^{2}\right)\left(1-\delta\right)\left(\ln x_{2}\right)^{3}\nonumber \\
+ & = & \left(-\frac{1}{3}+\frac{2}{3}\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{3}+\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\\
+ &  & +\left(2\delta-1\right)\delta\left(1-\delta\right)\ln x_{1}\,\left(\ln x_{2}\right)^{2}+\left(\frac{1}{3}-\frac{2}{3}\delta\right)\delta\left(1-\delta\right)\left(\ln x_{2}\right)^{3}\nonumber \\
+ & = & -\frac{1}{3}\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{3}+\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\\
+ &  & -\left(1-2\delta\right)\delta\left(1-\delta\right)\ln x_{1}\,\left(\ln x_{2}\right)^{2}+\frac{1}{3}\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{2}\right)^{3}\nonumber \\
+ & = & -\frac{1}{3}\left(1-2\delta\right)\delta\left(1-\delta\right)\\
+ &  & \left(\left(\ln x_{1}\right)^{3}+3\left(\ln x_{1}\right)^{2}\ln x_{2}+3\ln x_{1}\,\left(\ln x_{2}\right)^{2}-\left(\ln x_{2}\right)^{3}\right)\nonumber \\
+ & = & -\frac{1}{3}\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)^{3}\end{eqnarray}
+so that we can calculate the limit of $f_{\nu}\left(\rho\right)$and
+$f_{\nu}'\left(\rho\right)$ for $\rho\rightarrow0$ by\begin{eqnarray}
+f_{\nu}\left(0\right) & = & \lim_{\rho\rightarrow0}f_{\nu}\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(g_{\nu}\left(\rho\right)\,\exp\left(f\left(\rho\right)\right)\right)\\
+ & = & \lim_{\rho\rightarrow0}g_{\nu}\left(\rho\right)\,\lim_{\rho\rightarrow0}\exp\left(f\left(\rho\right)\right)\\
+ & = & \lim_{\rho\rightarrow0}g_{\nu}\left(\rho\right)\,\exp\left(\lim_{\rho\rightarrow0}f\left(\rho\right)\right)\\
+ & = & g_{\nu}\left(0\right)\,\exp\left(f\left(0\right)\right)\\
+ & = & \left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)\exp\left(\nu\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)\right)\\
+ & = & -\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\end{eqnarray}
+\begin{eqnarray}
+f_{\nu}'\left(0\right) & = & \lim_{\rho\rightarrow0}f_{\nu}'\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(g_{\nu}'\left(\rho\right)\,\exp\left(f\left(\rho\right)\right)+g_{\nu}\left(\rho\right)\,\exp\left(f\left(\rho\right)\right)\, f'\left(\rho\right)\right)\\
+ & = & \lim_{\rho\rightarrow0}g_{\nu}'\left(\rho\right)\,\exp\left(\lim_{\rho\rightarrow0}f\left(\rho\right)\right)+\lim_{\rho\rightarrow0}g_{\nu}\left(\rho\right)\,\exp\left(\lim_{\rho\rightarrow0}f\left(\rho\right)\right)\lim_{\rho\rightarrow0}f'\left(\rho\right)\\
+ & = & g_{\nu}'\left(0\right)\,\exp\left(f\left(0\right)\right)+g_{\nu}\left(0\right)\,\exp\left(f\left(0\right)\right)f'\left(0\right)\\
+ & = & \exp\left(f\left(0\right)\right)\left(g_{\nu}'\left(0\right)+g_{\nu}\left(0\right)\, f'\left(0\right)\right)\\
+ & = & \exp\left(\nu\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)\right)\left(\frac{\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\right.\\
+ &  & \left.+\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)\left(-\frac{\nu\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\right)\right)\nonumber \\
+ & = & x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\frac{\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\left(1+\nu\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)\right)\end{eqnarray}
+and approximate $\partial y/\partial\nu$ by\begin{eqnarray}
+\frac{\partial y}{\partial\nu} & \approx & -\gamma\,\left(f_{\nu}\left(0\right)+\rho f_{\nu}'\left(0\right)\right)\\
+ & = & \gamma\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\\
+ &  & -\gamma\rho x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\frac{\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\nonumber \\
+ &  & \left(1+\nu\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)\right)\nonumber \\
+ & = & \gamma x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\biggl(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\\
+ &  & -\frac{\rho\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\left(1+\nu\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)\right)\biggr)\nonumber \end{eqnarray}
+
+
+
+\subsubsection{Derivatives with respect to Rho}
+
+\begin{eqnarray}
+\frac{\partial y}{\partial\rho} & = & \frac{\gamma\nu}{\rho^{2}}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}}\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\\
+ &  & +\frac{\gamma\nu}{\rho}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\left(\frac{\nu}{\rho}+1\right)}\left(\delta\, x_{1}^{-\rho}\ln x_{1}+\left(1-\delta\right)\, x_{2}^{-\rho}\ln x_{2}\right)\nonumber \\
+ & = & \gamma\nu\left(\frac{1}{\rho^{2}}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}}\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\right.\\
+ &  & \left.+\frac{1}{\rho}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\left(\frac{\nu}{\rho}+1\right)}\left(\delta\, x_{1}^{-\rho}\ln x_{1}+\left(1-\delta\right)\, x_{2}^{-\rho}\ln x_{2}\right)\right)\nonumber \end{eqnarray}
+Now we define the function $f_{\rho}\left(\rho\right)$\begin{eqnarray}
+f_{\rho}\left(\rho\right) & = & \frac{1}{\rho^{2}}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}}\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\\
+ &  & +\frac{1}{\rho}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\left(\frac{\nu}{\rho}+1\right)}\left(\delta\, x_{1}^{-\rho}\ln x_{1}+\left(1-\delta\right)\, x_{2}^{-\rho}\ln x_{2}\right)\nonumber \end{eqnarray}
+so that we can approximate $\partial y/\partial\rho$ by using the
+first-order Taylor series approximation of $f_{\rho}\left(\rho\right)$:
+\begin{eqnarray}
+\frac{\partial y}{\partial\rho} & = & \gamma\nu\, f_{\rho}\left(\rho\right)\\
+ & \approx & \gamma\nu\,\left(f_{\rho}\left(0\right)+\rho f_{\rho}'\left(0\right)\right)\end{eqnarray}
+We define the helper function $g_{\rho}\left(\rho\right)$\begin{equation}
+g_{\rho}\left(\rho\right)=\delta\, x_{1}^{-\rho}\ln x_{1}+\left(1-\delta\right)\, x_{2}^{-\rho}\ln x_{2}\end{equation}
+with first and second derivative\begin{eqnarray}
+g_{\rho}'\left(\rho\right) & = & -\delta\, x_{1}^{-\rho}\left(\ln x_{1}\right)^{2}-\left(1-\delta\right)\, x_{2}^{-\rho}\left(\ln x_{2}\right)^{2}\\
+g_{\rho}''\left(\rho\right) & = & \delta\, x_{1}^{-\rho}\left(\ln x_{1}\right)^{3}+\left(1-\delta\right)\, x_{2}^{-\rho}\left(\ln x_{2}\right)^{3}\end{eqnarray}
+and use the functions $g\left(\rho\right)$ and $g_{\nu}\left(\rho\right)$
+all defined above so that\begin{eqnarray}
+f_{\rho}\left(\rho\right) & = & \frac{1}{\rho^{2}}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}}\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\\
+ &  & +\frac{1}{\rho}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\left(\frac{\nu}{\rho}+1\right)}\left(\delta\, x_{1}^{-\rho}\ln x_{1}+\left(1-\delta\right)\, x_{2}^{-\rho}\ln x_{2}\right)\nonumber \\
+ & = & \frac{1}{\rho^{2}}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}}\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\\
+ &  & +\frac{1}{\rho}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-1}\nonumber \\
+ &  & \left(\delta\, x_{1}^{-\rho}\ln x_{1}+\left(1-\delta\right)\, x_{2}^{-\rho}\ln x_{2}\right)\nonumber \\
+ & = & \frac{1}{\rho}\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-\frac{\nu}{\rho}}\left(\frac{1}{\rho}\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\right.\\
+ &  & \left.+\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-1}\left(\delta\, x_{1}^{-\rho}\ln x_{1}+\left(1-\delta\right)\, x_{2}^{-\rho}\ln x_{2}\right)\right)\nonumber \\
+ & = & \frac{1}{\rho}\exp\left(-\frac{\nu}{\rho}\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\right)\left(\frac{1}{\rho}\ln\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)\right.\\
+ &  & \left.+\left(\delta\, x_{1}^{-\rho}+\left(1-\delta\right)\, x_{2}^{-\rho}\right)^{-1}\left(\delta\, x_{1}^{-\rho}\ln x_{1}+\left(1-\delta\right)\, x_{2}^{-\rho}\ln x_{2}\right)\right)\nonumber \\
+ & = & \frac{\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\left(g_{\nu}\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)}{\rho}\end{eqnarray}
+and we can calculate its first derivative\begin{eqnarray}
+f_{\rho}'\left(\rho\right) & = & \frac{-\rho\nu\,\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\, g_{\nu}'\left(\rho\right)\left(g_{\nu}\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)}{\rho^{2}}\\
+ &  & +\frac{\rho\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\left(g_{\nu}'\left(\rho\right)-g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)\right)}{\rho^{2}}\nonumber \\
+ &  & -\frac{\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\left(g_{\nu}\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)}{\rho^{2}}\nonumber \\
+ & = & \frac{\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\rho\left(-\nu g_{\nu}'\left(\rho\right)g_{\nu}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)}{\rho^{2}}\\
+ &  & +\frac{\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\rho\left(g_{\nu}'\left(\rho\right)-g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)\right)}{\rho^{2}}\nonumber \\
+ &  & -\frac{\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\left(g_{\nu}\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)}{\rho^{2}}\nonumber \\
+ & = & \frac{\exp\left(-\nu g_{\nu}\left(\rho\right)\right)}{\rho^{2}}\left(\rho\left(-\nu g_{\nu}'\left(\rho\right)g_{\nu}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right.\right.\\
+ &  & \left.+g_{\nu}'\left(\rho\right)-g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)\right)\nonumber \\
+ &  & \left.-g_{\nu}\left(\rho\right)-g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)\nonumber \\
+ & = & \frac{\exp\left(-\nu g_{\nu}\left(\rho\right)\right)}{\rho^{2}}\left(-\nu\rho g_{\nu}'\left(\rho\right)g_{\nu}\left(\rho\right)-\nu\rho g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right.\\
+ &  & +\rho g_{\nu}'\left(\rho\right)-\rho g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)+\rho g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)\nonumber \\
+ &  & \left.-g_{\nu}\left(\rho\right)-g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)\nonumber \end{eqnarray}
+Now we can calculate the limits of $g_{\rho}\left(\rho\right)$, $g_{\rho}'\left(\rho\right)$,
+and $g_{\rho}''\left(\rho\right)$ for $\rho\rightarrow0$ by\begin{eqnarray}
+g_{\rho}\left(0\right) & = & \lim_{\rho\rightarrow0}g_{\rho}\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(\delta\, x_{1}^{-\rho}\ln x_{1}+\left(1-\delta\right)\, x_{2}^{-\rho}\ln x_{2}\right)\\
+ & = & \delta\,\ln x_{1}\,\lim_{\rho\rightarrow0}x_{1}^{-\rho}+\left(1-\delta\right)\,\ln x_{2}\,\lim_{\rho\rightarrow0}x_{2}^{-\rho}\\
+ & = & \delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\end{eqnarray}
+\begin{eqnarray}
+g_{\rho}'\left(0\right) & = & \lim_{\rho\rightarrow0}g_{\rho}'\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(-\delta\, x_{1}^{-\rho}\left(\ln x_{1}\right)^{2}-\left(1-\delta\right)\, x_{2}^{-\rho}\left(\ln x_{2}\right)^{2}\right)\\
+ & = & -\delta\left(\ln x_{1}\right)^{2}\lim_{\rho\rightarrow0}x_{1}^{-\rho}-\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\lim_{\rho\rightarrow0}x_{2}^{-\rho}\\
+ & = & -\delta\left(\ln x_{1}\right)^{2}-\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\end{eqnarray}
+\begin{eqnarray}
+g_{\rho}''\left(0\right) & = & \lim_{\rho\rightarrow0}g_{\rho}''\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(\delta\, x_{1}^{-\rho}\left(\ln x_{1}\right)^{3}+\left(1-\delta\right)\, x_{2}^{-\rho}\left(\ln x_{2}\right)^{3}\right)\\
+ & = & \delta\left(\ln x_{1}\right)^{3}\lim_{\rho\rightarrow0}x_{1}^{-\rho}+\left(1-\delta\right)\left(\ln x_{2}\right)^{3}\lim_{\rho\rightarrow0}x_{2}^{-\rho}\\
+ & = & \delta\left(\ln x_{1}\right)^{3}+\left(1-\delta\right)\left(\ln x_{2}\right)^{3}\end{eqnarray}
+so that we can calculate the limit of $f_{\rho}\left(\rho\right)$
+for $\rho\rightarrow0$ by\begin{eqnarray}
+f_{\rho}\left(0\right) & = & \lim_{\rho\rightarrow0}f_{\rho}\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(\frac{\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\left(g_{\nu}\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)}{\rho}\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(\frac{-\nu\,\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\, g_{\nu}'\left(\rho\right)\left(g_{\nu}\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)}{1}\right.\\
+ &  & \left.+\frac{\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\left(g_{\nu}'\left(\rho\right)-g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)\right)}{1}\right)\nonumber \\
+ & = & -\nu\,\exp\left(-\nu g_{\nu}\left(0\right)\right)\, g_{\nu}'\left(0\right)\left(g_{\nu}\left(0\right)+g\left(0\right)^{-1}g_{\rho}\left(0\right)\right)\\
+ &  & +\exp\left(-\nu g_{\nu}\left(0\right)\right)\left(g_{\nu}'\left(0\right)-g\left(0\right)^{-2}g'\left(0\right)\, g_{\rho}\left(0\right)+g\left(0\right)^{-1}g_{\rho}'\left(0\right)\right)\nonumber \\
+ & = & \exp\left(-\nu g_{\nu}\left(0\right)\right)\left(-\nu\, g_{\nu}'\left(0\right)\right)\left(g_{\nu}\left(0\right)+g\left(0\right)^{-1}g_{\rho}\left(0\right)\right)\\
+ &  & +\exp\left(-\nu g_{\nu}\left(0\right)\right)\left(g_{\nu}'\left(0\right)-g\left(0\right)^{-2}g'\left(0\right)\, g_{\rho}\left(0\right)+g\left(0\right)^{-1}g_{\rho}'\left(0\right)\right)\nonumber \\
+ & = & \exp\left(-\nu g_{\nu}\left(0\right)\right)\left(\left(-\nu\, g_{\nu}'\left(0\right)\right)\left(g_{\nu}\left(0\right)+g\left(0\right)^{-1}g_{\rho}\left(0\right)\right)\right.\\
+ &  & \left.+g_{\nu}'\left(0\right)-g\left(0\right)^{-2}g'\left(0\right)\, g_{\rho}\left(0\right)+g\left(0\right)^{-1}g_{\rho}'\left(0\right)\right)\nonumber \\
+ & = & \exp\left(-\nu\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)\right)\left(-\frac{\nu\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\right.\\
+ &  & \left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}+\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)\nonumber \\
+ &  & +\frac{\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\nonumber \\
+ &  & -\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)\nonumber \\
+ &  & \left.-\delta\left(\ln x_{1}\right)^{2}-\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ & = & x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\frac{1}{2}\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}-\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}\right.\\
+ &  & +\frac{1}{2}\delta\left(1-\delta\right)\left(\ln x_{2}\right)^{2}+\delta^{2}\left(\ln x_{1}\right)^{2}+2\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}\nonumber \\
+ &  & \left.+\left(1-\delta\right)^{2}\,\left(\ln x_{2}\right)^{2}-\delta\left(\ln x_{1}\right)^{2}-\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ & = & x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\left(\frac{1}{2}\delta\left(1-\delta\right)+\delta^{2}-\delta\right)\left(\ln x_{1}\right)^{2}\right.\\
+ &  & +\left(\frac{1}{2}\delta\left(1-\delta\right)+\left(1-\delta\right)^{2}-\left(1-\delta\right)\right)\nonumber \\
+ &  & \left.\left(\ln x_{2}\right)^{2}+\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}\right)\nonumber \\
+ & = & x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\left(\frac{1}{2}\delta-\frac{1}{2}\delta^{2}+\delta^{2}-\delta\right)\left(\ln x_{1}\right)^{2}\right.\\
+ &  & +\left(\frac{1}{2}\delta-\frac{1}{2}\delta^{2}+1-2\delta+\delta^{2}-1+\delta\right)\left(\ln x_{2}\right)^{2}\nonumber \\
+ &  & \left.+\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}\right)\nonumber \\
+ & = & x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\Biggl(\left(-\frac{1}{2}\delta+\frac{1}{2}\delta^{2}\right)\left(\ln x_{1}\right)^{2}\\
+ &  & +\left(-\frac{1}{2}\delta+\frac{1}{2}\delta^{2}\right)\left(\ln x_{2}\right)^{2}+\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}\Biggr)\nonumber \\
+ & = & x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\Biggl(-\frac{1}{2}\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\\
+ &  & -\frac{1}{2}\delta\left(1-\delta\right)\left(\ln x_{2}\right)^{2}+\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}\Biggr)\nonumber \\
+ & = & -\frac{1}{2}\delta\left(1-\delta\right)x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\left(\ln x_{1}\right)^{2}-2\ln x_{1}\ln x_{2}+\left(\ln x_{2}\right)^{2}\right)\\
+ & = & -\frac{1}{2}\delta\left(1-\delta\right)x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\ln x_{1}-\ln x_{2}\right)^{2}\end{eqnarray}
+Before we can apply de l'Hospital's rule to $\lim_{\rho\rightarrow0}f_{\rho}'\left(\rho\right)$,
+we have to check whether also the numerator converges to zero. We
+do this by defining a helper function $h_{\rho}\left(\rho\right)$,
+where the numerator converges to zero if $h_{\rho}\left(\rho\right)$
+converges to zero for $\rho\rightarrow0$ \begin{eqnarray}
+h_{\rho}\left(\rho\right) & = & -g_{\nu}\left(\rho\right)-g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\\
+h_{\rho}\left(0\right) & = & \lim_{\rho\rightarrow0}h_{\rho}\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(-g_{\nu}\left(\rho\right)-g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)\\
+ & = & -g_{\nu}\left(0\right)-g\left(0\right)^{-1}g_{\rho}\left(0\right)\\
+ & = & -\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)-\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)\\
+ & = & 0\end{eqnarray}
+As both the numerator and the denominator converge to zero, we can
+calculate $\lim_{\rho\rightarrow0}f_{\rho}'\left(\rho\right)$ by
+using de l'Hospital's rule. \begin{eqnarray}
+f_{\rho}'\left(0\right) & = & \lim_{\rho\rightarrow0}f_{\rho}'\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(\frac{\exp\left(-\nu g_{\nu}\left(\rho\right)\right)}{\rho^{2}}\right.\left(-\nu\rho g_{\nu}'\left(\rho\right)g_{\nu}\left(\rho\right)\right.\\
+ &  & -\nu\rho g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)+\rho g_{\nu}'\left(\rho\right)-\rho g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)\nonumber \\
+ &  & \left.\left.+\rho g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)-g_{\nu}\left(\rho\right)-g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)\right)\nonumber \\
+ & = & \lim_{\rho\rightarrow0}\left(\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\right)\:\lim_{\rho\rightarrow0}\left(\frac{1}{\rho^{2}}\right.\left(-\nu\rho g_{\nu}'\left(\rho\right)g_{\nu}\left(\rho\right)\right.\\
+ &  & -\nu\rho g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)+\rho g_{\nu}'\left(\rho\right)-\rho g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)\nonumber \\
+ &  & \left.\left.+\rho g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)-g_{\nu}\left(\rho\right)-g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)\right)\nonumber \\
+ & = & \lim_{\rho\rightarrow0}\left(\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\right)\:\lim_{\rho\rightarrow0}\left(\frac{1}{2\rho}\right.\left(-\nu g_{\nu}'\left(\rho\right)g_{\nu}\left(\rho\right)-\nu\rho g_{\nu}''\left(\rho\right)g_{\nu}\left(\rho\right)\right.\\
+ &  & -\nu\rho g_{\nu}'\left(\rho\right)g_{\nu}'\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)-\nu\rho g_{\nu}''\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\nonumber \\
+ &  & +\nu\rho g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)-\nu\rho g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)+g_{\nu}'\left(\rho\right)\nonumber \\
+ &  & +\rho g_{\nu}''\left(\rho\right)-g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)+2\rho g\left(\rho\right)^{-3}\left(g'\left(\rho\right)\right)^{2}g_{\rho}\left(\rho\right)\nonumber \\
+ &  & -\rho g\left(\rho\right)^{-2}g''\left(\rho\right)g_{\rho}\left(\rho\right)-\rho g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}'\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)\nonumber \\
+ &  & -\rho g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}'\left(\rho\right)+\rho g\left(\rho\right)^{-1}g_{\rho}''\left(\rho\right)\nonumber \\
+ &  & \left.\left.-g_{\nu}'\left(\rho\right)+g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)-g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)\right)\right)\nonumber \\
+ & = & \frac{1}{2}\lim_{\rho\rightarrow0}\left(\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\right)\:\lim_{\rho\rightarrow0}\left(\frac{1}{\rho}\right.\left(-\nu g_{\nu}'\left(\rho\right)g_{\nu}\left(\rho\right)-\nu\rho g_{\nu}''\left(\rho\right)g_{\nu}\left(\rho\right)\right.\\
+ &  & -\nu\rho g_{\nu}'\left(\rho\right)g_{\nu}'\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)-\nu\rho g_{\nu}''\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\nonumber \\
+ &  & +\nu\rho g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)-\nu\rho g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)+\rho g_{\nu}''\left(\rho\right)\nonumber \\
+ &  & +2\rho g\left(\rho\right)^{-3}\left(g'\left(\rho\right)\right)^{2}g_{\rho}\left(\rho\right)-\rho g\left(\rho\right)^{-2}g''\left(\rho\right)g_{\rho}\left(\rho\right)\nonumber \\
+ &  & \left.\left.-2\rho g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}'\left(\rho\right)+\rho g\left(\rho\right)^{-1}g_{\rho}''\left(\rho\right)\right)\right)\nonumber \\
+ & = & \frac{1}{2}\lim_{\rho\rightarrow0}\left(\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\right)\\
+ &  & \lim_{\rho\rightarrow0}\biggl(\frac{1}{\rho}\left(-\nu g_{\nu}'\left(\rho\right)g_{\nu}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)\nonumber \\
+ &  & -\nu g_{\nu}''\left(\rho\right)g_{\nu}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g_{\nu}'\left(\rho\right)-\nu g_{\nu}''\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\nonumber \\
+ &  & +\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)\nonumber \\
+ &  & +g_{\nu}''\left(\rho\right)+2g\left(\rho\right)^{-3}\left(g'\left(\rho\right)\right)^{2}g_{\rho}\left(\rho\right)-g\left(\rho\right)^{-2}g''\left(\rho\right)g_{\rho}\left(\rho\right)\nonumber \\
+ &  & -2g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}'\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}''\left(\rho\right)\biggr)\nonumber \\
+ & = & \frac{1}{2}\lim_{\rho\rightarrow0}\left(\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\right)\\
+ &  & \biggl(\lim_{\rho\rightarrow0}\left(\frac{1}{\rho}\left(-\nu g_{\nu}'\left(\rho\right)g_{\nu}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)\right)\nonumber \\
+ &  & +\lim_{\rho\rightarrow0}\left(-\nu g_{\nu}''\left(\rho\right)g_{\nu}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g_{\nu}'\left(\rho\right)-\nu g_{\nu}''\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right.\nonumber \\
+ &  & +\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)+g_{\nu}''\left(\rho\right)\nonumber \\
+ &  & +2g\left(\rho\right)^{-3}\left(g'\left(\rho\right)\right)^{2}g_{\rho}\left(\rho\right)-g\left(\rho\right)^{-2}g''\left(\rho\right)g_{\rho}\left(\rho\right)\nonumber \\
+ &  & \left.-2g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}'\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}''\left(\rho\right)\right)\biggr)\nonumber \end{eqnarray}
+Before we can apply de l'Hospital's rule again, we have to check if
+also the numerator converges to zero. We do this by defining a helper
+function $k_{\rho}\left(\rho\right)$, where the numerator converges
+to zero if $k_{\rho}\left(\rho\right)$ converges to zero for $\rho\rightarrow0$
+\begin{eqnarray}
+k_{\rho}\left(\rho\right) & = & -\nu g_{\nu}'\left(\rho\right)g_{\nu}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\\
+k_{\rho}\left(0\right) & = & \lim_{\rho\rightarrow0}k_{\rho}\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(-\nu g_{\nu}'\left(\rho\right)g_{\nu}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)\\
+ & = & -\nu g_{\nu}'\left(0\right)g_{\nu}\left(0\right)-\nu g_{\nu}'\left(0\right)g\left(0\right)^{-1}g_{\rho}\left(0\right)\\
+ & = & -\frac{\nu\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)\\
+ &  & -\frac{\nu\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)\nonumber \\
+ & = & 0\end{eqnarray}
+As both the numerator and the denominator converge to zero, we can
+apply de l'Hospital's rule.\begin{eqnarray}
+\lim_{\rho\rightarrow0}\frac{k_{\rho}\left(\rho\right)}{\rho} & = & \lim_{\rho\rightarrow0}k_{\rho}\left(\rho\right)\\
+ & = & \lim_{\rho\rightarrow0}\left(-\nu g_{\nu}''\left(\rho\right)g_{\nu}\left(\rho\right)-\nu\left(g_{\nu}'\left(\rho\right)\right)^{2}-\nu g_{\nu}''\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right.\\
+ &  & \left.+\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)\right)\nonumber \end{eqnarray}
+and hence,\begin{eqnarray}
+f_{\rho}'\left(0\right) & = & \frac{1}{2}\lim_{\rho\rightarrow0}\left(\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\right)\\
+ &  & \Biggl(\lim_{\rho\rightarrow0}\left(\frac{1}{\rho}\left(-\nu g_{\nu}'\left(\rho\right)g_{\nu}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right)\right)\nonumber \\
+ &  & +\lim_{\rho\rightarrow0}\left(-\nu g_{\nu}''\left(\rho\right)g_{\nu}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g_{\nu}'\left(\rho\right)-\nu g_{\nu}''\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right.\nonumber \\
+ &  & +\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)\nonumber \\
+ &  & +g_{\nu}''\left(\rho\right)+2g\left(\rho\right)^{-3}\left(g'\left(\rho\right)\right)^{2}g_{\rho}\left(\rho\right)-g\left(\rho\right)^{-2}g''\left(\rho\right)g_{\rho}\left(\rho\right)\nonumber \\
+ &  & \left.-2g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}'\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}''\left(\rho\right)\right)\Biggr)\nonumber \\
+ & = & \frac{1}{2}\lim_{\rho\rightarrow0}\left(\exp\left(-\nu g_{\nu}\left(\rho\right)\right)\right)\\
+ &  & \Biggl(\lim_{\rho\rightarrow0}\left(-\nu g_{\nu}''\left(\rho\right)g_{\nu}\left(\rho\right)-\nu\left(g_{\nu}'\left(\rho\right)\right)^{2}-\nu g_{\nu}''\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right.\nonumber \\
+ &  & \left.+\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)\right)\nonumber \\
+ &  & +\lim_{\rho\rightarrow0}\left(-\nu g_{\nu}''\left(\rho\right)g_{\nu}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g_{\nu}'\left(\rho\right)-\nu g_{\nu}''\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}\left(\rho\right)\right.\nonumber \\
+ &  & +\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}\left(\rho\right)-\nu g_{\nu}'\left(\rho\right)g\left(\rho\right)^{-1}g_{\rho}'\left(\rho\right)+g_{\nu}''\left(\rho\right)\nonumber \\
+ &  & +2g\left(\rho\right)^{-3}\left(g'\left(\rho\right)\right)^{2}g_{\rho}\left(\rho\right)-g\left(\rho\right)^{-2}g''\left(\rho\right)g_{\rho}\left(\rho\right)\nonumber \\
+ &  & \left.-2g\left(\rho\right)^{-2}g'\left(\rho\right)g_{\rho}'\left(\rho\right)+g\left(\rho\right)^{-1}g_{\rho}''\left(\rho\right)\right)\Biggr)\nonumber \\
+ & = & \frac{1}{2}\exp\left(-\nu g_{\nu}\left(0\right)\right)\left(-\nu g_{\nu}''\left(0\right)g_{\nu}\left(0\right)-\nu\left(g_{\nu}'\left(0\right)\right)^{2}\right.\\
+ &  & -\nu g_{\nu}''\left(0\right)g\left(0\right)^{-1}g_{\rho}\left(0\right)+\nu g_{\nu}'\left(0\right)g\left(0\right)^{-2}g'\left(0\right)g_{\rho}\left(0\right)\nonumber \\
+ &  & -\nu g_{\nu}'\left(0\right)g\left(0\right)^{-1}g_{\rho}'\left(0\right)-\nu g_{\nu}''\left(0\right)g_{\nu}\left(0\right)-\nu g_{\nu}'\left(0\right)g_{\nu}'\left(0\right)\nonumber \\
+ &  & -\nu g_{\nu}''\left(0\right)g\left(0\right)^{-1}g_{\rho}\left(0\right)+\nu g_{\nu}'\left(0\right)g\left(0\right)^{-2}g'\left(0\right)g_{\rho}\left(0\right)\nonumber \\
+ &  & -\nu g_{\nu}'\left(0\right)g\left(0\right)^{-1}g_{\rho}'\left(0\right)+g_{\nu}''\left(0\right)+2g\left(0\right)^{-3}\left(g'\left(0\right)\right)^{2}g_{\rho}\left(0\right)\nonumber \\
+ &  & \left.-g\left(0\right)^{-2}g''\left(0\right)g_{\rho}\left(0\right)-2g\left(0\right)^{-2}g'\left(0\right)g_{\rho}'\left(0\right)+g\left(0\right)^{-1}g_{\rho}''\left(0\right)\right)\nonumber \\
+ & = & \frac{1}{2}\exp\left(-\nu g_{\nu}\left(0\right)\right)\left(-\nu g_{\nu}''\left(0\right)g_{\nu}\left(0\right)-\nu\left(g_{\nu}'\left(0\right)\right)^{2}-\nu g_{\nu}''\left(0\right)g_{\rho}\left(0\right)\right.\\
+ &  & +\nu g_{\nu}'\left(0\right)g'\left(0\right)g_{\rho}\left(0\right)-\nu g_{\nu}'\left(0\right)g_{\rho}'\left(0\right)\nonumber \\
+ &  & -\nu g_{\nu}''\left(0\right)g_{\nu}\left(0\right)-\nu g_{\nu}'\left(0\right)g_{\nu}'\left(0\right)-\nu g_{\nu}''\left(0\right)g_{\rho}\left(0\right)+\nu g_{\nu}'\left(0\right)g'\left(0\right)g_{\rho}\left(0\right)\nonumber \\
+ &  & -\nu g_{\nu}'\left(0\right)g_{\rho}'\left(0\right)+g_{\nu}''\left(0\right)+2\left(g'\left(0\right)\right)^{2}g_{\rho}\left(0\right)-g''\left(0\right)g_{\rho}\left(0\right)\nonumber \\
+ &  & \left.-2g'\left(0\right)g_{\rho}'\left(0\right)+g_{\rho}''\left(0\right)\right)\nonumber \\
+ & = & \frac{1}{2}\exp\left(-\nu g_{\nu}\left(0\right)\right)\left(-2\nu g_{\nu}''\left(0\right)g_{\nu}\left(0\right)-2\nu\left(g_{\nu}'\left(0\right)\right)^{2}-2\nu g_{\nu}''\left(0\right)g_{\rho}\left(0\right)\right.\\
+ &  & +2\nu g_{\nu}'\left(0\right)g'\left(0\right)g_{\rho}\left(0\right)-2\nu g_{\nu}'\left(0\right)g_{\rho}'\left(0\right)\nonumber \\
+ &  & +g_{\nu}''\left(0\right)+2\left(g'\left(0\right)\right)^{2}g_{\rho}\left(0\right)-g''\left(0\right)g_{\rho}\left(0\right)\nonumber \\
+ &  & \left.-2g'\left(0\right)g_{\rho}'\left(0\right)+g_{\rho}''\left(0\right)\right)\nonumber \\
+ & = & \frac{1}{2}\exp\left(-\nu g_{\nu}\left(0\right)\right)\left(g_{\nu}''\left(0\right)\left(-2\nu g_{\nu}\left(0\right)-2\nu g_{\rho}\left(0\right)+1\right)\right.\\
+ &  & +\nu g_{\nu}'\left(0\right)\left(-2g_{\nu}'\left(0\right)+2g'\left(0\right)g_{\rho}\left(0\right)-2g_{\rho}'\left(0\right)\right)\nonumber \\
+ &  & +2\left(g'\left(0\right)\right)^{2}g_{\rho}\left(0\right)-g''\left(0\right)g_{\rho}\left(0\right)\nonumber \\
+ &  & \left.-2g'\left(0\right)g_{\rho}'\left(0\right)+g_{\rho}''\left(0\right)\right)\nonumber \end{eqnarray}
+\begin{eqnarray}
+ & = & \frac{1}{2}\exp\left(-\nu\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)\right)\\
+ &  & \left(\left(-\frac{1}{3}\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)^{3}\right)\right.\nonumber \\
+ &  & \left(-2\nu\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)-2\nu\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)+1\right)\nonumber \\
+ &  & +\nu\frac{\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\left(-2\frac{\delta\left(1-\delta\right)}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\right.\nonumber \\
+ &  & +2\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)\nonumber \\
+ &  & \left.-2\left(-\delta\left(\ln x_{1}\right)^{2}-\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\right)\right)\nonumber \\
+ &  & +2\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)^{2}\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)\nonumber \\
+ &  & -\left(\delta\,\left(\ln x_{1}\right)^{2}+\left(1-\delta\right)\,\left(\ln x_{2}\right)^{2}\right)\left(\delta\,\ln x_{1}+\left(1-\delta\right)\,\ln x_{2}\right)\nonumber \\
+ &  & -2\left(-\delta\,\ln x_{1}-\left(1-\delta\right)\,\ln x_{2}\right)\left(-\delta\left(\ln x_{1}\right)^{2}-\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ &  & \left.+\delta\left(\ln x_{1}\right)^{3}+\left(1-\delta\right)\left(\ln x_{2}\right)^{3}\right)\nonumber \end{eqnarray}
+\begin{eqnarray}
+ & = & \frac{1}{2}\, x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\left(-\frac{1}{3}\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)^{3}\right.\\
+ &  & \left(2\nu\delta\,\ln x_{1}+2\nu\left(1-\delta\right)\,\ln x_{2}-2\nu\delta\,\ln x_{1}-2\nu\left(1-\delta\right)\,\ln x_{2}+1\right)\nonumber \\
+ &  & +\frac{1}{2}\nu\delta\left(1-\delta\right)\left(\left(\ln x_{1}\right)^{2}-2\ln x_{1}\ln x_{2}+\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ &  & \left(-\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}+2\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}-\delta\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\right.\nonumber \\
+ &  & -2\delta^{2}\left(\ln x_{1}\right)^{2}-4\delta\left(1-\delta\right)\ln x_{1}\,\ln x_{2}-2\left(1-\delta\right)^{2}\left(\ln x_{2}\right)^{2}\nonumber \\
+ &  & \left.+2\delta\left(\ln x_{1}\right)^{2}+2\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ &  & +2\delta^{3}\left(\ln x_{1}\right)^{3}+6\delta^{2}\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}+6\delta\left(1-\delta\right)^{2}\ln x_{1}\left(\ln x_{2}\right)^{2}\nonumber \\
+ &  & +2\left(1-\delta\right)^{3}\left(\ln x_{2}\right)^{3}-\delta^{2}\,\left(\ln x_{1}\right)^{3}-\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\nonumber \\
+ &  & -\delta\left(1-\delta\right)\ln x_{1}\left(\ln x_{2}\right)^{2}-\left(1-\delta\right)^{2}\left(\ln x_{2}\right)^{3}-2\delta^{2}\left(\ln x_{1}\right)^{3}\nonumber \\
+ &  & -2\delta\left(1-\delta\right)\ln x_{1}\left(\ln x_{2}\right)^{2}-2\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}-2\left(1-\delta\right)^{2}\left(\ln x_{2}\right)^{3}\nonumber \\
+ &  & \left.+\delta\left(\ln x_{1}\right)^{3}+\left(1-\delta\right)\left(\ln x_{2}\right)^{3}\right)\nonumber \end{eqnarray}
+\begin{eqnarray}
+ & = & \frac{1}{2}\, x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\left(-\frac{1}{3}\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)^{3}\right.\\
+ &  & +\left(\frac{1}{2}\nu\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}-\nu\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}+\frac{1}{2}\nu\delta\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ &  & \left(\left(-\delta\left(1-\delta\right)-2\delta^{2}+2\delta\right)\left(\ln x_{1}\right)^{2}\right.\nonumber \\
+ &  & +\left(2\delta\left(1-\delta\right)-4\delta\left(1-\delta\right)\right)\ln x_{1}\ln x_{2}\nonumber \\
+ &  & \left.+\left(-\delta\left(1-\delta\right)-2\left(1-\delta\right)^{2}+2\left(1-\delta\right)\right)\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ &  & +\left(2\delta^{3}-\delta^{2}-2\delta^{2}+\delta\right)\left(\ln x_{1}\right)^{3}\nonumber \\
+ &  & +\left(6\delta^{2}\left(1-\delta\right)-\delta\left(1-\delta\right)-2\delta\left(1-\delta\right)\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\nonumber \\
+ &  & +\left(6\delta\left(1-\delta\right)^{2}-\delta\left(1-\delta\right)-2\delta\left(1-\delta\right)\right)\ln x_{1}\left(\ln x_{2}\right)^{2}\nonumber \\
+ &  & \left.+\left(2\left(1-\delta\right)^{3}-\left(1-\delta\right)^{2}-2\left(1-\delta\right)^{2}+\left(1-\delta\right)\right)\left(\ln x_{2}\right)^{3}\right)\nonumber \end{eqnarray}
+\begin{eqnarray}
+ & = & \frac{1}{2}\, x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\left(-\frac{1}{3}\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)^{3}\right.\\
+ &  & +\left(\frac{1}{2}\nu\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}-\nu\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}+\frac{1}{2}\nu\delta\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ &  & \left(\left(-\delta+\delta^{2}-2\delta^{2}+2\delta\right)\left(\ln x_{1}\right)^{2}\right.\nonumber \\
+ &  & -2\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}\nonumber \\
+ &  & \left.+\left(-\delta+\delta^{2}-2+4\delta-2\delta^{2}+2-2\delta\right)\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ &  & +\left(2\delta^{3}-3\delta^{2}+\delta\right)\left(\ln x_{1}\right)^{3}\nonumber \\
+ &  & +\left(6\delta^{2}-6\delta^{3}-\delta+\delta^{2}-2\delta+2\delta^{2}\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\nonumber \\
+ &  & +\left(6\delta-12\delta^{2}+6\delta^{3}-\delta+\delta^{2}-2\delta+2\delta^{2}\right)\ln x_{1}\left(\ln x_{2}\right)^{2}\nonumber \\
+ &  & \left.+\left(2-6\delta+6\delta^{2}-2\delta^{3}-1+2\delta-\delta^{2}-2+4\delta-2\delta^{2}+1-\delta\right)\left(\ln x_{2}\right)^{3}\right)\nonumber \end{eqnarray}
+\begin{eqnarray}
+ & = & \frac{1}{2}\, x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\left(-\frac{1}{3}\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)^{3}\right.\\
+ &  & +\left(\frac{1}{2}\nu\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}-\nu\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}+\frac{1}{2}\nu\delta\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ &  & \left(\left(-\delta^{2}+\delta\right)\left(\ln x_{1}\right)^{2}-2\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}+\left(-\delta^{2}+\delta\right)\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ &  & +\left(2\delta^{3}-3\delta^{2}+\delta\right)\left(\ln x_{1}\right)^{3}+\left(-6\delta^{3}+9\delta^{2}-3\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\nonumber \\
+ &  & \left.+\left(6\delta^{3}-9\delta^{2}+3\delta\right)\ln x_{1}\left(\ln x_{2}\right)^{2}+\left(-2\delta^{3}+3\delta^{2}-\delta\right)\left(\ln x_{2}\right)^{3}\right)\nonumber \end{eqnarray}
+\begin{eqnarray}
+ & = & \frac{1}{2}\, x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\left(-\frac{1}{3}\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{3}\right.\\
+ &  & +\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}-\left(1-2\delta\right)\delta\left(1-\delta\right)\ln x_{1}\,\left(\ln x_{2}\right)^{2}\nonumber \\
+ &  & +\frac{1}{3}\left(1-2\delta\right)\delta\left(1-\delta\right)\left(\ln x_{2}\right)^{3}\nonumber \\
+ &  & +\left(\frac{1}{2}\nu\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}-\nu\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}+\frac{1}{2}\nu\delta\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ &  & \left(\delta\left(1-\delta\right)\left(\ln x_{1}\right)^{2}-2\delta\left(1-\delta\right)\ln x_{1}\ln x_{2}+\delta\left(1-\delta\right)\left(\ln x_{2}\right)^{2}\right)\nonumber \\
+ &  & +\delta\left(1-\delta\right)\left(1-2\delta\right)\left(\ln x_{1}\right)^{3}-3\delta\left(1-\delta\right)\left(1-2\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\nonumber \\
+ &  & \left.+3\delta\left(1-\delta\right)\left(1-2\delta\right)\ln x_{1}\left(\ln x_{2}\right)^{2}-\delta\left(1-\delta\right)\left(1-2\delta\right)\left(\ln x_{2}\right)^{3}\right)\nonumber \end{eqnarray}
+\begin{eqnarray}
+ & = & \frac{1}{2}\, x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\left(\frac{1}{2}\nu\delta^{2}\left(1-\delta\right)^{2}\left(\ln x_{1}\right)^{4}-\nu\delta^{2}\left(1-\delta\right)^{2}\left(\ln x_{1}\right)^{3}\ln x_{2}\right.\\
+ &  & +\frac{1}{2}\nu\delta^{2}\left(1-\delta\right)^{2}\left(\ln x_{1}\right)^{2}\left(\ln x_{2}\right)^{2}-\nu\delta^{2}\left(1-\delta\right)^{2}\left(\ln x_{1}\right)^{3}\ln x_{2}\nonumber \\
+ &  & +2\nu\delta^{2}\left(1-\delta\right)^{2}\left(\ln x_{1}\right)^{2}\left(\ln x_{2}\right)^{2}-\nu\delta^{2}\left(1-\delta\right)^{2}\ln x_{1}\left(\ln x_{2}\right)^{3}\nonumber \\
+ &  & +\frac{1}{2}\nu\delta^{2}\left(1-\delta\right)^{2}\left(\ln x_{1}\right)^{2}\left(\ln x_{2}\right)^{2}-\nu\delta^{2}\left(1-\delta\right)^{2}\ln x_{1}\left(\ln x_{2}\right)^{3}\nonumber \\
+ &  & +\frac{1}{2}\nu\delta^{2}\left(1-\delta\right)^{2}\left(\ln x_{2}\right)^{4}\nonumber \\
+ &  & +\left(-\frac{1}{3}\left(1-2\delta\right)\delta\left(1-\delta\right)+\delta\left(1-\delta\right)\left(1-2\delta\right)\right)\left(\ln x_{1}\right)^{3}\nonumber \\
+ &  & +\left(\left(1-2\delta\right)\delta\left(1-\delta\right)-3\delta\left(1-\delta\right)\left(1-2\delta\right)\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\nonumber \\
+ &  & +\left(-\left(1-2\delta\right)\delta\left(1-\delta\right)+3\delta\left(1-\delta\right)\left(1-2\delta\right)\right)\ln x_{1}\left(\ln x_{2}\right)^{2}\nonumber \\
+ &  & \left.+\left(\frac{1}{3}\left(1-2\delta\right)\delta\left(1-\delta\right)-\delta\left(1-\delta\right)\left(1-2\delta\right)\right)\left(\ln x_{2}\right)^{3}\right)\nonumber \end{eqnarray}
+
+
+\begin{eqnarray}
+ & = & \frac{1}{2}\, x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\left(\frac{1}{2}\nu\delta^{2}\left(1-\delta\right)^{2}\left(\ln x_{1}\right)^{4}-2\nu\delta^{2}\left(1-\delta\right)^{2}\left(\ln x_{1}\right)^{3}\ln x_{2}\right.\\
+ &  & +3\nu\delta^{2}\left(1-\delta\right)^{2}\left(\ln x_{1}\right)^{2}\left(\ln x_{2}\right)^{2}\nonumber \\
+ &  & -2\nu\delta^{2}\left(1-\delta\right)^{2}\ln x_{1}\left(\ln x_{2}\right)^{3}+\frac{1}{2}\nu\delta^{2}\left(1-\delta\right)^{2}\left(\ln x_{2}\right)^{4}\nonumber \\
+ &  & +\frac{2}{3}\delta\left(1-\delta\right)\left(1-2\delta\right)\left(\ln x_{1}\right)^{3}-2\delta\left(1-\delta\right)\left(1-2\delta\right)\left(\ln x_{1}\right)^{2}\ln x_{2}\nonumber \\
+ &  & \left.+2\delta\left(1-\delta\right)\left(1-2\delta\right)\ln x_{1}\left(\ln x_{2}\right)^{2}-\frac{2}{3}\delta\left(1-\delta\right)\left(1-2\delta\right)\left(\ln x_{2}\right)^{3}\right)\nonumber \end{eqnarray}
+\begin{eqnarray}
+ & = & \frac{1}{2}\, x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\left(\frac{1}{2}\nu\delta^{2}\left(1-\delta\right)^{2}\left(\left(\ln x_{1}\right)^{4}-4\left(\ln x_{1}\right)^{3}\ln x_{2}\right)\right.\\
+ &  & +6\left(\ln x_{1}\right)^{2}\left(\ln x_{2}\right)^{2}-4\ln x_{1}\left(\ln x_{2}\right)^{3}+\left(\ln x_{2}\right)^{4}\nonumber \\
+ &  & +\frac{2}{3}\delta\left(1-\delta\right)\left(1-2\delta\right)\nonumber \\
+ &  & \left.\left(\left(\ln x_{1}\right)^{3}-3\left(\ln x_{1}\right)^{2}\ln x_{2}+3\ln x_{1}\left(\ln x_{2}\right)^{2}-\left(\ln x_{2}\right)^{3}\right)\right)\nonumber \\
+ & = & \delta\left(1-\delta\right)\, x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\\
+ &  & \left(\frac{1}{3}\left(1-2\delta\right)\left(\ln x_{1}-\ln x_{2}\right)^{3}+\frac{1}{4}\nu\delta\left(1-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)^{4}\right)\nonumber \end{eqnarray}
+Hence, we can approximate $\partial y/\partial\rho$ by a second-order
+Taylor series approximation:\begin{eqnarray}
+\frac{\partial y}{\partial\rho} & \approx & \gamma\nu\left(f_{\rho}\left(0\right)+\rho\, f_{\rho}'\left(0\right)\right)\\
+ & = & -\frac{1}{2}\gamma\nu\delta\left(1-\delta\right)\, x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\left(\ln x_{1}-\ln x_{2}\right)^{2}\\
+ &  & +\gamma\nu\rho\delta\left(1-\delta\right)\, x_{1}^{\nu\delta}x_{2}^{\nu\left(1-\delta\right)}\nonumber \\
+ &  & \left(\frac{2}{3}\left(1-2\delta\right)\left(\ln x_{1}-\ln x_{2}\right)^{3}+\frac{1}{2}\nu\delta\left(1-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)^{4}\right)\nonumber \\
+ & = & \gamma\nu\delta\left(1-\delta\right)\, x_{1}^{\nu\delta}\, x_{2}^{\nu\left(1-\delta\right)}\Biggl(-\frac{1}{2}\left(\ln x_{1}-\ln x_{2}\right)^{2}\\
+ &  & +\frac{1}{3}\rho\left(1-2\delta\right)\left(\ln x_{1}-\ln x_{2}\right)^{3}+\frac{1}{4}\rho\nu\delta\left(1-\delta\right)\left(\ln x_{1}-\ln x_{2}\right)^{4}\Biggr)\nonumber \end{eqnarray}
+
+
+% \bibliographystyle{plain}
+% \bibliography{agrarpol}
+% 
+% \end{document}
