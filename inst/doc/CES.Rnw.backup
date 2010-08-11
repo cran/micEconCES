@@ -39,15 +39,13 @@
 The Constant-Elasticity-of-Substitution (CES) function
 is popular in several areas of economics
 but it is rarely used in econometric analysis,
-because it cannot be estimated by standard linear regression techniques.
+because the estimation is plagued with several problems.
 We discuss several approaches to estimate the CES function
-and demonstrate how they can be applied in \proglang{R}
+and show how they can be applied in \proglang{R}
 using the add-on package \pkg{micEconCES}.
 Furthermore, we describe how we implemented the various estimation approaches
 in the \pkg{micEconCES} package
 and we compare them in a Monte Carlo study.
-Given the data generating process used in our analysis,
-all estimation approaches provided satisfying results.
 }
 \Keywords{constant elasticity of substitution, CES, \proglang{R}}
 \Plainkeywords{constant elasticity of substitution, CES, R} %% without formatting
@@ -1669,7 +1667,7 @@ several other gradient-based and global optimisation algorithms,
 a grid search, and the standard tool for non-linear least-squares
 estimations in \proglang{R}, \code{nls}.
 We compared the performance of these methods in a Monte Carlo simulation.
-For the given data generating process, all methods proved satisfying results.
+For the given data generating process, all methods proved satifying results.
 Anyway, our simulation confirms other simulation studies \citep[e.g.][]{thursby80}
 in respect to the unsatisfying result for the estimate of $\rho$.
 However, our results show that the elasticity of substitution $\sigma$%
