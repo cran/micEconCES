@@ -6,12 +6,12 @@
 
 \description{
    Estimate a Constant-Elasticities-of-Scale (CES) function
-   with two exogenous variables by Least Squares.
-
-   \deqn{y = \gamma * ( \delta * x1^{-\rho} + ( 1 - \delta ) * x2^{-\rho} )^{-\nu/\rho}}{%
-      y = gamma * ( delta * x1^(-rho) + ( 1 - delta ) * x2^(-rho) )^(-nu/rho)}
-   where the elesticity of substitution is
-   \eqn{s = 1 / ( 1 + \rho )}{s = 1 / ( 1 + rho )}
+   with two exogenous variables
+   or a nested Constant-Elasticities-of-Scale (CES) function
+   proposed by Sato (1967) with three or four exogenous variables
+   by Least Squares.
+   The functional forms are shown in the documentation of
+   function \code{\link{cesCalc}}.
 
    Warning: The econometric estimation of a CES function is (almost)
    always very problematic,
@@ -25,9 +25,10 @@
 
 \usage{
 cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
-   start = NULL, lower = NULL, upper = NULL, rho = NULL,
+   start = NULL, lower = NULL, upper = NULL, rho1 = NULL, rho2, rho = NULL,
    returnGridAll = FALSE, random.seed = 123,
-   rhoApprox = c( 5e-6, 5e-6, 5e-6, 1e-3, 5e-6 ),
+   rhoApprox = c( y = 5e-6, gamma = 5e-6, delta = 5e-6, 
+      rho = 1e-3, nu = 5e-6 ),
    \dots )
 
 \method{print}{cesEst}( x, digits = max(3, getOption("digits") - 3),
@@ -54,12 +55,15 @@ cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
       (see section \sQuote{Details}).}
    \item{upper}{upper bounds of the parameters
       (see section \sQuote{Details}).}
-   \item{rho}{numeric scalar or vector at which the coefficient \eqn{\rho}{rho}
+   \item{rho1,rho2,rho}{numeric scalar or vector at which the coefficients 
+      \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2}, and/or \eqn{\rho}{rho}
       should be fixed;
-      if \code{NULL} (default), \eqn{\rho}{rho} is estimated together
+      if argument \code{rho1}, \code{rho2}, or \code{rho} is \code{NULL} (default), 
+      this coefficient is estimated together
       with the other parameters;
-      if it has more than one element,
-      a one-dimensional grid search for \eqn{\rho}{rho} is performed
+      if these arguments have more than one element,
+      a grid search for \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2}, 
+      and/or \eqn{\rho}{rho} is performed
       (see section \sQuote{Details}).}
    \item{returnGridAll}{logical value that indicates
       whether the estimates for all values of \eqn{\rho}{rho}
@@ -71,18 +75,33 @@ cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
    \item{random.seed}{an integer used to seed R's random number generator.
       This is to ensure replicability when the \code{"SANN"}
       or \code{"DE"} method is used. Defaults to 123.}
-   \item{rhoApprox}{numeric vector containing 5 elements;
-      the endogenous variable (first element of this argument)
-      and the derivatives of the CES with respect to coefficients
-      \eqn{\gamma}{gamma} (second element),
-      \eqn{\delta}{delta} (third element),
-      \eqn{\rho}{rho} (fourth element), and
-      \eqn{\nu}{nu} (fifth element)
+   \item{rhoApprox}{numeric vector with exactly 5 elements;
+      the endogenous variable of the CES
+      and the derivatives with respect to its coefficients
       are calculated using a first-order Taylor series approximation
-      at \eqn{\rho=0}{rho = 0},
-      if the absolute value of the coefficient \eqn{\rho}{rho}
+      at \eqn{\rho=0}{rho = 0} (non-nested CES)
+      or by interpolation between \eqn{\rho}{rho}, \eqn{\rho_1}{rho_1}, 
+      or \eqn{\rho_2}{rho_2} equal to zero 
+      and \eqn{\rho}{rho}, \eqn{\rho_1}{rho_1}, or \eqn{\rho_2}{rho_2} 
+      equal to \eqn{\pm}{+/-}\code{rhoApprox}
+      (nested CES),
+      if the absolute value of the coefficients \eqn{\rho}{rho}, 
+      \eqn{\rho_1}{rho_1}, or \eqn{\rho_2}{rho_2}
       is smaller than or equal to the corresponding element of this argument
-      (see also argument \code{rhoApprox} of \code{\link{cesCalc}}).}
+      (see also argument \code{rhoApprox} of \code{\link{cesCalc}});
+      the first element determines the threshold for calculating
+      the endogenous variable; 
+      the second element determines the threshold for calculating
+      the derivatives with respect to \eqn{\gamma}{gamma},
+      \eqn{\gamma_1}{gamma_1}, and \eqn{\gamma_2}{gamma_2};
+      the third element determines the threshold for calculating
+      the derivatives with respect to \eqn{\delta}{delta},
+      \eqn{\delta_1}{delta_1}, and \eqn{\delta_2}{delta_2};
+      the fourth element determines the threshold for calculating
+      the derivatives with respect to \eqn{\rho}{rho},
+      \eqn{\rho_1}{rho_1}, and \eqn{\rho_2}{rho_2};
+      the fifth element determines the threshold for calculating
+      the derivatives with respect to \eqn{\nu}{nu}.}
    \item{x}{an object of class \code{cesEst}.}
    \item{digits}{number of digits.}
    \item{\dots}{further arguments to \code{cesEst} are passed to
@@ -126,22 +145,38 @@ cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
 
    \bold{Starting values}\cr
    Argument \code{start} should be a numeric vector.
-   The order must be \eqn{\gamma}{gamma}, \eqn{\delta}{delta},
-   \eqn{\rho}{rho} (only if estimated, i.e.\ argument \code{rho} is \code{NULL}),
-   and \eqn{\nu}{nu} (only in case of variable returns to scale,
-   i.e.\ argument \code{vrs} is \code{TRUE}).
-   Names of the elements are ignored.
+   The order must be as described in the documentation of argument \code{coef}
+   of function \code{\link{cesCalc}}.
+   However, names of the elements are ignored.
    If argument \code{start} is \code{NULL},
-   the starting value of \eqn{\delta}{delta} is set to 0.5,
-   the starting value of \eqn{\rho}{rho} is (if required) set to 0.25
-      (i.e.\ elasticity of substitution = 0.8),
-   the starting value of \eqn{\nu}{nu} is (if required) set to 1,
-   and the starting value  of \eqn{\gamma}{gamma} is set to a value
+   pre-defined starting values are used.
+   The starting values of \eqn{\gamma_1}{gamma_1} (if present) is set to 1,
+   the starting values of \eqn{\delta}{delta}, \eqn{\delta_1}{delta_1}, 
+   and \eqn{\delta_2}{delta_2} (if present) are set to 0.5,
+   the starting values of \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2}, and
+   \eqn{\rho}{rho} (if present and required) are set to 0.25
+      (i.e.\ elasticity of substitution = 0.8 in the two-input case),
+   the starting value of \eqn{\nu}{nu} (if required) is set to 1,
+   and the starting value of \eqn{\gamma}{gamma} or \eqn{\gamma_2}{gamma_2} 
+   is set to a value
    so that the mean of the endogenous variable
-   is equal to the mean of its fitted values,
-   i.e.\ \eqn{\gamma}{gamma} =  mean( y ) /
+   is equal to the mean of its fitted values.
+   Hence, for the CES with two inputs
+   \eqn{\gamma}{gamma} =  mean( y ) /
       mean( CES( X, \eqn{\gamma}{gamma} = 1, \eqn{\delta}{delta} = 0.5,
-         \eqn{\rho}{rho} = 0.25, \eqn{\nu}{nu} = 1 ) ).\cr
+         \eqn{\rho}{rho} = fixed or 0.25, \eqn{\nu}{nu} = 1 ) ),
+   for the nested CES with 3 inputs
+   \eqn{\gamma_2}{gamma_2} =  mean( y ) /
+      mean( CES( X, \eqn{\gamma_1}{gamma_1} = 1, \eqn{\gamma_2}{gamma_2} = 1,
+         \eqn{\delta_1}{delta_1} = 0.5, \eqn{\delta_2}{delta_2} = 0.5, 
+         \eqn{\rho_1}{rho_1} = 0.25, \eqn{\rho}{rho} = fixed or 0.25, 
+          \eqn{\nu}{nu} = 1 ) ),
+   and for the nested CES with 4 inputs
+   \eqn{\gamma}{gamma} =  mean( y ) /
+      mean( CES( X, \eqn{\gamma}{gamma} = 1, \eqn{\delta_1}{delta_1} = 0.5,
+          \eqn{\delta_2}{delta_2} = 0.5, \eqn{\rho_1}{rho_1} = 0.25, 
+          \eqn{\rho_2}{rho_2} = 0.25, \eqn{\rho}{rho} = fixed or 0.25, 
+          \eqn{\nu}{nu} = 1 ) ).\cr
 
    \bold{Lower and upper bounds}\cr
    Arguments \code{lower} and \code{upper} can be used
@@ -152,17 +187,28 @@ cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
    which means that the bounds are set automatically
    depending on the estimation method:
    In case of the \code{L-BFGS-B}, \code{PORT}, and \code{DE} method,
-   the lower bound is \code{0} for \eqn{\gamma}{gamma},
-   \code{0} for \eqn{\delta}{delta}, \code{-1} for \eqn{\rho}{rho},
+   the lower bound is \code{0} for \eqn{\gamma}{gamma}, \eqn{\gamma_1}{gamma_1}, 
+   \eqn{\gamma_2}{gamma_2}, \eqn{\delta}{delta}, \eqn{\delta_1}{delta_1}, 
+   and \eqn{\delta_2}{delta_2} (if present), 
+   \code{-1} for \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2}, and \eqn{\rho}{rho}
+   (if present),
    and eventually \code{0} for \eqn{\nu}{nu}.
    In case of the \code{L-BFGS-B} and \code{PORT} method,
-   the upper bound is infinity for \eqn{\gamma}{gamma},
-   \code{1} for \eqn{\delta}{delta}, infinity for \eqn{\rho}{rho},
+   the upper bound is infinity for \eqn{\gamma}{gamma}, \eqn{\gamma_1}{gamma_1}, 
+   and \eqn{\gamma_2}{gamma_2} (if present),
+   \code{1} for \eqn{\delta}{delta}, \eqn{\delta_1}{delta_1}, and
+   \eqn{\delta_2}{delta_2} (if present),
+   infinity for \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2}, and \eqn{\rho}{rho}
+   (if present),
    and eventually infinity for \eqn{\nu}{nu}.
    Since the \sQuote{Differential Evulation} algorithm requires finit bounds,
    the upper bounds for the \code{DE} method are set
-   to \code{1e10} for \eqn{\gamma}{gamma},
-   \code{1} for \eqn{\delta}{delta}, \code{10} for \eqn{\rho}{rho},
+   to \code{1e10} for \eqn{\gamma}{gamma}, \eqn{\gamma_1}{gamma_1},
+   and \eqn{\gamma_2}{gamma_2} (if present),
+   \code{1} for \eqn{\delta}{delta}, \eqn{\delta_1}{delta_1}, and 
+   \eqn{\delta_2}{delta_2} (if present),
+   \code{10} for \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2}, and \eqn{\rho}{rho}
+   (if present),
    and eventually \code{10} for \eqn{\nu}{nu}.
    In case of all other estimation methods,
    the lower and upper bounds are set to \code{-Inf} and \code{Inf}, respectively,
@@ -173,12 +219,15 @@ cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
    (see above).\cr
 
    \bold{Grid search for \eqn{\rho}{rho}}\cr
-   If argument \code{rho} has more than one element,
-   a one-dimensional grid search for \eqn{\rho}{rho} is performed.
-   The CES ist estimated by least-squares,
-   where \eqn{\rho}{rho} is fixed consecutively at each value
-   defined in argument \code{rho}.
-   Finally the estimation with the \eqn{\rho}{rho},
+   If arguments \code{rho1}, \code{rho2}, and/or \code{rho} have more than one element,
+   a one-dimensional, two-dimensional, or three-dimensionsl grid search 
+   for \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2}, and/or \eqn{\rho}{rho} is performed.
+   The remaining (free) parameters of the CES are estimated by least-squares,
+   where \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2}, and/or \eqn{\rho}{rho} are fixed 
+   consecutively at each value defined in arguments \code{rho1}, \code{rho2},
+   and \code{rho}, respectively.
+   Finally the estimation with the \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2},
+   and/or \eqn{\rho}{rho}
    that results in the smallest sum of squared residuals is chosen
    (and returned).\cr
 
@@ -261,6 +310,15 @@ cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
       for all values of \eqn{\rho}{rho} used in the grid search
       (only if a grid search was performed and
       argument \code{returnGridAll} is set to \code{TRUE}).}
+   \item{rho1Values,rho2Values,rhoValues}{numeric vectors giving the values
+      that are used in the grid search
+      for the coefficients \eqn{\rho_1}{rho_1} and \eqn{\rho}{rho},
+      respectively (only if a grid search was performed).}
+   \item{rssArray}{matrix or array of the RSS values obtained
+      by a two-dimensional or three-dimensional grid search 
+      for the coefficients \eqn{\rho_1}{rho_1} (first dimension, e.g. rows of a matrix),
+      \eqn{\rho_2}{rho_2}, and \eqn{\rho}{rho} (last dimension, e.g. columns of a matrix)
+      (only if a two-dimensional or threedimensional grid search was performed).}
 }
 
 \references{

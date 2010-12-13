@@ -1,21 +1,22 @@
-cesRss <- function( par, yName, xNames, data, vrs, rho = NULL,
-      rhoApprox = 5e-6 ) {
+cesRss <- function( par, yName, xNames, data, vrs, rho1 = NULL, 
+      rho2 = NULL, rho = NULL, rhoApprox, nested = FALSE ) {
 
    # check rhoApprox
-   if( !is.vector( rhoApprox ) || ! length( rhoApprox ) %in% c( 1, 5 ) ||
-         !is.numeric( rhoApprox ) ) {
+   
+   if( !is.vector( rhoApprox ) || !is.numeric( rhoApprox ) ) {
       stop( "argument 'rhoApprox' must be a numeric scalar",
-         " or a numeric vector with exactly 5 elements" )
+         " or a numeric vector" )
    }
-   if( length( rhoApprox ) == 5 ) {
-      rhoApprox <- rhoApprox[ 1 ]
-   }
+   rhoApprox <- cesCheckRhoApprox( rhoApprox = rhoApprox, withY = TRUE,
+      withDeriv = NA )
+   rhoApprox <- rhoApprox[ "y" ]
 
-   # add coefficient 'rho' if it is fixed
-   par <- cesCoefAddRho( coef = par, vrs = vrs, rho = rho )
+   # add coefficients 'rho_1', 'rho_2', and 'rho' if they are fixed
+   par <- cesCoefAddRho( coef = par, vrs = vrs, rho1 = rho1, rho2 = rho2, 
+      rho = rho, nExog = length( xNames ), nested = nested )
 
    yHat <- cesCalc( xNames = xNames, data = data, coef = par,
-      rhoApprox = rhoApprox )
+      rhoApprox = rhoApprox, nested = nested )
 
    result <- sum( ( data[[ yName ]] - yHat )^2 )
    if( is.na( result ) ) {

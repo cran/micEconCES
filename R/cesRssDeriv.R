@@ -1,24 +1,34 @@
-cesRssDeriv <- function( par, yName, xNames, data, vrs, rho = NULL,
-      rhoApprox = c( 5e-6, 5e-6, 5e-6, 1e-3, 5e-6 ) ) {
+cesRssDeriv <- function( par, yName, xNames, data, vrs, rho1 = NULL,
+      rho2 = NULL, rho = NULL, rhoApprox, nested = FALSE ) {
+
+   # number of exogenous variables
+   nExog <- length( xNames )
+
+   # obtain names of coefficients
+   coefNames <- cesCoefNames( nExog = nExog, vrs = vrs, 
+      returnRho1 = is.null( rho1 ), returnRho2 = is.null( rho2 ), 
+      returnRho = is.null( rho ), nested = nested )
 
    # check rhoApprox
-   if( !is.vector( rhoApprox ) || length( rhoApprox ) != 5 ||
-         !is.numeric( rhoApprox ) ) {
-      stop( "argument 'rhoApprox' must be a numeric vector with exactly",
-         "5 elements" )
+   if( !nested ) {
+      rhoApprox <- cesCheckRhoApprox( rhoApprox = rhoApprox, withY = TRUE,
+         withDeriv = TRUE )
    }
 
-   # add coefficient 'rho' if it is fixed
-   par <- cesCoefAddRho( coef = par, vrs = vrs, rho = rho )
+   # add coefficients rho_1, rho_2, and rho, if they are fixed
+   par <- cesCoefAddRho( coef = par, vrs = vrs, rho1 = rho1, rho2 = rho2, 
+      rho = rho, nExog = nExog, nested = nested )
 
    # calculate fitted values and residuals
    yHat <- cesCalc( xNames = xNames, data = data, coef = par,
-      rhoApprox = rhoApprox[1] )
+      rhoApprox = rhoApprox[1], nested = nested )
    resid <- data[[ yName ]] - yHat
 
    # obtain derivatives of the CES with respect to coefficients
    derivCoef <- cesDerivCoef( par = par, xNames = xNames, data = data, 
-      vrs = vrs, returnRho = is.null( rho ), rhoApprox = rhoApprox[-1] )
+      vrs = vrs, returnRho1 = is.null( rho1 ), returnRho2 = is.null( rho2 ), 
+      returnRho = is.null( rho ), rhoApprox = rhoApprox[-1],
+      nested = nested )
 
    # prepare vector of gradients (to be returned)
    result <- numeric( ncol( derivCoef ) )

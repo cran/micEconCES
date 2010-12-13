@@ -23,9 +23,23 @@ print.summary.cesEst <- function( x, digits = max( 3, getOption( "digits" ) - 3 
       cat( "non-linear least-squares using the '", x$method, "' optimizer\n",
          sep = "" )
       if( !is.null( x$allRhoSum ) ) {
-         cat( "and a one-dimensional grid search for coefficient 'rho'\n" )
-      } else if( !is.null( x$rho ) ) {
-         cat( "Coefficient 'rho' was fixed at", x$rho, "\n" )
+         gridCoef <- c( "rho1", "rho2", "rho" ) 
+         gridCoef <- gridCoef[ gridCoef %in% names( x$allRhoSum ) ]
+         cat( "and a ",
+            c( "one", "two", "three" )[ length( gridCoef ) ],
+            "-dimensional grid search for coefficient",
+            ifelse( length( gridCoef ) > 1, "s ", " " ),
+            paste( 
+               paste( "'",sub( "([12])$", "_\\1", gridCoef ), "'", sep = "" ), 
+               collapse = ", " ),
+            "\n", sep = "" )
+      } else {
+         if( !is.null( x[[ "rho1" ]] ) ) {
+            cat( "Coefficient 'rho_1' was fixed at", x$rho1, "\n" )
+         }
+         if( !is.null( x[[ "rho" ]] ) ) {
+            cat( "Coefficient 'rho' was fixed at", x$rho, "\n" )
+         }
       }
       if( !is.null( x$convergence ) ) {
          cat( "Convergence ", ifelse( x$convergence, "", "NOT " ),

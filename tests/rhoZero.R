@@ -55,7 +55,8 @@ for( i in 1:length( rhos ) ) {
    # coefficients
    cesCoef <- c( gamma = 1, delta = 0.6, rho = rhos[ i ], nu = 1.1 )
    deriv[ i, , ] <- micEconCES:::cesDerivCoef( par = cesCoef, 
-      xNames = xxNames, data = cesData, vrs = TRUE )
+      xNames = xxNames, data = cesData, vrs = TRUE, 
+      rhoApprox = c( gamma = 5e-6, delta = 5e-6, rho = 1e-3, nu = 5e-6 ) )
 }
 
 # print array of derivatives
