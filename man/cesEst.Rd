@@ -24,9 +24,9 @@
 }
 
 \usage{
-cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
-   start = NULL, lower = NULL, upper = NULL, rho1 = NULL, rho2, rho = NULL,
-   returnGridAll = FALSE, random.seed = 123,
+cesEst( yName, xNames, data, tName = NULL, vrs = FALSE, method = "LM",
+   start = NULL, lower = NULL, upper = NULL, multErr = FALSE,
+   rho1 = NULL, rho2, rho = NULL, returnGridAll = FALSE, random.seed = 123,
    rhoApprox = c( y = 5e-6, gamma = 5e-6, delta = 5e-6, 
       rho = 1e-3, nu = 5e-6 ),
    \dots )
@@ -41,6 +41,8 @@ cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
    \item{xNames}{a vector of two strings containing the names of the
       independent variables.}
    \item{data}{data frame containing the data.}
+   \item{tName}{optional character string specifying the name of the 
+      time variable (\eqn{t}).}
    \item{vrs}{logical. Allow for variable returns to scale?}
    \item{method}{character string indicationg the estimation method:
       either \code{"Kmenta"} for the Kmenta approximation
@@ -55,6 +57,12 @@ cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
       (see section \sQuote{Details}).}
    \item{upper}{upper bounds of the parameters
       (see section \sQuote{Details}).}
+   \item{multErr}{logical. If \code{TRUE}, 
+      the error term is assumed to be multiplicative, 
+      i.e. \eqn{y = \hat{y} \cdot exp( \epsilon )}{y = yHat * exp( epsilon )}.
+      If \code{FALSE} (the default), 
+      the error term is assumed to be additive, 
+      i.e. \eqn{y = \hat{y} + \epsilon}{y = yHat + epsilon}.}
    \item{rho1,rho2,rho}{numeric scalar or vector at which the coefficients 
       \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2}, and/or \eqn{\rho}{rho}
       should be fixed;
@@ -92,11 +100,10 @@ cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
       the first element determines the threshold for calculating
       the endogenous variable; 
       the second element determines the threshold for calculating
-      the derivatives with respect to \eqn{\gamma}{gamma},
-      \eqn{\gamma_1}{gamma_1}, and \eqn{\gamma_2}{gamma_2};
+      the derivatives with respect to \eqn{\gamma}{gamma};
       the third element determines the threshold for calculating
-      the derivatives with respect to \eqn{\delta}{delta},
-      \eqn{\delta_1}{delta_1}, and \eqn{\delta_2}{delta_2};
+      the derivatives with respect to \eqn{\delta_1}{delta_1},
+      \eqn{\delta_2}{delta_2}, and \eqn{\delta}{delta};
       the fourth element determines the threshold for calculating
       the derivatives with respect to \eqn{\rho}{rho},
       \eqn{\rho_1}{rho_1}, and \eqn{\rho_2}{rho_2};
@@ -150,33 +157,31 @@ cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
    However, names of the elements are ignored.
    If argument \code{start} is \code{NULL},
    pre-defined starting values are used.
-   The starting values of \eqn{\gamma_1}{gamma_1} (if present) is set to 1,
-   the starting values of \eqn{\delta}{delta}, \eqn{\delta_1}{delta_1}, 
-   and \eqn{\delta_2}{delta_2} (if present) are set to 0.5,
+   The starting value of \eqn{\lambda}{lambda} (if present) is set to 0.015;
+   the starting values of \eqn{\delta_1}{delta_1}, \eqn{\delta_2}{delta_2}, 
+   and \eqn{\delta}{delta} (if present) are set to 0.5,
    the starting values of \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2}, and
    \eqn{\rho}{rho} (if present and required) are set to 0.25
       (i.e.\ elasticity of substitution = 0.8 in the two-input case),
-   the starting value of \eqn{\nu}{nu} (if required) is set to 1,
-   and the starting value of \eqn{\gamma}{gamma} or \eqn{\gamma_2}{gamma_2} 
+   the starting value of \eqn{\nu}{nu} (if present) is set to 1,
+   and the starting value of \eqn{\gamma}{gamma}
    is set to a value
-   so that the mean of the endogenous variable
-   is equal to the mean of its fitted values.
-   Hence, for the CES with two inputs
-   \eqn{\gamma}{gamma} =  mean( y ) /
-      mean( CES( X, \eqn{\gamma}{gamma} = 1, \eqn{\delta}{delta} = 0.5,
-         \eqn{\rho}{rho} = fixed or 0.25, \eqn{\nu}{nu} = 1 ) ),
-   for the nested CES with 3 inputs
-   \eqn{\gamma_2}{gamma_2} =  mean( y ) /
-      mean( CES( X, \eqn{\gamma_1}{gamma_1} = 1, \eqn{\gamma_2}{gamma_2} = 1,
-         \eqn{\delta_1}{delta_1} = 0.5, \eqn{\delta_2}{delta_2} = 0.5, 
-         \eqn{\rho_1}{rho_1} = 0.25, \eqn{\rho}{rho} = fixed or 0.25, 
-          \eqn{\nu}{nu} = 1 ) ),
-   and for the nested CES with 4 inputs
-   \eqn{\gamma}{gamma} =  mean( y ) /
-      mean( CES( X, \eqn{\gamma}{gamma} = 1, \eqn{\delta_1}{delta_1} = 0.5,
-          \eqn{\delta_2}{delta_2} = 0.5, \eqn{\rho_1}{rho_1} = 0.25, 
-          \eqn{\rho_2}{rho_2} = 0.25, \eqn{\rho}{rho} = fixed or 0.25, 
-          \eqn{\nu}{nu} = 1 ) ).\cr
+   so that the mean of the error term is zero.
+   Hence, in case of an additive error term
+   (i.e. argument \code{multErr} is set to \code{FALSE}, the default) 
+   \eqn{\gamma}{gamma} is set to 
+   \code{mean( y ) / mean( CES( X, start1 ) )}
+   and in case of a multiplicative error term
+   (i.e. argument \code{multErr} is set to \code{TRUE}) 
+   \eqn{\gamma}{gamma} is set to 
+   \code{mean( log( y ) ) - mean( log( CES( X, start1 ) ) )},
+   where \code{y} is the dependent variable (defined by argument \code{yName}),
+   \code{X} is the set of covariates 
+   (defined by arguments \code{xNames} and \code{tName}),
+   \code{CES()} defines the (nested) CES function,
+   and \code{start1} is a coefficient vector 
+   with \eqn{\gamma = 1}{gamma = 1} and all other coefficients 
+   having the starting values described above.\cr
 
    \bold{Lower and upper bounds}\cr
    Arguments \code{lower} and \code{upper} can be used
@@ -187,26 +192,24 @@ cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
    which means that the bounds are set automatically
    depending on the estimation method:
    In case of the \code{L-BFGS-B}, \code{PORT}, and \code{DE} method,
-   the lower bound is \code{0} for \eqn{\gamma}{gamma}, \eqn{\gamma_1}{gamma_1}, 
-   \eqn{\gamma_2}{gamma_2}, \eqn{\delta}{delta}, \eqn{\delta_1}{delta_1}, 
-   and \eqn{\delta_2}{delta_2} (if present), 
+   the lower bound is \code{0} for \eqn{\gamma}{gamma},
+   \eqn{\delta_1}{delta_1}, \eqn{\delta_2}{delta_2}, 
+   and \eqn{\delta}{delta} (if present), 
    \code{-1} for \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2}, and \eqn{\rho}{rho}
    (if present),
    and eventually \code{0} for \eqn{\nu}{nu}.
    In case of the \code{L-BFGS-B} and \code{PORT} method,
-   the upper bound is infinity for \eqn{\gamma}{gamma}, \eqn{\gamma_1}{gamma_1}, 
-   and \eqn{\gamma_2}{gamma_2} (if present),
-   \code{1} for \eqn{\delta}{delta}, \eqn{\delta_1}{delta_1}, and
-   \eqn{\delta_2}{delta_2} (if present),
+   the upper bound is infinity for \eqn{\gamma}{gamma},
+   \code{1} for \eqn{\delta_1}{delta_1}, \eqn{\delta_2}{delta_2}, and
+   \eqn{\delta}{delta} (if present),
    infinity for \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2}, and \eqn{\rho}{rho}
    (if present),
    and eventually infinity for \eqn{\nu}{nu}.
    Since the \sQuote{Differential Evulation} algorithm requires finit bounds,
    the upper bounds for the \code{DE} method are set
-   to \code{1e10} for \eqn{\gamma}{gamma}, \eqn{\gamma_1}{gamma_1},
-   and \eqn{\gamma_2}{gamma_2} (if present),
-   \code{1} for \eqn{\delta}{delta}, \eqn{\delta_1}{delta_1}, and 
-   \eqn{\delta_2}{delta_2} (if present),
+   to \code{1e10} for \eqn{\gamma}{gamma},
+   \code{1} for \eqn{\delta_1}{delta_1}, \eqn{\delta_2}{delta_2}, and 
+   \eqn{\delta}{delta} (if present),
    \code{10} for \eqn{\rho_1}{rho_1}, \eqn{\rho_2}{rho_2}, and \eqn{\rho}{rho}
    (if present),
    and eventually \code{10} for \eqn{\nu}{nu}.
@@ -245,6 +248,7 @@ cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
    that has following components:
    \item{coefficients}{estimated coefficients/parameters of the CES
       (including a possible fixed \eqn{\rho}{rho}).}
+   \item{ela}{constant elasticity/elasticities of substitution.}
    \item{iter}{number of iterations
       (only for non-linear least-squares estimations).}
    \item{convergence}{logical value indicating if the non-linear estimation
@@ -260,13 +264,18 @@ cesEst( yName, xNames, data, vrs = FALSE, method = "LM",
       (including a possible fixed \eqn{\rho}{rho}),
       i.e. the inverse of the cross-product of the gradient matrix
       evaluated at the estimated parameters.}
-   \item{fitted.values}{the fitted values.}
-   \item{residuals}{the residuals.}
+   \item{fitted.values}{the fitted values (\eqn{\hat{y}}{yHat}).}
+   \item{residuals}{the residuals 
+      (i.e. \eqn{y - \hat{y}}{y - yHat} 
+      if argument \code{multErr} is \code{FALSE} (the default),
+      and \eqn{log( y ) - log( \hat{y} )}{log( y ) - log( yHat )}
+      if argument \code{multErr} is \code{TRUE}).}
    \item{rss}{the sum of the squared residuals 
       (i.e. the value of the objective function of the non-linear 
       least-squares estimation evaluated at the estimated parameters).}
    \item{call}{the matched call.}
    \item{method}{argument \code{method}.}
+   \item{multErr}{argument \code{multErr}.}
    \item{start}{starting values for the non-linear estimation
       (not for the \code{Kmenta} and \code{DE} method).}
    \item{lower}{lower bounds of the parameters.}

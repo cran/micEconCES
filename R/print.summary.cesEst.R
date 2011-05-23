@@ -1,5 +1,5 @@
-print.summary.cesEst <- function( x, digits = max( 3, getOption( "digits" ) - 3 ),
-      ... ) {
+print.summary.cesEst <- function( x, ela = TRUE,
+      digits = max( 3, getOption( "digits" ) - 3 ), ... ) {
 
    cat( "Estimated CES function with " )
    if( "nu" %in% rownames( coef( x ) ) ){
@@ -33,9 +33,16 @@ print.summary.cesEst <- function( x, digits = max( 3, getOption( "digits" ) - 3 
                paste( "'",sub( "([12])$", "_\\1", gridCoef ), "'", sep = "" ), 
                collapse = ", " ),
             "\n", sep = "" )
-      } else {
+      }
+      cat( "assuming",
+         ifelse( x$multErr, "a multiplicative", "an additive" ),
+         "error term\n" )
+      if( is.null( x$allRhoSum ) ) {
          if( !is.null( x[[ "rho1" ]] ) ) {
             cat( "Coefficient 'rho_1' was fixed at", x$rho1, "\n" )
+         }
+         if( !is.null( x[[ "rho2" ]] ) ) {
+            cat( "Coefficient 'rho_2' was fixed at", x$rho2, "\n" )
          }
          if( !is.null( x[[ "rho" ]] ) ) {
             cat( "Coefficient 'rho' was fixed at", x$rho, "\n" )
@@ -64,6 +71,20 @@ print.summary.cesEst <- function( x, digits = max( 3, getOption( "digits" ) - 3 
    cat( "Residual standard error:", x$sigma, "\n" )
    cat( "Multiple R-squared:", x$r.squared, "\n" )
    cat( "\n" )
+
+   if( ela && is.matrix( x$ela ) ) {
+      if( nrow( x$ela ) == 1 ) {
+         cat( "Elasticity of Substitution:\n" )
+      } else {
+         cat( "Elasticities of Substitution:\n" )
+      }
+      printCoefmat( x$ela, digits = digits )
+      if( nrow( x$ela ) > 1 ) {
+         cat( "HM = Hicks-McFadden (direct) elasticity of substitution\n" )
+         cat( "AU = Allen-Uzawa (partial) elasticity of substitution\n" )
+      }
+      cat( "\n" )
+   }
 
    invisible( x )
 }

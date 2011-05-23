@@ -1,10 +1,10 @@
 cesCoefBounds <- function( vrs, returnRho1, returnRho2, returnRho, method, 
-      lower, nExog, nested = FALSE ) {
+      lower, nExog, nested = FALSE, withTime ) {
 
    if( method %in% c( "L-BFGS-B", "PORT", "DE" ) ) {
       if( lower ) {
          if( nested && nExog == 3 ) {
-            result <- c( 0, 0, 0, 0 )
+            result <- c( 0, 0, 0 )
          } else if( nested && nExog == 4 ) {
             result <- c( 0, 0, 0, 0 )
          } else if( !nested && nExog == 2 ) {
@@ -14,9 +14,12 @@ cesCoefBounds <- function( vrs, returnRho1, returnRho2, returnRho, method,
                ifelse( nested, " nested", " non-nested" ), " CES function",
                " with ", nExog, " explanatory variables" )
          }
+         if( withTime ) {
+            result <- c( result[ 1 ], -Inf, result[ -1 ] )
+         }
       } else {
          if( nested && nExog == 3 ) {
-            result <- c( Inf, Inf, 1, 1 )
+            result <- c( Inf, 1, 1 )
          } else if( nested && nExog == 4 ) {
             result <- c( Inf, 1, 1, 1 )
          } else if( !nested && nExog == 2 ) {
@@ -25,6 +28,9 @@ cesCoefBounds <- function( vrs, returnRho1, returnRho2, returnRho, method,
             stop( "cannot create upper bounds for the parameters of a",
                ifelse( nested, " nested", " non-nested" ), " CES function",
                " with ", nExog, " explanatory variables" )
+         }
+         if( withTime ) {
+            result <- c( result[ 1 ], Inf, result[ -1 ] )
          }
       }
       if( returnRho1 && nested ) {
@@ -44,7 +50,16 @@ cesCoefBounds <- function( vrs, returnRho1, returnRho2, returnRho, method,
    }
 
    if( method == "DE" ) {
-      result[ 1:2 ][ !is.finite( result[ 1:2 ] ) ] <- 1e10
+      if( lower ) {
+         if( withTime ) {
+            result[ 2 ] <- -0.5
+         }
+      } else {
+         result[ 1 ] <- 1e10
+         if( withTime ) {
+            result[ 2 ] <- 0.5
+         }
+      }
       result[ !is.finite( result ) ] <- 10
    }
 

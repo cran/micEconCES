@@ -1,0 +1,48 @@
+\subsection{Elasticities of substitution}
+\label{sec:elaSub3}
+
+Allen-Uzawa elasticity of substitution
+\citep[see][]{sato67} 
+
+\begin{equation}
+\sigma_{i,j} = \begin{cases} 
+        (1 - \rho )^{-1}
+        & \text{for } i = 1,2; \; j=3 \\ 
+        & \\
+        \dfrac{(1-\rho_1)^{-1} - (1-\rho)^{-1}}
+        {\delta \left( \dfrac{y}{
+        B_1^{-\frac{1}{\rho_1}}}\right)^{1+\rho}}+(1-\rho)^{-1}
+        & \text{for } i=1; \; j=2 
+   \end{cases}
+\end{equation}  
+
+
+Hicks-McFadden elasticity of substitution
+\citep[see][]{sato67} 
+
+\begin{equation}
+\sigma_{i,j} = \begin{cases}
+        \dfrac{\dfrac{1}{\theta_i} + \dfrac{1}{\theta_j}}
+        {(1-\rho_1) \left( \dfrac{1}{\theta_i} - \dfrac{1}{\theta^*} \right)
+        + (1-\rho_2) \left( \dfrac{1}{\theta_j} - \dfrac{1}{\theta} \right)
+        + (1-\rho) \left( \dfrac{1}{\theta^*} - \dfrac{1}{\theta} \right) }
+        & \text{for } i=1,2; \; j=3 \\ 
+        & \\
+        (1-\rho_1)^{-1}
+        & \mbox{text } i=1; \; j=2 
+   \end{cases}
+\end{equation} 
+
+with 
+\begin{align}
+& \theta^* = \delta
+            B_1^{\frac{\rho}{\rho_1}} \cdot y^\rho \\
+& \theta = (1-\delta) x_3^{-\rho} \cdot y^{\rho} \\
+& \theta_1 = \delta \delta_1 x_1^{-\rho_1} 
+            B_1^{-\frac{\rho_1 - \rho}{\rho_1}}
+            \cdot y^{\rho} \\
+& \theta_2 = \delta (1 - \delta_1) x_2^{-\rho_1} 
+            B_1^{-\frac{\rho_1 - \rho}{\rho_1}}
+            \cdot y^{\rho} \\
+& \theta_3 = \theta
+\end{align}

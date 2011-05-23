@@ -16,6 +16,16 @@
 
 \allowdisplaybreaks
 
+% from: http://mintaka.sdsu.edu/GF/bibliog/latex/floats.html
+\renewcommand{\topfraction}{0.9} % max fraction of floats at top
+\renewcommand{\bottomfraction}{0.8}   % max fraction of floats at bottom
+\renewcommand{\textfraction}{0.07} % allow minimal text w. figs
+\renewcommand{\floatpagefraction}{0.8}   % require fuller float pages
+
+\long\def\symbolfootnote#1{\begingroup%
+   \def\thefootnote{\fnsymbol{page}}\footnotetext{#1}\endgroup}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -25,32 +35,34 @@
 %pubInfo: 
 
 %% almost as usual
-\author{G{\'e}raldine Henningsen\\Danmarks Statistik \And 
-        Arne Henningsen\\University of Copenhagen}
-\title{Estimating the CES Function in \proglang{R}: Package \pkg{micEconCES}}
+\author{Arne Henningsen\\University of Copenhagen \And 
+        G{\'e}raldine Henningsen\footnotemark\\Technical University of Denmark}
+\title{Econometric Estimation of the ``Constant Elasticity of Substitution'' Function in \proglang{R}: Package \pkg{micEconCES}}
 
 %% for pretty printing and a nice hypersummary also set:
-\Plainauthor{G{\'e}raldine Henningsen, Arne Henningsen} %% comma-separated
-\Plaintitle{Estimating the CES Function in R: Package micEconCES} %% without formatting
-\Shorttitle{Estimating the CES Function in R} %% a short title (if necessary)
+\Plainauthor{Arne Henningsen, G{\'e}raldine Henningsen} %% comma-separated
+\Plaintitle{Econometric Estimation of the Constant Elasticity of Substitution Function in R: Package micEconCES} %% without formatting
+\Shorttitle{Econometric Estimation of the Constant Elasticity of Substitution Function in R} %% a short title (if necessary)
 
 %% an abstract and keywords
 \Abstract{
-The Constant-Elasticity-of-Substitution (CES) function
+The Constant Elasticity of Substitution (CES) function
 is popular in several areas of economics
 but it is rarely used in econometric analysis,
 because it cannot be estimated by standard linear regression techniques.
-We discuss several approaches to estimate the CES function
-and demonstrate how they can be applied in \proglang{R}
-using the add-on package \pkg{micEconCES}.
-Furthermore, we describe how we implemented the various estimation approaches
-in the \pkg{micEconCES} package
-and we compare them in a Monte Carlo study.
-Given the data generating process used in our analysis,
-all estimation approaches provided satisfying results.
+We discuss several existing approaches and propose a new grid-search approach 
+for estimating the traditional CES function with two inputs
+as well as nested CES functions with three and four inputs.
+Furthermore, we demonstrate how these approaches can be applied in \proglang{R}
+using the add-on package \pkg{micEconCES}
+and we describe how the various estimation approaches
+are implemented in the \pkg{micEconCES} package.
+Finally, we illustrate the usage of this package
+by replicating some estimations of CES functions
+that are reported in the literature.
 }
-\Keywords{constant elasticity of substitution, CES, \proglang{R}}
-\Plainkeywords{constant elasticity of substitution, CES, R} %% without formatting
+\Keywords{constant elasticity of substitution, CES, nested CES, \proglang{R}}
+\Plainkeywords{constant elasticity of substitution, CES, nested CES, R} %% without formatting
 %% at least one keyword must be supplied
 
 %% publication information
@@ -65,17 +77,21 @@ all estimation approaches provided satisfying results.
 %% The address of (at least) one author should be given
 %% in the following format:
 \Address{
-   G{\'e}raldine Henningsen\\
-   Danmarks Statistik\\
-   E-mail: \email{geraldine.henningsen@gmail.com}\\
-\\
    Arne Henningsen\\
    Institute of Food and Resource Economics\\
    University of Copenhagen\\
    Rolighedsvej 25\\
    1958 Frederiksberg C, Denmark\\
    E-mail: \email{arne.henningsen@gmail.com}\\
-   URL: \url{http://www.arne-henningsen.name/}
+   URL: \url{http://www.arne-henningsen.name/}\\
+\\
+   G{\'e}raldine Henningsen\\
+   Systems Analysis Division\\
+   Risø National Laboratory for Sustainable Energy\\
+   Technical University of Denmark\\
+   Frederiksborgvej 399\\
+   4000 Roskilde, Denmark\\
+   E-mail: \email{gehe@risoe.dtu.dk}
 }
 %% It is also possible to add a telephone and fax number
 %% before the e-mail in the following format:
@@ -89,6 +105,7 @@ all estimation approaches provided satisfying results.
 
 
 \begin{document}
+\symbolfootnote{Senior authorship is shared.}
 
 % initialisation stuff
 \SweaveOpts{engine=R}
@@ -99,26 +116,87 @@ all estimation approaches provided satisfying results.
 \section{Introduction}
 \label{sec:cesIntro}
 
-The Constant-Elasticity-of-Substitution (CES) function was developed 
-as a generalisation of the Cobb-Douglas function 
-by the Stanford group around \citet{arrow61}. 
-In recent years the CES has gained in importance in macroeconomics 
+The so-called Cobb-Douglas function \citep{douglas28}
+is the most widely used functional form in economics.
+However, it imposes strong assumptions on the underlying
+functional relationship,
+most notably that the elasticity of substitution%
+\footnote{
+For instance in production economics,
+the elasticity of substitution measures the substitutability between inputs.
+It has non-negative values,
+where an elasticity of substitution of zero indicates
+that no substitution is possible
+(e.g.\ between wheels and frames in the production of bikes)
+and an elasticity of substitution of infinity indicates
+that the inputs are perfect substitutes
+(e.g.\ electricity from two different power plants).
+}
+is always one.
+Given these restrictive assumptions,
+the Stanford group around \citet{arrow61}
+developed the Constant Elasticity of Substitution (CES) function
+as a generalisation of the Cobb-Douglas function
+that allows for any (non-negative constant) elasticity of substitution. 
+This functional form has become very popular in programming models
+(e.g.\ general equilibrium models or trade models),
+but it has been rarely used in econometric analysis.
+Hence, the parameters of the CES functions used in programming models
+are mostly guesstimated and calibrated rather
+than econometrically estimated. 
+However, in recent years, the CES function has gained in importance
+also in econometric analyses, particularly in macroeconomics
 \citep[e.g.][]{amras04,bentolila06} and
-growth theory \citep[e.g.][]{caselli05,caselli06}
-as an alternative to the Cobb-Douglas function and it can 
-be applied in many other fields.
-In microeconomics the CES function gained less popularity most likely
-because of its restrictive assumptions, especially in the 
-case of more than two explanatory variables. %Beispiele für Mikropaper?
+growth theory \citep[e.g.][]{caselli05,caselli06,klump08},
+where it replaces the Cobb-Douglas function.%
+\footnote{
+The \textit{Journal of Macroeconomics} even published an entire
+special issue titled
+``The CES Production Function in the Theory and Empirics of Economic Growth''
+\citep{klump08}.
+}
+The CES functional form is also frequently used in micro-macro models,
+i.e.\ a new type of models
+that link microeconomic models of consumers and producers
+with an overall macroeconomic model \citep[see for example][]{davies09}.
+Given the increasing use of the CES function in econometric analysis
+and the importance of using sound parameters in economic programming models,
+there is definitely demand for a software
+that facilitates the econometric estimation of the CES function.
+
+The \proglang{R} package \pkg{micEconCES} \citep{r-micEconCES-0.6}
+provides this functionality. 
+It is developed as part of the ``micEcon''
+project on R-Forge (\url{http://r-forge.r-project.org/projects/micecon/}).
+Stable versions of this package are available for download
+from the Comprehensive R Archive Network
+(CRAN, \url{http://CRAN.R-Project.org/package=micEconCES}).
+
+The paper is structured as follows.
+In the next section,
+we describe the classical CES function and the most important generalisations
+that can account for more than two independent variables.
+Then, we discuss several approaches to estimate these CES functions
+and show how they can be applied in \proglang{R}.
+The fourth section describes the implementation of these methods
+in the \proglang{R} package \pkg{micEconCES},
+and the fifth section demonstrates the usage of this package
+by replicating estimations of CES functions
+that are reported in the literature.
+Finally, the last section concludes.
+
+
+\section{Specification of the CES function}
+\label{sec:cesSpec}
 
 The formal specification of a CES production function%
 \footnote{
 The CES functional form can be used to model different economic relationships
-(e.g.\ as production function or utility function).
+(e.g.\ as production function, cost function, or utility function).
 However, as the CES functional form 
-is mostly used to model production technology,
-we name the independent (right-hand side) variables ``inputs'' 
-and the dependent (left-hand side) variable ``output''
+is mostly used to model production technologies,
+we name the dependent (left-hand side) variable ``output''
+and the independent (right-hand side) variables ``inputs''
 to keep the notation simple.
 }
 with two inputs is
@@ -138,13 +216,14 @@ and $\nu \in (0,\infty)$ is equal to the elasticity of scale.%
 Originally, the CES function of \citet{arrow61} 
 could model only constant returns to scale
 but later \citet{kmenta67} added the parameter $\nu$,
-which allows for variable returns to scale if $\nu \neq 1$.
+which allows for decreasing or increasing returns to scale
+if $\nu < 1$ or $\nu > 1$, respectively.
 }
 
 The CES function includes three special cases: for $\rho \rightarrow 0$, 
 $\sigma$ approaches $1$ 
 and the CES turns to the Cobb-Douglas form;
-for very large $\rho$, $\sigma$ approaches $0$ and the CES turns 
+for $\rho \rightarrow \infty$, $\sigma$ approaches $0$ and the CES turns
 to the Leontief production function;  
 and for $\rho \rightarrow -1$, $\sigma$ approaches infinity 
 and the CES turns to a linear function
@@ -153,30 +232,208 @@ if $\nu$ is equal to 1.
 As the CES function is non-linear in parameters 
 and cannot be linearised analytically,
 it is not possible to estimate it with the usual linear estimation techniques.
-Therefore, the CES is usually 
-approximated by the so-called ``Kmenta approximation'' \citep{kmenta67}
-or estimated by non-linear least-squares using different optimization
+Therefore, the CES function is often
+approximated by the so-called ``Kmenta approximation'' \citep{kmenta67},
+which can be estimated by linear estimation techniques.
+Alternatively, it can be estimated by non-linear least-squares using different optimization
 algorithms.
-In this paper, we describe and compare these estimation approaches,
-explain how we implemented them in the \proglang{R} package \pkg{micEconCES}
-\citep{r-micEconCES-0.6},
-and show how they can be used for economic analysis and modelling.
-The \pkg{micEconCES} package is developed as part of the ``micEcon''
-project on R-Forge (\url{http://r-forge.r-project.org/projects/micecon/}).
-Stable versions of this package are available for download
-from the Comprehensive R Archive Network
-(CRAN, \url{http://CRAN.R-Project.org/package=micEconCES}).
 
-The paper is structured as follows.
-In the next section 
-we discuss several approaches to estimate the CES production function
-and show how they can be applied in \proglang{R}.
-The third section describes the implementation of these methods
-in the \proglang{R} package \pkg{micEconCES}. 
-Section four presents the results of a Monte Carlo study to
-compare the various estimation approaches, 
-and the last section concludes.
+To overcome the limitation of two input factors,
+CES functions for multiple inputs have been proposed.
+One problem of the elasticity of substitution for models
+with more than two inputs is
+that the literature provides three popular but different definitions
+\citep[see e.g.][]{chambers88}:
+while the Hicks-McFadden elasticity of substitution
+(also known as direct elasticity of substitution)
+describes the input substitutability of two inputs $i$ and $j$
+along an isoquant given that all other inputs are constant,
+the Allen-Uzawa elasticity of substitution
+(also known as Allen partial elasticity of substitution)
+and the Morishima elasticity of substitution
+describe the input substitutability of two inputs
+when all other input quantities are allowed to adjust.
+The only functional form,
+in which all three elasticities of substitution are constant
+is the plain $n$-input CES function \citep{blackorby89},
+which has the following specification
+\begin{align}
+y = \; & \gamma \left( \sum_{i=1}^n \delta_i x_i^{-\rho} \right)^{-\frac{\nu}{\rho}}
+\label{eq:n-ces-plain}\\
+& \text{with } \sum_{i=1}^n \delta_i = 1,
+\nonumber
+\end{align}
+where $n$ is the number of inputs and
+$x_1$, \ldots, $x_n$ are the quantities of the $n$ inputs.
+Several scholars tried to extend the Kmenta approximation to the $n$-input case
+but \citet{hoff04a} showed
+that a correctly specified extension to the $n$-input case
+requires non-linear parameter restrictions on a Translog function.
+Hence, there is little gain in using the Kmenta approximation
+in the $n$-input case.
 
+The plain $n$-input CES function assumes
+that the elasticities of substitution between any two inputs are the same.
+As this is highly undesirable for empirical applications,
+multiple-input CES functions
+that allow for different (constant) elasticities of substitution
+between different pairs of inputs
+have been proposed;
+for instance, the functional form proposed by \citet{uzawa62}
+has constant Allen-Uzawa elasticities of substitution
+and the functional form proposed by \citet{mcfadden63}
+has constant Hicks-McFadden elasticities of substitution.
+
+However, the $n$-input CES functions
+proposed by \citet{uzawa62} and \citet{mcfadden63}
+impose rather strict conditions on the values
+for the elasticities of substitution
+and thus, are less useful for empirical applications \citep[p.~202]{sato67}.
+Therefore, \citet{sato67} proposed a family of two-level nested CES functions.
+The basic idea of nesting CES functions
+is to have two or more levels of CES functions,
+where each of the inputs of an upper-level CES function
+might be replaced by the dependent variable of a lower-level CES function.
+Particularly the nested CES functions for three and four inputs
+based on \citet{sato67} have become popular in recent years.
+These functions increased in popularity especially in the
+field of macro-econometrics, where input factors needed further differentiation, e.g.\ issues such as
+Grilliches' capital-skill complementarity \citep{griliches69}
+or wage differentiation between skilled and unskilled labour
+\citep[e.g.][]{acemoglu98,krusell00,pandey08}.
+% Das ist nicht mehr wirklich "recent years". Gibt's auch neuere Literatur?
+ 
+
+The nested CES function for four inputs as proposed by \citet{sato67}
+nests two lower-level (two-input) CES functions 
+into an upper-level (two-input) CES function:
+$y = \gamma[\delta \, CES_1 + (1-\delta) \, CES_2 ]^{-\nu/\rho}$,
+where $CES_i = \gamma_i \left( \delta_i x_{2i-1}^{-\rho_i} + 
+   \left(1-\delta_i \right) x_{2i}^{-\rho_i} \right)^{-\nu_i/\rho_i},$
+   $i = 1, 2$,
+indicates the two lower-level CES functions.
+In these lower-leel CES functions,
+we (arbitrarily) normalize coefficients $\gamma_i$ and $\nu_i$ to one,
+because without these normalisations,
+not all coefficients of the (entire) nested CES function 
+could be identified in econometric estimations;
+there exists an infinite number of vectors of non-normalised coefficients
+that all result in the same output quantity 
+given an arbitrary vector of input quantities
+(see footnote~\ref{foot:nested3NormGamma1} for an example).
+Hence, the final specification of the four-input nested CES function 
+is as follows:
+\begin{equation}
+y = \gamma \left[ \delta \left( \delta_1 x_1^{-\rho_1} + ( 1 - \delta_1 ) x_2^{-\rho_1} \right)^{\rho/\rho_1}
+    +  ( 1 - \delta ) \left( \delta_2 x_3^{-\rho_2} + ( 1 - \delta_2 ) x_4^{-\rho_2} \right)^{\rho/\rho_2} \right]^{-\nu/\rho}.
+\label{eq:4-ces-nested}
+\end{equation}
+
+If $\rho_1 = \rho_2 = \rho$,
+the four-input nested CES function defined in equation~\ref{eq:4-ces-nested}
+reduces to the plain four-input CES function defined in equation~\ref{eq:n-ces-plain}.%
+\footnote{
+In this case,
+the parameters of
+the four-input nested CES function defined in equation~\ref{eq:4-ces-nested}
+(indicated by the superscript $n$)
+and the parameters of
+the plain four-input CES function defined in equation~\ref{eq:n-ces-plain}
+(indicated by the superscript $p$)
+correspond in the following way:
+where $\rho^p = \rho_1^n = \rho_2^n = \rho^n$,
+$\delta_1^p = \delta_1^n \; \delta^n$,
+$\delta_2^p = ( 1 - \delta_1^n ) \; \delta^n$,
+$\delta_3^p = \delta_2^n \; ( 1 - \delta^n )$,
+$\delta_4^p = ( 1 - \delta_2^n ) \; ( 1 - \delta^n )$,
+$\gamma^p = \gamma^n$,
+$\delta_1^n = \delta_1^p / ( \delta_1^p + \delta_2^p )$,
+$\delta_2^n = \delta_3^p / ( \delta_3^p + \delta_4^p )$, and
+$\delta^n = \delta_1^p + \delta_2^p$.
+}
+
+In the case of the three-input nested CES function,
+only one input of the upper-level CES function
+is further differentiated:%
+\footnote{
+\label{foot:nested3NormGamma1}
+\citet{papageorgiou05} proposed a specification
+that includes the additional term $\gamma_1^{-\rho}$:
+\begin{equation*}
+ y = \gamma \left[ \delta \gamma_1^{-\rho} \left( \delta_1 x_1^{-\rho_1} + (1-\delta_1) x_2^{-\rho_1}\right)^{\rho/\rho_1}
++ ( 1 - \delta ) x_3^{-\rho} \right]^{-\nu/\rho}.
+\end{equation*}
+However, adding the term $\gamma_1^{-\rho}$ does not increase the flexibility
+of this function
+as $\gamma_1$ can be arbitrarily normalized to one;
+normalizing $\gamma_1$ to one
+changes $\gamma$ to
+$\gamma \left( \delta \gamma_1^{-\rho} + ( 1 - \delta ) \right)^{-( \nu / \rho )}$
+and changes $\delta$ to
+$\left. \left( \delta \gamma_1^{-\rho} \right) \right/
+\left( \delta \gamma_1^{-\rho} + ( 1 - \delta ) \right)$
+but has no effect on the functional form.
+Hence, the parameters $\gamma$, $\gamma_1$, and $\delta$
+cannot be (jointly) identified in econometric estimations
+(see also explanation for the four-input nested CES function
+above equation~(\ref{eq:4-ces-nested})).
+}
+\begin{equation}
+ y = \gamma \left[ \delta \left( \delta_1 x_1^{-\rho_1} + (1-\delta_1) x_2^{-\rho_1}\right)^{\rho/\rho_1}
++ ( 1 - \delta ) x_3^{-\rho} \right]^{-\nu/\rho}.
+\label{eq:3-ces-nested}
+\end{equation}
+For instance, $x_1$ and $x_2$ could be skilled and unskilled labour, respectively, and $x_3$ capital.
+Alternatively, \citet{kemfert98} used this specification
+for analysing the substitutability between capital, labour, and energy.
+If $\rho_1 = \rho$,
+the three-input nested CES function defined in equation~\ref{eq:3-ces-nested}
+reduces to the plain three-input CES function defined in equation~\ref{eq:n-ces-plain}.%
+\footnote{
+In this case,
+the parameters of
+the three-input nested CES function defined in equation~\ref{eq:3-ces-nested}
+(indicated by the superscript $n$)
+and the parameters of
+the plain three-input CES function defined in equation~\ref{eq:n-ces-plain}
+(indicated by the superscript $p$)
+correspond in the following way:
+where $\rho^p = \rho_1^n = \rho^n$,
+$\delta_1^p = \delta_1^n \; \delta^n$,
+$\delta_2^p = ( 1 - \delta_1^n ) \; \delta^n$,
+$\delta_3^p = 1 - \delta^n$,
+$\gamma^p = \gamma^n$,
+$\delta_1^n = \delta_1^p / ( 1 - \delta_3^p )$, and
+$\delta^n = 1 - \delta_3^p$.
+}
+
+The nesting of the CES function increases its flexibility and
+makes it an attractive choice for many applications in economic theory and empirical work.
+However, nested CES functions are not invariant to the nesting structure
+and different nesting structures imply different assumptions about
+the separability between inputs \citep{sato67}.
+As the nesting structure is theoretically arbitrary,
+the selection depends on the researcher's choice and should be based
+on empirical considerations.
+
+The formulas for calculating the Hicks-McFadden and Allen-Uzawa
+elasticities of substitution
+for the three-input and four-input nested CES functions
+are given in appendices~\ref{sec:elaSub3} and~\ref{sec:elaSub4}, respectively.
+\citet{anderson94} showed for $n$-input nested CES functions
+that the Hicks-McFadden and Allen-Uzawa elasticities of substitution
+are identical,
+only if the nested technologies are all of the Cobb-Douglas form,
+i.e.\ $\rho_1 = \rho_2 = \rho = 0$ in the four-input nested CES function
+and $\rho_1 = \rho = 0$ in the three-input nested CES function.
+% Pleas verify that this is correct.
+
+Like in the plain $n$-input case, nested CES functions
+cannot be easily linearised.
+Hence, they have to be estimated by applying non-linear optimisation
+methods. In the following section, we will present different approaches to estimate
+the classical two-input CES function as well as $n$-input nested CES functions using the
+\proglang{R} package \pkg{micEconCES}. 
 
 \section{Estimation of the CES production function}
 \label{sec:estimation}
@@ -188,31 +445,50 @@ it can be loaded with the command
 <<results=hide>>=
 library( "micEconCES" )
 @
-We demonstrate the usage of this package by estimating a CES model
-with an artifical data set,
-because this avoids several problems 
+We demonstrate the usage of this package by estimating
+a classical two-input CES function
+as well as nested CES functions with three and four inputs.
+For this, we use an artificial data set \code{cesData},
+because this avoids several problems
 that usually occur with real-world data.
 <<>>=
 set.seed( 123 )
-cesData <- data.frame( x1 = rchisq( 200, 10 ), x2 = rchisq( 200, 10 ) )
-cesData$y <- cesCalc( xNames = c( "x1", "x2" ), data = cesData,
+cesData <- data.frame(x1 = rchisq(200, 10), x2 = rchisq(200, 10),
+   x3 = rchisq(200, 10), x4 = rchisq(200, 10) )
+cesData$y2 <- cesCalc( xNames = c( "x1", "x2" ), data = cesData,
    coef = c( gamma = 1, delta = 0.6, rho = 0.5, nu = 1.1 ) )
-cesData$y <- cesData$y + 2.5 * rnorm( 200 )
+cesData$y2 <- cesData$y2 + 2.5 * rnorm( 200 )
+cesData$y3 <- cesCalc(xNames = c("x1", "x2", "x3"), data = cesData,
+   coef = c( gamma = 1, delta_1 = 0.7, delta = 0.6, rho_1 = 0.3, rho = 0.5,
+      nu = 1.1), nested = TRUE )
+cesData$y3 <- cesData$y3 + 1.5 * rnorm(200)
+cesData$y4 <- cesCalc(xNames = c("x1", "x2", "x3", "x4"), data = cesData,
+   coef = c(gamma = 1, delta_1 = 0.7, delta_2 = 0.6, delta = 0.5,
+   rho_1 = 0.3, rho_2 = 0.4, rho = 0.5, nu = 1.1), nested = TRUE )
+cesData$y4 <- cesData$y4 + 1.5 * rnorm(200)
 @
+
 The first line sets the ``seed'' for the random number generator
 so that these examples can be replicated with exactly the same data set.
-The second line creates a data set with two input variables
-(called \code{x1} and \code{x2})
+The second line creates a data set with four input variables
+(called \code{x1}, \code{x2}, \code{x3}, and \code{x4})
 that have 200 observations each and 
-are generated from a random $\chi^2$ distribution with 10 degrees of freedom.
-The third line uses the command \code{cesCalc}
-that is included in the \pkg{micEconCES} package
-and calculates the deterministic output variable (called \code{y})
-given the CES production function
-with the two input variables \code{x1} and \code{x2}
-and the coefficients $\gamma = 1$, $\delta = 0.6$, $\rho = 0.5$, 
-and $\nu = 1.1$.
-The last line generates the stochastic output variable
+are generated from random $\chi^2$ distributions with 10 degrees of freedom.
+The third, fifth, and seventh commands use the function \code{cesCalc},
+which is included in the \pkg{micEconCES} package,
+to calculate the deterministic output variables
+for the CES functions with two, three, and four inputs
+(called \code{y2}, \code{y3}, and \code{y4}, respectively)
+given a CES production function.
+For the two-input CES function,
+we use the coefficients $\gamma = 1$, $\delta = 0.6$, $\rho = 0.5$,
+and $\nu = 1.1$;
+for the three-input nested CES function, we use $\gamma = 1$, $\delta_1 = 0.7$,
+$\delta = 0.6$, $\rho_1 = 0.3$, $\rho = 0.5$, and $\nu = 1.1$;
+and for the four-input nested CES function, we use $\gamma = 1$, $\delta_1 = 0.7$,
+$\delta_2 = 0.6$, $\delta = 0.5$, $\rho_1 = 0.3$, $\rho_2 = 0.4$,
+$\rho = 0.5$, and $\nu = 1.1$.
+The fourth, sixth, and eighth commands generate the stochastic output variables
 by adding normally distributed random errors 
 to the deterministic output variable.
 
@@ -220,11 +496,21 @@ As the CES function is non-linear in its parameters,
 the most straightforward way to estimate the CES function in \proglang{R}
 would be to use \code{nls},
 which performs non-linear least-squares estimations.
+
 <<>>=
-cesNls <- nls( y ~ gamma * ( delta * x1^(-rho) + (1-delta) * x2^(-rho) )^(-phi/rho),
+cesNls <- nls( y2 ~ gamma * ( delta * x1^(-rho) + (1-delta) * x2^(-rho) )^(-phi/rho),
    data = cesData, start = c( gamma = 0.5, delta = 0.5, rho = 0.25, phi = 1 ) )
 print( cesNls )
 @ 
+
+% <<>>=
+% cesNls <- try( nls( y4 ~ gamma * ( delta * ( delta_1 * x1^(-rho_1) + (1 - delta) * x2^(-rho_1) )^( rho/rho_1 )
+%                    + ( 1 - delta ) * ( delta_2 * x3^(-rho_2) + ( 1 - delta_2 ) * x4^(-rho_2) )^( rho/rho_2 ))^(-nu/rho),
+%    data = cesData, start = c( gamma = 0.5, delta_1 = 0.5, delta_2 = 0.5, delta = 0.5,
+%           rho_1 = 0.1, rho_2 = 0.1, rho = 0.25, nu = 1 ) ) )
+% print( cesNls )
+% @ 
+
 While the \code{nls} routine works well in this ideal artificial example,
 it does not perform well in many applications with real data, 
 either because of non-convergence, convergence to a local minimum, or 
@@ -240,35 +526,35 @@ Given that non-linear estimation methods are often troublesome%
 \citet{kmenta67} derived an approximation of the classical two-input CES production function
 that can be estimated by ordinary least-squares techniques.
 \begin{align}
- \log y = & \log \gamma + \nu \; \delta \log x_1 + \nu
-    \left( 1 - \delta \right) \log x_2
+ \ln y = & \ln \gamma + \nu \; \delta \ln x_1 + \nu
+    \left( 1 - \delta \right) \ln x_2
    \label{eq:kmenta}\\
   &- \frac{\rho \, \nu}{2} \;
-      \delta \left( 1 - \delta \right) \left( \log x_1 - \log x_2 \right)^2
+      \delta \left( 1 - \delta \right) \left( \ln x_1 - \ln x_2 \right)^2
    \nonumber
 \end{align}
 While \citet{kmenta67} obtained this formula by logarithmising the CES function
 and applying a second-order Taylor series expansion to
-$\log \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)$
+$\ln \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)$
 at the point $\rho = 0$,
 the same formula can be obtained
 by applying a first-order Taylor series expansion
 to the entire logarithmized CES function
-%$\log \gamma - \frac{\nu}{\rho} \log \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)$
+%$\ln \gamma - \frac{\nu}{\rho} \ln \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)$
 at the point $\rho = 0$ \citep{uebe00}.
 As the authors consider the latter approach as more straight-forward,
 the Kmenta approximation is called%
 ---in contrast to \citet[p.~180]{kmenta67}---%
 first-order Taylor series expansion in the remainder of this paper.
 
-The Kmenta approximation can be written also as a restricted translog function
+The Kmenta approximation can also be written as a restricted translog function
 \citep{hoff04a}:
 \begin{align}
-\log y =& \alpha_0 + \alpha_1 \log x_1 + \alpha_2 \log x_2
+\ln y =& \alpha_0 + \alpha_1 \ln x_1 + \alpha_2 \ln x_2
    \label{eq:kmentaTranslog}\\
-   & + \frac{1}{2} \; \beta_{11} \left( \log x_1 \right)^2
-   + \frac{1}{2} \; \beta_{22} \left( \log x_2 \right)^2
-   + \beta_{12} \, \log x_1 \log x_2,
+   & + \frac{1}{2} \; \beta_{11} \left( \ln x_1 \right)^2
+   + \frac{1}{2} \; \beta_{22} \left( \ln x_2 \right)^2
+   + \beta_{12} \, \ln x_1 \ln x_2,
    \nonumber
 \end{align}
 where the two restrictions are
@@ -284,7 +570,7 @@ a third restriction
 \end{equation}
 must be enforced. 
 These restrictions can be utilised to test 
-whether the linear Kmenta approximation of the CES~(\ref{eq:kmenta})
+whether the linear Kmenta approximation of the CES function~(\ref{eq:kmenta})
 is an acceptable simplification of the translog functional form.%
 \footnote{%
 Note that this test does \emph{not} check 
@@ -296,7 +582,7 @@ can be approximated by the Kmenta approximation.
 If this is the case,
 a simple $t$-test for the coefficient $\beta_{12} = - \beta_{11} = - \beta_{22}$
 can be used to check if the Cobb-Douglas functional form is an acceptable
-simplification of the Kmenta approximation of the CES.%
+simplification of the Kmenta approximation of the CES function.%
 \footnote{%
 Note that this test does \emph{not} compare the Cobb-Douglas function
 with the (non-linear) CES function but only with its linear approximation.
@@ -313,7 +599,7 @@ of the restricted translog function by
 \delta &= \frac{ \alpha_1 }{ \alpha_1 + \alpha_2 } 
    \label{eq:kmentaTranslogDelta}\\
 \rho &= \frac{ \beta_{12} \left( \alpha_1 + \alpha_2 \right) }{
-   \alpha_1 * \alpha_2 }
+   \alpha_1 \cdot \alpha_2 }
    \label{eq:kmentaTranslogRho}
 \end{align}
 
@@ -328,19 +614,19 @@ and eventually also in equation~(\ref{eq:kmentaTranslogCrs})
 using the (finite sample) $F$ statistic,
 (c) estimates the restricted translog 
 function~(\ref{eq:kmentaTranslog},~\ref{eq:kmentaTranslogRestrict}), and 
-finally, (d) calculates the parameters of the CES using 
+finally, (d) calculates the parameters of the CES function using 
 equations~(\ref{eq:kmentaTranslogGamma}$-$\ref{eq:kmentaTranslogRho})
 as well as their covariance matrix using the delta method.
 
 The following code estimates a CES function 
-with the endogenous variable \code{y} (specified in argument \code{yName}),
+with the dependent variable \code{y2} (specified in argument \code{yName}) and
 the two explanatory variables \code{x1} and \code{x2} (argument \code{xNames}),
-the artificial data set \code{cesData} that we generated above 
+all taken from the artificial data set \code{cesData} that we generated above
 (argument \code{data})
 using the Kmenta approximation (argument \code{method})
 and allowing for variable returns to scale (argument \code{vrs}).
 <<>>=
-cesKmenta <- cesEst( yName = "y", xNames = c( "x1", "x2" ), data = cesData, 
+cesKmenta <- cesEst( yName = "y2", xNames = c( "x1", "x2" ), data = cesData, 
    method = "Kmenta", vrs = TRUE )
 @
 Summary results can be obtained applying the \code{summary} method
@@ -366,19 +652,19 @@ coef( summary( cesKmenta$kmenta ) )
 Given that $\beta_{12} = - \beta_{11} = - \beta_{22}$ 
 significantly differs from zero at the 5\% level,
 we can conclude that the underlying technology is not of the Cobb-Douglas form.
-Alternatively, we can check if the parameter $\rho$ of the CES,
+Alternatively, we can check if the parameter $\rho$ of the CES function,
 which is calculated from the coefficients of the Kmenta approximation,
 significantly differs from zero.
 This should---as in our case---deliver similar results (see above).
 
-Finally, we plot the fitted values against the actual endogenous variable ($y$)
+Finally, we plot the fitted values against the actual dependent variable ($y$)
 to check whether the parameter estimates are reasonable.
 <<echo=FALSE>>=
 pdf( "plotFittedKmenta.pdf", width = 4, height = 4 )
 par( mar = c( 4.5, 4, 1, 1 ) )
 @
 <<>>=
-compPlot ( cesData$y, fitted( cesKmenta ), xlab = "actual values", 
+compPlot ( cesData$y2, fitted( cesKmenta ), xlab = "actual values",
    ylab = "fitted values" )
 @
 <<echo=FALSE,results=hide>>=
@@ -401,27 +687,30 @@ only in a region of convergence, that is depending of the true parameters of the
 function \citep{thursby78}.
 
 Although, \citet{maddala67} and \citet{thursby78} find estimates for $\nu$ and
-$\delta$ with small bias and MSE, results for $\gamma$ and $\rho$ are estimated with 
+$\delta$ with small bias and mean squared error (MSE),
+results for $\gamma$ and $\rho$ are estimated with 
 generally large bias and MSE \citep{thursby78, thursby80}.
 More reliable results can only be obtained if $\rho \rightarrow 0$, and thus, 
 $\sigma \rightarrow 1$ which increases the convergence region, 
-i.e.\ if the underlying CES is of the Cobb-Douglas form.
+i.e.\ if the underlying CES function is of the Cobb-Douglas form.
 This is a major drawback of the Kmenta approximation as its purpose is to 
 facilitate the estimation of functions with non-unitary $\sigma$.
 
 
+\subsection{Gradient-based optimisation algorithms}
+\label{sec:optimGradient}
 
-\subsection{Levenberg-Marquard algorithm}
-\label{sec:marquardt}
+\subsubsection{Levenberg-Marquardt}
 
 Initially, the Levenberg-Marquardt algorithm \citep{marquardt63} was most commonly used
 for estimating the parameters of the CES function by non-linear least-squares.
-This iterative algorithm is done by using an optimum interpolation 
-between the Gauss-Newton method
-that involves a linearisation by a first-order Taylor series approximation
-and the gradient method (steepest-descent method).
+This iterative algorithm can be seen as a maximum neighbourhood method
+which performs an optimum interpolation between a first-order Taylor series approximation
+(Gauss-Newton method) and a steepest-descend method (gradient method) \citep{marquardt63}.
+By combining these two non-linear optimization algorithms, the developers want to increase
+the convergence probability by reducing the weaknesses of each of the two methods.
 
-In a Monte Carlo study by \citet{thursby80} the Levenberg-Marquardt algorithm outperforms
+In a Monte Carlo study by \citet{thursby80}, the Levenberg-Marquardt algorithm outperforms
 the other methods and gives the best estimates of the CES parameters. 
 However, the Levenberg-Marquardt algorithm performs as poorly as the other methods
 in estimating the elasticity of substitution~($\sigma$),
@@ -430,102 +719,8 @@ to be biased towards infinity, unity, or zero.
 
 Although the Levenberg-Marquardt algorithm does not live up to modern standards,
 we include it for reasons of completeness, as it is has proven to be 
-a standard method to estimate the CES technology. 
-The Levenberg-Marquardt algorithm can be seen as a maximum neighbourhood method 
-which performs an optimum interpolation between a first-order Taylor approximation
-(Gauss-Newton) and  a steepest descend method (gradient method) \citep{marquardt63}.
-By combining these two non-linear optimization algorithms, the developers want to increase 
-conversion probability by reducing the weaknesses of each of the two methods. 
+a standard method for estimating CES functions.
 
-The objective function $\Phi = || Y - \hat{Y} ||^2$
-of a non-linear least-squares estimation does not fulfill the theoretical criteria of a
-well behaved function, unless the function value is close to its minimum.
-This feature becomes the more severe the more the function is non-linear.
-Therefore, it is crucial to find starting values close to the minimum. 
-However, this is not always possible in practice. 
-Choosing non-optimal starting values, 
-the Gauss-Newton as well as the steepest descend method
-show a tendency to failure to convergence. 
-If the starting values are too far from the minimum, the Gauss-Newton algorithm 
-has difficulties to determine an appropriate step size, which can lead to step sizes
-either too big (cutting across the minimum) or too small (slow rates of convergence). 
-On the other hand, the steepest descent method can handle suboptimal starting 
-values very well, but shows a failure to convergence mostly due to 
-very slow convergence when it gets close to the minimum \citep{kelley99}. 
-
-In contrast to the Gauss-Newton and the steepest descend algorithms,
-the Levenberg-\mbox{}Marquardt algorithm determines
-the direction and the step size simultaneously, and thus, the algorithm proves to 
-be more robust with higher rates of convergence, even if starting values are 
-not optimal.
-If the Levenberg-Marquardt parameter $\lambda$ is set to zero the algorithm 
-turns to Gauss-Newton, 
-for $\lambda \rightarrow \infty$ on the other hand it turns to steepest descent.
-Hence, as $\lambda$ is defined in every iteration, the Levenberg-Marquardt algorithm
-uses the good global properties of the steepest descent method and%
----by approaching the minimum of the objective function---%
-recovers the Gauss-Newton's fast convergence for small residual problems.
-   
-In the following we will give a rough outline of the algorithm.%
-\footnote{For a more detailed introduction into the Levenberg-Marquardt algorithm
-see \citet{marquardt63} or \citet{soda76}.}
-We let 
-\begin{equation} 
-  \langle Y_i( \bm{X}_i, \bm{\beta} + \bm{\gamma})\rangle = f( \bm{X}_i, \bm{\beta}) + \sum_{j=1}^k \left(
-    \frac{\partial f_i}{\partial \beta_j} \right) \gamma_j,
-\end{equation}
-or shorter
-\begin{equation}
-  \langle \bm{Y} \rangle = f_0 + P\gamma ,
-\end{equation}
-be the first-order Taylor series approximation,
-where 
-$Y_i$ is the $i$th value of the dependend variable, here output,
-$\bm{X}_i$ is the $i$th vector of covariates,
-$\bm{\beta}$ is a vector of parameters to be estimated,
-$\bm{\gamma}$ is a vector of small correction parameters to $\bm{\beta}$
-calculated from a Taylor series with $j$th element $\gamma_j$,
-$f$ is a differentiable function,
-$k$ is the number of parameters to be estimated,
-$f_0$ is a vector of the first terms of the Taylor series, and
-$P = \partial f / \partial \beta$ is a Jacobian matrix.
-Then $\bm{\gamma}$ can be found by
-\begin{equation}
-  ( A + \lambda I ) \bm{\gamma} = \bm{g},
-\end{equation}
-where $I$ is an identity matrix and
-\begin{equation}
-  A = P^\top P
-\end{equation}
-and
-\begin{equation}
-  \bm{g} = P^\top ( \bm{Y} - f_0 ). 
-\end{equation}
-Finally, let
-\begin{equation}
-\Phi ( \gamma ) = || \bm{Y} - f_0 - P \gamma ||^2
-\end{equation}
-
-The algorithm is then as follows:
-\textsf{marquardt} $\left( \mu, \lambda, \Phi, r \right)$
-\begin{enumerate}
-\item Let $\mu > 1$ be a tolerance parameter
-
-\item Let $\lambda^{(r-1)}$ be the value from the previous iteration. 
-      Initially let $\lambda^{(0)} = 10^{-2}$.
-
-\item Compute $\Phi(\lambda^{(r-1)})$ and $\Phi(\lambda^{(r-1)} / \mu)$
-      \begin{enumerate}
-      \renewcommand{\theenumi}{\roman{enumi}}
-      \item if $\Phi(\lambda^{(r-1)} / \mu) \leq \Phi^{(r)}$, let $\lambda^{(r)} = \lambda^{(r-1)} / \mu$.
-      \item if $\Phi(\lambda^{(r-1)} / \mu) > \Phi^{(r)}$, and  $\Phi(\lambda^{(r-1)}) \leq \Phi^{(0)}$,
-	    let $\lambda^{(r)} = \lambda^{(r-1)}$.
-      \item if $\Phi(\lambda^{(r-1)} / \mu) > \Phi^{(r)}$, and $\Phi(\lambda^{(r-1)}) > \Phi^{(0)}$,
-	    increase $\lambda$ by successive multiplication by $\mu$ until for some smallest $w$
-	    $\Phi(\lambda^{(r-1)} \mu^w) \leq \Phi^{(r)}$.
-	    Let $\lambda^{(r)} = \lambda^{(r-1)}\mu^w$.
-      \end{enumerate} 
-\end{enumerate}
 To estimate a CES function by non-linear least-squares 
 using the Levenberg-Marquardt algorithm,
 one can call the \code{cesEst} function with argument \code{method}
@@ -533,46 +728,61 @@ set to \code{"LM"} or without this argument,
 as the Levenberg-Marquardt algorithm is the default estimation method
 used by \code{cesEst}.
 The user can modify a few details of this algorithm 
-(e.g.\ different criterions for convergence)
+(e.g.\ different criteria for convergence)
 by adding argument \code{control}
-as described in the documentation of \code{nls.lm.control}.
-Argument \code{start} can be used to specify a vecor of starting values,
-where the order must be $\gamma$, $\delta$,
-$\rho$ (only if $\rho$ is not fixed, e.g.\ during grid search),
-and $\nu$ (only if the model has variable returns to scale).
+as described in the documentation of the \proglang{R} function \code{nls.lm.control}.
+Argument \code{start} can be used to specify a vector of starting values,
+where the order must be $\gamma$, $\delta_1$, $\delta_2$, $\delta$,
+$\rho_1$, $\rho_2$, $\rho$, and $\nu$
+(of course, all coefficients that are not in the model must be omitted).
 If no starting values are provided,
 they are determined automatically
 (see section~\ref{sec:cesEstStart}).
-We estimate the same example as before
-now by the Levenberg-Marquardt algorithm.
+For demonstrative purposes, we estimate all three
+(i.e.\ two-input, three-input nested, and four-input nested) CES functions
+with the Levenberg-Marquardt algorithm,
+but in order to preserve space,
+we will further proceed with examples for the classical two-input CES function only.
+
 <<>>=
-cesLm <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE )
-summary( cesLm )
+cesLm2 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE )
+summary( cesLm2 )
 @
+\vspace{4mm}
+<<>>=
+cesLm3 <- cesEst( "y3", c( "x1", "x2", "x3" ), cesData, vrs = TRUE )
+summary( cesLm3 )
+@
+\vspace{4mm}
+<<>>=
+cesLm4 <- cesEst( "y4", c( "x1", "x2", "x3", "x4" ), cesData, vrs = TRUE )
+summary( cesLm4 )
+@
+
 Finally we plot the fitted values against the actual values \code{y} 
 to see whether the estimated parameters are reasonable.
-The result is presented in figure~\ref{fig:LM}.
+The results are presented in figure~\ref{fig:LM}.
 <<echo=FALSE>>=
-pdf( "plotFittedLm.pdf", width = 4, height = 4 )
-par( mar = c( 4.5, 4, 1, 1 ) )
+pdf( "plotFittedLm.pdf", width = 9, height = 3 )
+par( mar = c( 4.5, 4, 3, 1 ), mfrow = c( 1, 3 ) )
 @
 <<>>=
-compPlot ( cesData$y, fitted( cesLm ), xlab = "actual values", 
-   ylab = "fitted values" )
+compPlot ( cesData$y2, fitted( cesLm2 ), xlab = "actual values",
+   ylab = "fitted values", main = "two-input CES" )
+compPlot ( cesData$y3, fitted( cesLm3 ), xlab = "actual values",
+   ylab = "fitted values", main = "three-input nested CES" )
+compPlot ( cesData$y4, fitted( cesLm4 ), xlab = "actual values",
+   ylab = "fitted values", main = "four-input nested CES" )
 @ 
 <<echo=FALSE,results=hide>>=
 dev.off()
 @
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=7cm]{plotFittedLm}
-\caption{Fitted values from the LM algorithm against \code{y}} 
+\includegraphics[width=\textwidth]{plotFittedLm}
+\caption{Fitted values from the LM algorithm against actual values} 
 \label{fig:LM}
 \end{figure}
-
-
-\subsection{Alternative gradient-based optimisation algorithms}
-\label{sec:optimGradient}
 
 Several further gradient-based optimization algorithms 
 that are suitable for non-linear least-squares estimations
@@ -588,6 +798,8 @@ However, it is not the aim of this paper to thoroughly discuss
 these algorithms.
 A detailed discussion of iterative optimisation algorithms is available,
 e.g., in \citet{kelley99} or \citet{mishra07}.
+
+\subsubsection{Conjugate Gradients}
 
 One of the gradient-based optimization algorithms 
 that can be used by \code{cesEst}
@@ -615,11 +827,12 @@ The user can modify this algorithm
 (e.g.\ replacing the update formula of \citet{fletcher64}
 by the formula of \citet{polak69} or 
 the one based on \citet{sorenson69} and \citet{beale72})
-or some details (e.g.\ convergence tolerance level)
+or some other details (e.g.\ convergence tolerance level)
 by adding a further argument \code{control} 
-as described in the ``Details'' section of the documentation of \code{optim}.
+as described in the ``Details'' section of the documentation
+of the \proglang{R} function \code{optim}.
 <<>>=
-cesCg <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "CG" )
+cesCg <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "CG" )
 summary( cesCg )
 @ 
 Although the estimated parameters are
@@ -627,13 +840,15 @@ similar to the estimates from the Levenberg-Marquardt algorithm,
 the ``Conjugated Gradient'' algorithm reports that it did not converge.
 Increasing the maximum number of iterations and the tolerance level
 leads to convergence.
-This indicates a slow convergence of the Conjugate Gradients algorithm
+This confirmes a slow convergence of the Conjugate Gradients algorithm
 for estimating the CES function.
 <<>>=
-cesCg2 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "CG",
+cesCg2 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "CG",
    control = list( maxit = 1000, reltol = 1e-5 ) )
 summary( cesCg2 )
 @ 
+
+\subsubsection{Newton}
 
 Another algorithm supported by \code{cesEst} 
 that is probably more suitable for estimating a CES function
@@ -651,15 +866,17 @@ this improved Newton-type method.
 The user can modify a few details of this algorithm
 (e.g.\ the maximum step length)
 by adding further arguments 
-that are described in the documentation of \code{nlm}.
+that are described in the documentation of the \proglang{R} function \code{nlm}.
 The following commands estimate a CES function by non-linear least-squares
 using this algorithm
 and print summary results.
 <<>>=
-cesNewton <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, 
+cesNewton <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE,
    method = "Newton" )
 summary( cesNewton )
 @ 
+
+\subsubsection{Broyden-Fletcher-Goldfarb-Shanno}
 
 Furthermore, a quasi-Newton method
 developed independently by \citet{broyden70}, \citet{fletcher70},
@@ -684,15 +901,18 @@ the BFGS algorithm is used for the estimation.
 The user can modify a few details of the BFGS algorithm
 (e.g.\ the convergence tolerance level)
 by adding the further argument \code{control} 
-as described in the ``Details'' section of the documentation of \code{optim}.
+as described in the ``Details'' section of the documentation
+of the \proglang{R} function \code{optim}.
 <<>>=
-cesBfgs <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "BFGS" )
+cesBfgs <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "BFGS" )
 summary( cesBfgs )
 @ 
 
 
 \subsection{Global optimization algorithms}
 \label{sec:global}
+
+\subsubsection{Nelder-Mead}
 
 While the gradient-based (local) optimization algorithms described above 
 are designed to find local minima,
@@ -710,7 +930,7 @@ which is a downhill simplex algorithm.
 In every iteration $n+1$ vertices are defined in the $n$-dimensional parameter 
 space. 
 The algorithm converges by successively replacing the ``worst'' point by a new 
-vertice in the n-dimensional parameter space.
+vertice in the multi-dimensional parameter space.
 The Nelder-Mead algorithm has the advantage of a simple and robust algorithm, 
 and is especially suitable for residual problems with non-differentiable 
 objective functions.
@@ -727,14 +947,17 @@ Function \code{cesEst} estimates a CES function with the Nelder-Mead algorithm
 if argument \code{method} is set to \code{"NM"}.
 The user can tweak this algorithm
 (e.g.\ the reflection factor, contraction factor, or expansion factor)
-or change some details (e.g.\ convergence tolerance level)
+or change some other details (e.g.\ convergence tolerance level)
 by adding a further argument \code{control} 
-as described in the ``Details'' section of the documentation of \code{optim}.
+as described in the ``Details'' section of the documentation
+of the \proglang{R} function \code{optim}.
 <<>>=
-cesNm <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, 
+cesNm <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE,
    method = "NM" )
 summary( cesNm )
 @ 
+
+\subsubsection{Simulated Annealing}
 
 The Simulated Annealing algorithm was initially proposed by 
 \citet{kirkpatrick83} and \citet{cerny85} and is a modification of the
@@ -754,12 +977,13 @@ The user can modify some details of the ``Simulated Annealing'' algorithm
 (e.g.\ the starting temperature 
 or the number of function evaluations at each temperature)
 by adding a further argument \code{control} 
-as described in the ``Details'' section of the documentation of \code{optim}.
+as described in the ``Details'' section of the documentation
+of the \proglang{R} function \code{optim}.
 The only criterion for stopping this iterative process 
 is the number of iterations and 
 it does not indicate whether it converged or not.
 <<>>=
-cesSann <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN" )
+cesSann <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN" )
 summary( cesSann )
 @ 
 As the Simulated Annealing algorithm makes use of random numbers,
@@ -772,18 +996,18 @@ Hence, the estimation of the same model using this algorithm
 always returns the same estimates as long as argument \code{random.seed}
 is not altered (at least using the same software and hardware components).
 <<>>=
-cesSann2 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN" )
+cesSann2 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN" )
 all.equal( cesSann, cesSann2 )
 @
 It is recommended to start this algorithm
 with different values of argument \code{random.seed}
 and check whether the estimates differ considerably.
 <<>>=
-cesSann3 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
+cesSann3 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
    random.seed = 1234 )
-cesSann4 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
+cesSann4 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
    random.seed = 12345 )
-cesSann5 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
+cesSann5 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
    random.seed = 123456 )
 m <- rbind( cesSann = coef( cesSann ), cesSann3 = coef( cesSann3 ),
    cesSann4 = coef( cesSann4 ), cesSann5 = coef( cesSann5 ) )
@@ -794,13 +1018,13 @@ the user might try to increase the number of iterations,
 which is 10,000 by default.
 Now we re-estimate the model a few times with 100,000 iterations each.
 <<>>=
-cesSannB <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
+cesSannB <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
    control = list( maxit = 100000 ) )
-cesSannB3 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
+cesSannB3 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
    random.seed = 1234, control = list( maxit = 100000 ) )
-cesSannB4 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
+cesSannB4 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
    random.seed = 12345, control = list( maxit = 100000 ) )
-cesSannB5 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
+cesSannB5 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "SANN",
    random.seed = 123456, control = list( maxit = 100000 ) )
 m <- rbind( cesSannB = coef( cesSannB ), cesSannB3 = coef( cesSannB3 ),
    cesSannB4 = coef( cesSannB4 ), cesSannB5 = coef( cesSannB5 ) )
@@ -809,8 +1033,10 @@ rbind( m, stdDev = sd( m ) )
 The estimates are much more similar now---%
 only the estimates of $\rho$ still differ somewhat.
 
+\subsubsection{Differential Evolution}
+
 In contrary to the other algorithms described in this paper,
-the Differential Evolution algorithm \citep{storn97} belongs to the class 
+the Differential Evolution algorithm \citep{storn97,price06} belongs to the class 
 of evolution strategy optimisers and convergence cannot be proven analytically.
 However, the algorithm has proven to be effective and accurate on a large range 
 of optimisation problems, inter alia the CES function \citep{mishra07}.
@@ -824,15 +1050,16 @@ The user can modify the Differential Evolution algorithm
 (e.g.\ the differential evolution strategy or selection method)
 or change some details (e.g.\ the number of population members)
 by adding a further argument \code{control} 
-as described in the documentation of \code{DEoptim.control}.
-In contrary to the other ompimisation algorithms,
+as described in the documentation of the \proglang{R} function \code{DEoptim.control}.
+In contrary to the other optimisation algorithms,
 the Differential Evolution method requires finite boundaries of the parameters.
 By default, the bounds are $0 \leq \gamma \leq 10^{10}$, 
-$0 \leq \delta \leq 1$, $-1 \leq \rho \leq 10$, and $0 \leq \nu \leq 10$.
+$0 \leq \delta_1, \delta_2, \delta \leq 1$,
+$-1 \leq \rho_1, \rho_2, \rho \leq 10$, and $0 \leq \nu \leq 10$.
 Of course, the user can specify own lower and upper bounds by setting arguments 
 \code{lower} and \code{upper} to numeric vectors.
 <<>>=
-cesDe <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
+cesDe <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
    control = list( trace = FALSE ) )
 summary( cesDe )
 @
@@ -842,7 +1069,7 @@ and \code{cesEst} ``seeds'' the random number generator
 with the value of argument \code{random.seed} before it starts this algorithm
 to ensure replicability.
 <<>>=
-cesDe2 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
+cesDe2 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
    control = list( trace = FALSE ) )
 all.equal( cesDe, cesDe2 )
 @
@@ -850,11 +1077,11 @@ It is recommended also for this algorithm
 to check if different values of argument \code{random.seed}
 result in remarkably different estimates.
 <<>>=
-cesDe3 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
+cesDe3 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
    random.seed = 1234, control = list( trace = FALSE ) )
-cesDe4 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
+cesDe4 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
    random.seed = 12345, control = list( trace = FALSE ) )
-cesDe5 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
+cesDe5 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
    random.seed = 123456, control = list( trace = FALSE ) )
 m <- rbind( cesDe = coef( cesDe ), cesDe3 = coef( cesDe3 ),
    cesDe4 = coef( cesDe4 ), cesDe5 = coef( cesDe5 ) )
@@ -866,22 +1093,30 @@ which generally indicates that all estimates are close to the optimum
 However, if the user wants to get more precise estimates than obtained
 with the default settings of this algorithm,
 e.g.\ if the estimates differ considerably,
-the user might try to increase the number of iterations,
+the user might try to increase the maximum number of population generations (iterations)
+using control parameter \code{itermax},
 which is 200 by default.
-Now we re-estimate this model a few times with 1,000 iterations each.
+Now we re-estimate this model a few times with 1,000 population generations each.
 <<>>=
-cesDeB <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
+cesDeB <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
    control = list( trace = FALSE, itermax = 1000 ) )
-cesDeB3 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
+cesDeB3 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
    random.seed = 1234, control = list( trace = FALSE, itermax = 1000 ) )
-cesDeB4 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
+cesDeB4 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
    random.seed = 12345, control = list( trace = FALSE, itermax = 1000 ) )
-cesDeB5 <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
+cesDeB5 <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE, method = "DE",
    random.seed = 123456, control = list( trace = FALSE, itermax = 1000 ) )
 rbind( cesDeB = coef( cesDeB ), cesDeB3 = coef( cesDeB3 ),
    cesDeB4 = coef( cesDeB4 ), cesDeB5 = coef( cesDeB5 ) )
 @
 The estimates are virtually identical now.
+
+The user can further increase the likelihood of finding the global optimum
+by increasing the number of population members
+using control parameter \code{NP},
+which is 10~times the number of parameters by default
+and should not have a smaller value than this default value
+(see documentation of the \proglang{R} function \code{DEoptim.control}).
 
 
 \subsection{Constraint parameters}
@@ -891,9 +1126,16 @@ As a meaningful analysis based on a CES function requires
 that this function is consistent with economic theory,
 it is often desirable to constrain the parameter space
 to the economically meaningful region.
+This can be done by the Differential Evolution (DE) algorithm
+as described above.
+Moreover, function \code{cesEst} can use
+two gradient-based optimisation algorithms
+for estimating a CES function under parameter constraints.
 
-Function \code{cesEst} can estimate a CES function under parameter constraints 
-using a modification of the BFGS algorithm suggested by \citet{byrd95}. 
+\subsubsection{L-BFGS-B}
+
+One of these methods
+is a modification of the BFGS algorithm suggested by \citet{byrd95}.
 In contrary to the ordinary BFGS algorithm summarized above, 
 the so-called L-BFGS-B algorithm allows for box-constraints on the parameters 
 and also does not explicitly 
@@ -910,17 +1152,21 @@ if argument \code{method} is set to \code{"L-BFGS-B"}.
 The user can tweak some details of this algorithm 
 (e.g.\ the number of BFGS updates)
 by adding a further argument \code{control} 
-as described in the ``Details'' section of the documentation of \code{optim}.
+as described in the ``Details'' section of the documentation
+of the \proglang{R} function \code{optim}.
 By default, the restrictions on the parameters are $0 \leq \gamma \leq \infty$, 
-$0 \leq \delta \leq 1$, $-1 \leq \rho \leq \infty$, 
+$0 \leq \delta_1, \delta_2, \delta \leq 1$,
+$-1 \leq \rho_1, \rho_2, \rho \leq \infty$,
 and $0 \leq \nu \leq \infty$.
 The user can specify own lower and upper bounds by setting arguments 
 \code{lower} and \code{upper} to numeric vectors.
 <<>>=
-cesLbfgsb <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, 
+cesLbfgsb <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE,
    method = "L-BFGS-B" )
 summary( cesLbfgsb )
 @ 
+
+\subsubsection{PORT routines}
 
 The so-called PORT routines \citep{gay90}
 include a quasi-Newton optimisation algorithm
@@ -928,61 +1174,143 @@ that allows for box constraints on the parameters and
 has several advantages over traditional Newton routines,
 e.g.\ trust regions and reverse communication.
 Setting argument \code{method} to \code{"PORT"} selects 
-a the optimisation algorithm of the PORT routines.
+the optimisation algorithm of the PORT routines.
 The user can modify a few details of the Newton algorithm
 (e.g.\ the minimum step size)
 by adding a further argument \code{control}
 as described in section ``Control parameters'' of the documentation 
-of \code{nlminb}.
+of \proglang{R} function \code{nlminb}.
 The lower and upper bounds of the parameters have the same default values
 as for the L-BFGS-B method.
 <<>>=
-cesPort <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, 
+cesPort <- cesEst( "y2", c( "x1", "x2" ), cesData, vrs = TRUE,
    method = "PORT" )
 summary( cesPort )
 @ 
 
+\subsection{Technological Change}
+\label{sec:techProg}
 
+Estimating the CES function with time series data usually requires
+an extension of the CES functional form
+in order to account for technological change (progress).
+So far, accounting for technological change in CES functions basically
+boils down to two approaches:
+\begin{itemize}
+\item Hicks-neutral technological change
+\begin{equation}
+   y = \gamma \; e^{\lambda \, t} \left( \delta x_1^{-\rho} + ( 1 - \delta) x_2^{-\rho} \right)^{-\frac{\nu}{\rho}},
+   \label{eq:hicks}
+\end{equation}
+where $\gamma$ is (as before) an efficiency parameter,
+$\lambda$ is the rate of technological change,
+and $t$ is a time variable.
+\item factor augmenting (non-neutral) technological change
+\begin{equation}
+   y = \gamma \left( \left( x_1 \; e^{\lambda_1 \, t } \right)^{-\rho} + \left( x_2 \; e^{\lambda_2 \, t} \right)^{-\rho} \right)^{-\frac{\nu}{\rho}},
+   \label{eq:factor}
+\end{equation}
+where $\lambda_1$ and $\lambda_2$ measure input-specific technological change.
+\end{itemize}
+
+There is actually going on a lively discussion about the proper way 
+of estimating CES functions with factor augmenting technological progress \citep[e.g.][]{klump07,luoma10,leon10}.
+Although many approaches seem to be promising, we decided to wait until 
+some state-of-the-art approach has emerged 
+before including factor augmenting technological change into \pkg{micEconCES}.
+Therefore, \pkg{micEconCES} only includes Hicks-neutral technological change yet.
+
+When calculating the output variable of the CES function using \code{cesCalc}
+or when estimating the parameters of the CES function using \code{cesEst},
+the name of time variable ($t$) can be specified by argument \code{tName},
+where the corresponding coefficient ($\lambda$) is labelled \code{lambda}.%
+\footnote{
+If the Differential Evolution (DE) algorithm is used,
+parameter $\lambda$ is by default restricted to be
+within the interval $[-0.5, 0.5]$,
+as this algorithm requires finite lower and upper bounds of all parameters.
+The user can use arguments \code{lower} and \code{upper}
+to modify these bounds.
+}
+The following commands 
+(i)~generate an (artificial) time variable \code{t},
+(ii)~calculate the (deterministic) output variable of a CES function 
+with 1\% Hicks-neutral technological progress in each time period,
+(iii)~add noise to obtain the stochastic ``observed'' output variable,
+(iv)~estimate the model, and
+(v)~print the summary results.
+<<>>=
+cesData$t <- c( 1:200 )
+cesData$yt <- cesCalc( xNames = c( "x1", "x2" ), data = cesData, tName = "t",
+   coef = c( gamma = 1, delta = 0.6, rho = 0.5, nu = 1.1, lambda = 0.01 ) )
+cesData$yt <- cesData$yt + 2.5 * rnorm( 200 ) 
+cesTech <- cesEst( "yt", c( "x1", "x2" ), data = cesData, tName = "t",
+   vrs = TRUE, method = "LM" )
+summary( cesTech )
+@
+
+Above, we have demonstrated how Hicks-neutral technological change
+can be modelled in the two-input CES function.
+In case of more than two inputs%
+---no matter if the CES function is ``plain'' or ``nested''---%
+Hicks-neutral technological change
+can be accounted for in the same way,
+i.e.\ by multiplying the CES function with $e^{\lambda \, t }$.
+Functions \code{cesCalc} and \code{cesEst} can account
+for Hicks-neutral technological change in all CES functions
+that are generally supported by these functions.
+
+ 
 \subsection[Grid search for rho]{Grid search for $\rho$}
 \label{sec:gridSearch}
 
-As the objective function for estimating the CES by non-linear least-squares 
-shows a tendency to ``flat surfaces'' around the minimum%
----in particular for a wide range of values for $\rho$---
-many optimization algorithms 
-have problems in finding the minimum of the objective function.
-This problem can be alleviated by performing a one-dimensional grid search,
-where a sequence of values for $\rho$ is pre-selected
+The objective function for estimating CES functions by non-linear least-squares
+often shows a tendency to ``flat surfaces'' around the minimum%
+---in particular for a wide range of values for
+the substitution parameters ($\rho_1$, $\rho_2$, $\rho$).
+Therefore, many optimization algorithms 
+have problems in finding the minimum of the objective function,
+particularly in case of $n$-input nested CES functions.
+
+However, this problem can be alleviated by performing a grid search,
+where a grid of values for the substitution parameters
+($\rho_1$, $\rho_2$, $\rho$) is pre-selected
 and the remaining parameters are estimated by non-linear least-squares
-holding $\rho$ fixed at each of the pre-defined values.
-Later, the estimation with the value of $\rho$
-that results in the smallest sum of squared residuals
-is chosen.
+holding the substitution parameters fixed
+at each combination of the pre-defined values.
+As the (nested) CES functions defined above
+can have up to three substitution parameters,
+the grid search over the substitution parameters
+can be either one-, two-, or three-dimensional.
+The estimates with the values of the substitution parameters
+that result in the smallest sum of squared residuals
+are chosen to be the final estimation result.
 
 The function \code{cesEst} carries out this grid search procedure,
-if the user sets its argument \code{rho} to a numeric vector
-containing the values of $\rho$
-that should be used in the grid search.
+if argument \code{rho1}, \code{rho2}, or \code{rho} is set to a numeric vector.
+The values of these vectors are used to specify the grid points
+for the substitution parameters $\rho_1$, $\rho_2$, and $\rho$, respectively.
 The estimation of the other parameters during the grid search
-can use all non-linear optimization algorithms described above.
-Since the ``best'' value of $\rho$ 
-that was found in the grid search
-is not known but estimated
-(as the other parameters but with a different method),
-the covariance matrix of the estimated parameters includes $\rho$
-and is calculated as if $\rho$ was estimated as usual.
-The following command estimates the CES function 
+can be performed by all non-linear optimization algorithms described above.
+Since the ``best'' values of the substitution parameters ($\rho_1$, $\rho_2$, $\rho$)
+that are found in the grid search
+are not known but estimated
+(as the other parameters but with a different estimation method),
+the covariance matrix of the estimated parameters includes also the substitution parameters
+and is calculated as if the substitution parameters were estimated as usual.
+The following command estimates the two-input CES function 
 by a one-dimensional grid search for $\rho$,
 where the pre-selected values for $\rho$
 are the values from $-0.3$ to $1.5$ with an increment of $0.1$
-and the default optimisation method, the Levenberg-Marquardt algorithm
+and the default optimisation method, the Levenberg-Marquardt algorithm,
 is used to estimate the remaining parameters.
 <<>>=
-cesGrid <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, 
+cesGrid <- cesEst( "y2", c( "x1", "x2" ), data = cesData, vrs = TRUE,
    rho = seq( from = -0.3, to = 1.5, by = 0.1 ) )
 summary( cesGrid )
 @
-An overview of the relationship between the pre-selected values of $\rho$
+An graphical illustration of the relationship between the pre-selected values
+of the substitution parameters
 and the corresponding sums of the squared residuals
 can be obtained by applying the \code{plot} method.%
 \footnote{%
@@ -999,23 +1327,76 @@ plot( cesGrid )
 <<echo=FALSE,results=hide>>=
 dev.off()
 @
-This overview is shown in figure~\ref{fig:grid}.
+This graphical illustration is shown in figure~\ref{fig:grid}.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=7cm]{plotGrid}
-\caption{Values of $\rho$ and corresponding sums of squared residuals} 
+\caption{Sum of squared residuals depending on $\rho$}
 \label{fig:grid}
 \end{figure}
 
-The results of this grid search algorithm can be either used directly
-or used as starting values for a non-linear least-squares estimation
-so that also $\rho$ values between the grid points can be estimated.
-Starting values can be set by argument \code{startVal}.
+As a further example,
+we estimate a four-input nested CES function
+by a three-dimensional grid search
+for $\rho_1$, $\rho_2$, and $\rho$.
+Preselected values are
+$-0.6$ to $0.9$ with an increment of $0.3$ for $\rho_1$,
+$-0.4$ to $0.8$ with an increment of $0.2$ for $\rho_2$, and
+$-0.3$ to $1.7$ with an increment of $0.2$ for $\rho$.
+Again, we apply the default
+optimisation method, the Levenberg-Marquardt algorithm. 
 <<>>=
-cesStartGrid <- cesEst( "y", c( "x1", "x2" ), cesData, vrs = TRUE, 
+ces4Grid <- cesEst( yName = "y4", xNames = c( "x1", "x2", "x3", "x4" ),
+   data = cesData, method = "LM",
+   rho1 = seq( from = -0.6, to = 0.9, by = 0.3 ),
+   rho2 = seq( from = -0.4, to = 0.8, by = 0.2 ),
+   rho = seq( from = -0.3, to = 1.7, by = 0.2 ) )
+summary( ces4Grid )
+@
+Naturally, for a three-dimensional grid search,
+plotting the sums of the squared residuals against
+the corresponding (pre-selected) values of $\rho_1$, $\rho_2$, and $\rho$,
+would require a four-dimensional graph.
+As it is (currently) not possible to account
+for more than three dimensions in a graph,
+the \code{plot} method generates three three-dimensional graphs,
+where each of the three substitution parameters ($\rho_1$, $\rho_2$, $\rho$)
+in turn is kept fixed at its optimal value.
+An example is shown in figure~\ref{fig:LM4Grid}.
+
+<<echo=FALSE,results=hide>>=
+pdf("plotGrid4.pdf", width = 4, height = 8 )
+@
+<<>>=
+plot( ces4Grid )
+@
+<<echo=FALSE,results=hide>>=
+dev.off()
+@    
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=9cm]{plotGrid4.pdf}
+\caption{Sum of squared residuals depending on $\rho_1$, $\rho_2$, and $\rho$}
+\label{fig:LM4Grid}
+\end{figure}  
+
+
+The results of the grid search algorithm can be used either directly
+or as starting values for a new non-linear least-squares estimation.
+In the latter case, also values of the substitution parameters
+that are between the grid points can be estimated.
+Starting values can be set by argument \code{start}.
+<<>>=
+cesStartGrid <- cesEst( "y2", c( "x1", "x2" ), data = cesData, vrs = TRUE,
    start = coef( cesGrid ) )
 summary( cesStartGrid )
+
+ces4StartGrid <- cesEst( "y4", c( "x1", "x2", "x3", "x4" ), data = cesData,
+   start = coef( ces4Grid ) )
+summary( ces4StartGrid )
 @ 
+
 
 
 \section{Implementation}
@@ -1052,68 +1433,98 @@ which is an \proglang{R} interface to the \proglang{FORTRAN} package \pkg{MINPAC
 \citep{more80}.
 Estimations with the Conjugate Gradients (CG), BFGS, Nelder-Mead (NM),
 Simulated Annealing (SANN), and L-BFGS-B algorithms use 
-the function \code{optim} from the \pkg{stats} package \citep{r-project09}.
+the function \code{optim} from the \pkg{stats} package \citep{r-project11}.
 Estimations with the Newton-type algorithm are performed 
-by function \code{nlm} from the \pkg{stats} package \citep{r-project09},
+by function \code{nlm} from the \pkg{stats} package \citep{r-project11},
 which uses the \proglang{FORTRAN} library \pkg{UNCMIN} \citep{schnabel85}
 with line search as step selection strategy.
 Estimations with the Differential Evolution (DE) algorithm are performed
 by function \code{DEoptim} from the \pkg{DEoptim} package 
-\citep{r-DEoptim-2.0-3}.
+\citep{mullen11}.
 Estimations with the PORT routines use
-function \code{nlminb} from the \pkg{stats} package \citep{r-project09},
+function \code{nlminb} from the \pkg{stats} package \citep{r-project11},
 which uses the \proglang{FORTRAN} library \pkg{PORT} \citep{gay90}.
 
 \subsection{Grid search}
 
-The grid search procedure is implemented in the internal function 
-\code{cesEstGridRho}.
-This function consecutively calls \code{cesEst} 
-for each of the pre-selected values of $\rho$,
-where argument \code{rho} of \code{cesEst} is set 
-to one of the pre-selected values at each call.
-If argument \code{rho} of \code{cesEst} is a single scalar value,
-\code{cesEst} does not perform a grid search
-but estimates the CES function by non-linear least-squares
-with parameter $\rho$ fixed at the value of argument \code{rho}.
+If the user calls \code{cesEst} with at least one of the arguments
+\code{rho1}, \code{rho2}, or \code{rho} being a vector,
+\code{cesEst} calls the internal function \code{cesEstGridRho},
+which implements the actual grid search procedure.
+For each combination (grid point) of the pre-selected values
+of the substitution parameters ($\rho_1$, $\rho_2$, $\rho$),
+on which the grid search should be performed,
+the function \code{cesEstGridRho} consecutively calls \code{cesEst}.
+In each of these internal calls of \code{cesEst},
+the parameters,
+on which no grid search should be performed
+(and which are not fixed by the user),
+are estimated
+given the particular combination of substitution parameters,
+on which the grid search should be performed.
+This is done by setting the arguments of \code{cesEst},
+for which the user has specified vectors of pre-selected values
+of the substitution parameters (\code{rho1}, \code{rho2}, and/or \code{rho}),
+to the particular elements of these vectors.
+As \code{cesEst} is called with arguments
+\code{rho1}, \code{rho2}, and \code{rho} being all single scalars
+(or \code{NULL} if the corresponding substitution parameter
+is neither included in the grid search nor fixed at a pre-defined value),
+it estimates the CES function by non-linear least-squares
+with the corresponding substitution parameters ($\rho_1$, $\rho_2$, and/or $\rho$)
+fixed at the values specified in the corresponding arguments.
 
-\subsection{Calculating output}
+\subsection{Calculating output and the sum of squared residuals}
 \label{sec:cesCalc}
 
 Function \code{cesCalc} can be used to calculate the output quantity
-of the CES function given input quantities and parameters.
-An example of using \code{cesCalc} is shown 
+of the CES function given input quantities and coefficients.
+A few examples of using \code{cesCalc} are shown
 in the beginning of section~\ref{sec:estimation},
-where the output variable of an artificial data set
-that is used to demonstrate the usage of \code{cesEst}
-is generated with this function.
-Furthermore, the \code{cesCalc} function is used by the internal function \code{cesRss},
+where this function is applied to generate the output variables 
+of an artificial data set for demonstrating the usage of \code{cesEst}.
+Furthermore, the \code{cesCalc} function
+is called by the internal function \code{cesRss}
 that calculates and returns the sum of squared residuals,
 which is the objective function in the non-linear least-squares estimations.
-As the CES function is not defined for $\rho = 0$,
-\code{cesCalc} calculates in this case the output quantity
-with the limit of the CES function for $\rho \rightarrow 0$,
-which is the Cobb-Douglas function.
+If at least one substitution parameter ($\rho_1$, $\rho_2$, $\rho$)
+is equal to zero,
+the CES functions are not defined.
+In this case, \code{cesCalc} returns
+the limit of the output quantity for $\rho_1$, $\rho_2$, and/or $\rho$
+approaching zero.
+In case of nested CES functions with three or four inputs,
+function \code{cesCalc} calls the internal functions
+\code{cesCalcN3} or \code{cesCalcN4} for the actual calculations. 
 
 We noticed that the calculations with \code{cesCalc}
-using equation~(\ref{eq:ces})
-are imprecise when $\rho$ is close to 0.
+using equations~(\ref{eq:ces}), (\ref{eq:4-ces-nested}),
+or~(\ref{eq:3-ces-nested})
+are imprecise if at least one of the substitution parameters 
+($\rho_1$, $\rho_2$, $\rho$) is close to 0.
 This is caused by rounding errors
 that are unavoidable on digital computers
 but are usually negligible.
 However, rounding errors can get large in specific circumstances,
-e.g.\ in the CES function with very small $\rho$,
-when very small (in absolute terms) exponents ($-\rho$)
-are applied first
-and then a very large (in absolute terms) exponent ($-\nu / \rho$)
-is applied.
-Therefore, \code{cesCalc} uses a first-order Taylor series approximation
-at the point $\rho = 0$ for calculating the output of the CES function,
+e.g.\ in CES functions with very small (in absolute terms)
+substitution parameters,
+when first very small (in absolute terms) exponents
+(e.g.\ $-\rho_1$, $-\rho_2$, or $-\rho$)
+and then very large (in absolute terms) exponents
+(e.g.\ $\rho / \rho_1$, $\rho / \rho_2$, or $-\nu / \rho$)
+are applied.
+Therefore, for the traditional two-input CES function~(\ref{eq:ces}),
+\code{cesCalc} uses a first-order Taylor series approximation
+at the point $\rho = 0$ for calculating the output,
 if the absolute value of $\rho$ is smaller than or equal to argument
 \code{rhoApprox}, which is $5 \cdot 10^{-6}$ by default.
 This first-order Taylor series approximation is
-the Kmenta approximation defined in~(\ref{eq:kmenta}).
-We illustrate this in the left panel of figure~\ref{fig:cesCalcRho},
+the Kmenta approximation defined in~(\ref{eq:kmenta}).%
+\footnote{
+The derivation of the first-order Taylor series approximations
+based on \citet{uebe00} is presented in appendix~\ref{sec:cesDerivKmenta}.
+}
+We illustrate the rounding errors in the left panel of figure~\ref{fig:cesCalcRho},
 which has been created by following commands.
 <<echo=FALSE>>=
 pdf( "plotCesCalcRho.pdf", width = 4.2, height = 4 )
@@ -1122,7 +1533,7 @@ par( mar = c( 4.5, 4, 1.5, 1 ) )
 <<>>=
 rhoData <- data.frame( rho = seq( -2e-6, 2e-6, 5e-9 ),
    yCES = NA, yLin = NA )
-# calculate endogenous variables
+# calculate dependent variables
 for( i in 1:nrow( rhoData ) ) {
    # vector of coefficients
    cesCoef <- c( gamma = 1, delta = 0.6, rho = rhoData$rho[ i ], nu = 1.1 )
@@ -1163,7 +1574,7 @@ pdf( "plotCesCalcRho2.pdf", width = 4.2, height = 4 )
 par( mar = c( 4.5, 4, 1.5, 1 ) )
 rhoData <- data.frame( rho = seq( -1, 3, 5e-2 ),
    yCES = NA, yLin = NA )
-# calculate endogenous variables
+# calculate dependent variables
 for( i in 1:nrow( rhoData ) ) {
    # vector of coefficients
    cesCoef <- c( gamma = 1, delta = 0.6, rho = rhoData$rho[ i ], nu = 1.1 )
@@ -1181,19 +1592,44 @@ lines( rhoData$rho, rhoData$yLin )
 dev.off()
 @
 
+In case of nested CES functions,
+if at least one substitution parameter ($\rho_1$, $\rho_2$, $\rho$)
+is close to zero,
+\code{cesCalc} uses linear interpolation in order to avoid rounding errors.
+In this case, \code{cesCalc} calculates the output quantities 
+for two different values of each substitution parameter
+that is close to zero,
+i.e.\ zero (using the formula for the limit for this parameter approaching zero) and
+the positive or negative value of argument \code{rhoApprox}
+(using the same sign as this parameter).
+Depending on the number of substitution parameters ($\rho_1$, $\rho_2$, $\rho$)
+that are close to zero,
+a one-, two-, or three-dimensional linear interpolation is applied.
+These interpolations are performed by the internal functions
+\code{cesInterN3} and \code{cesInterN4}.%
+\footnote{%
+We use a different approach for the nested CES functions
+as for the traditional two-input CES function,
+because calculating Taylor series approximations
+of nested CES functions
+(and their derivatives with respect to coefficients, see the following section)
+is very laborious
+and would have no advantage over our current approach.
+}
+
 When estimating a CES function with function \code{cesEst},
 the user can use argument \code{rhoApprox}
-to modify the threshold for calculating the endogenous variable
-by the Kmenta approximation~(\ref{eq:kmenta}),
-as the first element of the vector \code{rhoApprox}
-is passed to \code{cesCalc}, partly through \code{cesRss}.
+to modify the threshold for calculating the dependent variable
+by the Taylor series approximation or linear interpolation.
+Argument \code{rhoApprox} of \code{cesEst} must be a numeric vector,
+where the first element
+is passed to \code{cesCalc} (partly through \code{cesRss}).
 This might affect not only the fitted values and residuals
-returned by \code{cesEst},
-but also the estimation results,
-because the endogenous variable is used to calculate
-the sum of squared residuals,
-which is the objective function of the non-linear least-squares
-estimations. 
+returned by \code{cesEst}
+(if at least one of the estimated substitution parameters is close to zero)
+but also the estimation results
+(if one of the substitution parameters was close to zero
+in one of the steps of the iterative optimization routines).
 
 \subsection{Partial derivatives with respect to coefficients}
 \label{sec:derivCoef}
@@ -1201,95 +1637,173 @@ estimations.
 The internal function \code{cesDerivCoef} returns
 the partial derivatives of the CES function with respect to all coefficients
 at all provided data points.
-These partial derivatives are:
+For the traditional two-input CES function, these partial derivatives are:
 \begin{align}
 \frac{\partial y}{\partial \gamma } =\;&
-   \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)^{-\frac{ \nu }{\rho}}
+   e^{\lambda \, t} \, \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)^{-\frac{ \nu }{\rho}}
    \label{eq:derivYGamma}\\
+\frac{\partial y}{\partial \lambda } =\;&
+    \gamma \; t \; \frac{\partial y}{\partial \gamma }
+   \label{eq:derivYLambda}\\
 \frac{\partial y}{\partial \delta } =\;&
-   -\frac{ \gamma \; \nu }{ \rho } \left( x_1^{-\rho} - x_2^{-\rho} \right)
+   -  \gamma \, e^{\lambda \, t} \, \frac{\nu }{ \rho } \left( x_1^{-\rho} - x_2^{-\rho} \right)
    \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)^{-\frac{\nu}{\rho} - 1}
    \label{eq:derivYDelta}\\
 \frac{\partial y}{\partial \rho } =\;&
-   \frac{ \gamma \; \nu }{ \rho^2 } \;
-   \log \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)
+   \gamma \, e^{\lambda \, t} \, \frac{ \nu }{ \rho^2 } \;
+   \ln \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)
    \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)^{-\frac{ \nu }{\rho}}
    \label{eq:derivYRho}\\
-   & + \frac{ \gamma \; \nu }{ \rho }
-   \left( \delta \log( x_1 ) x_1^{-\rho} + ( 1 - \delta ) \log( x_2 ) x_2^{-\rho} \right)
+   & + \gamma \, e^{\lambda \, t} \, \frac{ \nu }{ \rho }
+   \left( \delta \ln( x_1 ) x_1^{-\rho} + ( 1 - \delta ) \ln( x_2 ) x_2^{-\rho} \right)
    \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)^{-\frac{\nu}{\rho} -1}
    \nonumber\\
 \frac{\partial y}{\partial \nu } =\;&
-   - \frac{ \gamma }{ \rho } \;
-   \log \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)
+   - \gamma \, e^{\lambda \, t} \, \frac{ 1 }{ \rho } \;
+   \ln \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)
    \left( \delta x_1^{-\rho} + ( 1 - \delta ) x_2^{-\rho} \right)^{-\frac{ \nu }{\rho }}
    \label{eq:derivYNu}
 \end{align}
 These derivatives are not defined for $\rho = 0$
 and are imprecise if $\rho$ is close to zero
 (similar to the output variable of the CES function, see section~\ref{sec:cesCalc}).
-Therefore, we calculate these derivatives by first-order Taylor series
+Therefore, if $\rho$ is zero or close to zero,
+we calculate these derivatives by first-order Taylor series
 approximations at the point $\rho = 0$
-if $\rho$ is zero or close to zero:
+using the limits for $\rho$ approaching zero:%
+\footnote{
+The derivations of these formulas is presented 
+in appendix~\ref{sec:cesDerivTaylorDeriv}.
+}
 \begin{align}
 \frac{\partial y}{\partial \gamma } =\;&
-   x_1^{\nu \, \delta} \; x_2^{\nu \, ( 1 - \delta )}
+   e^{\lambda \, t} \, x_1^{\nu \, \delta} \; x_2^{\nu \, ( 1 - \delta )}
    \exp \left( - \frac{\rho}{2} \, \nu \, \delta \, ( 1 - \delta )
-      \left( \log x_1 - \log x_2 \right)^2
+      \left( \ln x_1 - \ln x_2 \right)^2
    \right)
    \label{eq:derivYGammaApprox}\\
 \frac{\partial y}{\partial \delta } =\;&
-   \left( \log x_1 - \log x_2 \right)
+   \gamma \, e^{\lambda \, t} \, \nu \, \left( \ln x_1 - \ln x_2 \right)
    x_1^{ \nu \, \delta } \; x_2^{ \nu ( 1 - \delta ) }
    \label{eq:derivYDeltaApprox}\\
    & \left( 1 - \frac{ \rho }{ 2 }
       \big[ 1 - 2 \, \delta + \nu \, \delta ( 1 - \delta )
-         \left( \log x_1 - \log x_2 \right) \big]
-      \left( \log x_1 - \log x_2 \right)
+         \left( \ln x_1 - \ln x_2 \right) \big]
+      \left( \ln x_1 - \ln x_2 \right)
    \right)
    \nonumber\\
 \frac{\partial y}{\partial \rho } =\;&
-   \gamma \, \nu \, \delta ( 1 - \delta )
+   \gamma \, e^{\lambda \, t} \, \nu \, \delta \, ( 1 - \delta ) \,
    x_1^{ \nu \, \delta } \; x_2^{ \nu ( 1 - \delta ) }
-   \bigg( - \frac{1}{2} \left( \log x_1 - \log x_2 \right)^2
+   \bigg( - \frac{1}{2} \left( \ln x_1 - \ln x_2 \right)^2
    \label{eq:derivYRhoApprox}\\
-      & + \frac{\rho}{3} ( 1 - 2 \, \delta ) \left( \log x_1 - \log x_2 \right)^3
+      & + \frac{\rho}{3} ( 1 - 2 \, \delta ) \left( \ln x_1 - \ln x_2 \right)^3
       + \frac{\rho}{4} \, \nu \, \delta ( 1 - \delta )
-         \left( \log x_1 - \log x_2 \right)^4
+         \left( \ln x_1 - \ln x_2 \right)^4
    \bigg)
    \nonumber\\
 \frac{\partial y}{\partial \nu } =\;&
-   \gamma \, x_1^{ \nu \, \delta } \; x_2^{ \nu ( 1 - \delta ) }
-   \bigg( \delta \log x_1 + ( 1 - \delta ) \log x_2
+   \gamma \, e^{\lambda \, t} \, x_1^{ \nu \, \delta } \; x_2^{ \nu ( 1 - \delta ) }
+   \bigg( \delta \ln x_1 + ( 1 - \delta ) \ln x_2
       \label{eq:derivYNuApprox}\\
       & - \frac{\rho}{2} \, \delta ( 1 - \delta )
-      \left( \log x_1 - \log x_2 \right)^2
+      \left( \ln x_1 - \ln x_2 \right)^2
       \left[ 1 + \nu
-         \left( \delta \log x_1 + ( 1 - \delta ) \log x_2 \right)
+         \left( \delta \ln x_1 + ( 1 - \delta ) \ln x_2 \right)
       \right]
    \bigg)
    \nonumber
 \end{align}
+If $\rho$ is zero or close to zero,
+the partial derivatives with respect to $\lambda$ are calculated
+also with equation~\ref{eq:derivYLambda}
+but now $\partial y / \partial \gamma$ is calculated 
+with equation~\ref{eq:derivYGammaApprox}
+instead of equation~\ref{eq:derivYGamma}.
+
+The partial derivatives of the nested CES functions with three and four inputs
+with respect to the coefficients
+are presented in appendices~\ref{sec:ces3-deriv} and~\ref{sec:ces4-deriv},
+respectively.
+If at least one substitution parameter ($\rho_1$, $\rho_2$, $\rho$)
+is exactly zero or close to zero,
+\code{cesDerivCoef} uses the same approach as \code{cesCalc}
+to avoid large rounding errors,
+i.e.\ using the limit for these parameters approaching zero
+and potentially a one-, two-, or three-dimensional linear interpolation.
+The limits of the partial derivatives of the nested CES functions 
+for one or more substitution parameters approaching zero
+are also presented in appendices~\ref{sec:ces3-deriv} and~\ref{sec:ces4-deriv}.
+The calculation of the partial derivatives and their limits
+are performed by several internal functions with names
+starting with \code{cesDerivCoefN3} and \code{cesDerivCoefN4}.%
+\footnote{
+The partial derivatives of the nested CES function with three inputs
+are calculated by
+\code{cesDerivCoefN3Gamma} ($\partial y / \partial \gamma$),
+\code{cesDerivCoefN3Lambda} ($\partial y / \partial \lambda$),
+\code{cesDerivCoefN3Delta1} ($\partial y / \partial \delta_1$),
+\code{cesDerivCoefN3Delta} ($\partial y / \partial \delta$),
+\code{cesDerivCoefN3Rho1} ($\partial y / \partial \rho_1$),
+\code{cesDerivCoefN3Rho} ($\partial y / \partial \rho$), and
+\code{cesDerivCoefN3Nu} ($\partial y / \partial \nu$)
+with helper functions
+\code{cesDerivCoefN3B1} 
+(returning $B_1 = \delta_1 x_1^{-\rho_1} + (1-\delta_1) x_2^{-\rho_1}$),
+\code{cesDerivCoefN3L1}
+(returning $L_1 = \delta_1 \ln x_1 + ( 1 - \delta_1 ) \ln x_2$), and
+\code{cesDerivCoefN3B} 
+(returning $B = \delta B_1^{\rho/\rho_1} + ( 1 - \delta ) x_3^{-\rho}$).
+The partial derivatives of the nested CES function with four inputs
+are calculated by
+\code{cesDerivCoefN4Gamma} ($\partial y / \partial \gamma$),
+\code{cesDerivCoefN4Lambda} ($\partial y / \partial \lambda$),
+\code{cesDerivCoefN4Delta1} ($\partial y / \partial \delta_1$),
+\code{cesDerivCoefN4Delta2} ($\partial y / \partial \delta_2$),
+\code{cesDerivCoefN4Delta} ($\partial y / \partial \delta$),
+\code{cesDerivCoefN4Rho1} ($\partial y / \partial \rho_1$),
+\code{cesDerivCoefN4Rho2} ($\partial y / \partial \rho_2$),
+\code{cesDerivCoefN4Rho} ($\partial y / \partial \rho$), and
+\code{cesDerivCoefN4Nu} ($\partial y / \partial \nu$)
+with helper functions
+\code{cesDerivCoefN4B1} 
+(returning $B_1 = \delta_1 x_1^{-\rho_1} + ( 1 - \delta_1 ) x_2^{-\rho_1}$),
+\code{cesDerivCoefN4L1}
+(returning $L_1 = \delta_1 \ln x_1 + ( 1 - \delta_1 ) \ln x_2$),
+\code{cesDerivCoefN4B2} 
+(returning $B_2 = \delta_2 x_3^{-\rho_2} + ( 1 - \delta_2 ) x_4^{-\rho_2}$),
+\code{cesDerivCoefN4L2}
+(returning $L_2 = \delta_2 \ln x_3 + ( 1 - \delta_2 ) \ln x_4$), and
+\code{cesDerivCoefN4B} 
+(returning $B = \delta B_1^{\rho/\rho_1} + ( 1 - \delta ) B_2^{\rho/\rho_2}$).
+}
+The one- or more-dimensional linear interpolations are (again) done 
+by the internal functions \code{cesInterN3} and \code{cesInterN4}.
+
 Function \code{cesDerivCoef} has an argument \code{rhoApprox}
-that can be used to set the threshold levels for defining
-when $\rho$ is ``close'' to zero.
-This argument must be a numeric vector with exactly four elements
-that define the thresholds for $\partial y / \partial \gamma$,
-$\partial y / \partial \delta$, $\partial y / \partial \rho$,
-and $\partial y / \partial \nu$, respectively.
-By default, these thresholds are
-$5 \cdot 10^{-6}$ for $\partial y / \partial \gamma$,
-$5 \cdot 10^{-6}$ for $\partial y / \partial \delta$,
-$10^{-3}$ for $\partial y / \partial \rho$,
-and $5 \cdot 10^{-6}$ for $\partial y / \partial \nu$.
+that can be used to specify the threshold levels for defining
+when $\rho_1$, $\rho_2$, and $\rho$ are ``close'' to zero.
+This argument must be a numeric vector with exactly four elements:
+the first element defines the threshold for $\partial y / \partial \gamma$
+(default value $5 \cdot 10^{-6}$),
+the second element defines the threshold for
+$\partial y / \partial \delta_1$, $\partial y / \partial \delta_2$,
+and $\partial y / \partial \delta$
+(default value $5 \cdot 10^{-6}$),
+the third element defines the threshold for $\partial y / \partial \rho_1$,
+$\partial y / \partial \rho_2$, and $\partial y / \partial \rho$
+(default value $10^{-3}$),
+and the fourth element defines the threshold for $\partial y / \partial \nu$
+(default value $5 \cdot 10^{-6}$).
 
 Function \code{cesDerivCoef} is used to provide argument \code{jac}
+(which should be set to a function that returns the Jacobian of the residuals)
 to function \code{nls.lm}
 so that the Levenberg-Marquardt algorithm can use analytical derivatives
-of each residual with respect to the coefficients.
-Furthermore, this function is used by the internal function \code{cesRssDeriv},
+of each residual with respect to all coefficients.
+Furthermore, function \code{cesDerivCoef} is used by the internal function \code{cesRssDeriv},
 which calculates the partial derivatives of the sum of squared residuals (RSS)
-with respect to the coefficients by
+with respect to all coefficients by
 \begin{equation}
 \frac{\partial \text{RSS}}{\partial \theta}
 = - 2 \; \sum_{i=1}^N \left( u_i \; \frac{\partial y_i}{\partial \theta} \right),
@@ -1297,16 +1811,14 @@ with respect to the coefficients by
 where
 $N$ is the number of observations,
 $u_i$ is the residual of the $i$th observation,
-$\theta \in \{ \gamma, \delta, \rho, \nu \}$ is a coefficient
-of the CES function, and
+$\theta \in \{ \gamma, \delta_1, \delta_2, \delta, \rho_1, \rho_2, \rho, \nu \}$ 
+is a coefficient of the CES function, and
 $\partial y_i / \partial \theta$ is the partial derivative of the CES function
 with respect to coefficient $\theta$
 evaluated at the $i$th observation
-as defined in equations~(\ref{eq:derivYGamma}) to~(\ref{eq:derivYNu})
-or---depending on the value of $\rho$ and argument \code{rhoApprox}---%
-equations~(\ref{eq:derivYGammaApprox}) to~(\ref{eq:derivYNuApprox}).
+as returned by function \code{cesDerivCoef}.
 Function \code{cesRssDeriv} is used to provide analytical gradients
-for the gradient-based optimization algorithms,
+for the other gradient-based optimization algorithms,
 i.e.\ Conjugate Gradients, Newton-type, BFGS, L-BFGS-B, and PORT.
 Finally, function \code{cesDerivCoef} is used to obtain the gradient matrix
 for calculating the asymptotic covariance matrix
@@ -1315,35 +1827,41 @@ of the non-linear least-squares estimator
 
 When estimating a CES function with function \code{cesEst},
 the user can use argument \code{rhoApprox}
-to modify the thresholds for calculating the derivatives
-with respect to the coefficients by the linear approximations
-(\ref{eq:derivYGammaApprox}) to (\ref{eq:derivYNuApprox}),
-as a vector containing the second to the fifth element
-of argument \code{rhoApprox}
-is passed to \code{cesDerivCoef}, partly through \code{cesRssDeriv}.
-This might affect not only the covariance matrix of the estimates,
+to specify the thresholds,
+below which the derivatives
+with respect to the coefficients are approximated
+by Taylor series approximations or linear interpolations.
+Argument \code{rhoApprox} of \code{cesEst}
+must be a numeric vector of five elements,
+where the second to the fifth element of this vector
+are passed to \code{cesDerivCoef}.
+The choice of the threshold might affect not only the covariance matrix of the estimates
+(if at least one of the estimated substitution parameters is close to zero),
 but also the estimation results obtained by a gradient-based
-optimisation algorithm.
+optimisation algorithm
+(if one of the substitution parameters was close to zero
+in one of the steps of the iterative optimization routines).
 
 \subsection{Covariance matrix}
 \label{sec:cov}
 
 The asymptotic covariance matrix of the non-linear least-squares estimator
 obtained by the various iterative optimisation methods
-is calculated by \citep[p.~292]{greene08}
+is calculated by 
 \begin{equation}
 \hat{\sigma}^2 \left(
 \left( \frac{\partial y}{\partial \theta} \right)^\top
 \frac{\partial y}{\partial \theta}
-\right)^{-1},
+\right)^{-1}
 \label{eq:cov}
 \end{equation}
-where $\partial y / \partial \theta$ denotes the $N \times k$ gradient matrix
-defined in equations~(\ref{eq:derivYGamma}) to~(\ref{eq:derivYNu}),
+\citep[p.~292]{greene08}, where $\partial y / \partial \theta$ denotes the $N \times k$ gradient matrix
+(defined in equations~(\ref{eq:derivYGamma}) to~(\ref{eq:derivYNu})
+for the traditional two-input CES function
+and in appendices~\ref{sec:ces3-deriv} and~\ref{sec:ces4-deriv}
+for the nested CES functions),
 $N$ is the number of observations,
-$k$ is 3 for CES functions with constant returns to scale
-($\nu$ not estimated but fixed at 1)
-and 4 for CES functions with variable returns to scale ($\nu$ estimated),
+$k$ is the number of coefficients,
 and $\hat{\sigma}^2$ denotes the estimated variance of the residuals.
 As equation~(\ref{eq:cov}) is only valid asymptotically,
 we calculate the estimated variance of the residuals by
@@ -1358,37 +1876,41 @@ i.e.\ without correcting for degrees of freedom.
 If the user calls \code{cesEst} with argument \code{start}
 set to a vector of starting values,
 the internal function \code{cesEstStart} checks
-if the number of sarting values is correct and
+if the number of starting values is correct and
 if the individual starting values are in the appropriate range
-of the corresponding parameter.
+of the corresponding parameters.
 If no starting values are provided by the user,
 function \code{cesEstStart} determines the starting values automatically.
-The starting value of $\delta$ is always set to $0.5$.
-If the coefficient $\rho$ is estimated (not fixed as, e.g., during grid search),
-the starting value of $\rho$ is set to $0.25$,
-which corresponds to an elasticity of substitution of $0.8$.
-If the estimation allows for a model with variable returns to scale,
-the starting value of $\nu$ is set to $1$,
+The starting values of $\delta_1$, $\delta_2$, and $\delta$
+are set to $0.5$.
+If the coefficients $\rho_1$, $\rho_2$, and $\rho$ 
+are estimated (not fixed as, e.g., during grid search),
+their starting values are set to $0.25$,
+which generally corresponds to an elasticity of substitution of $0.8$.
+The starting value of $\nu$ is set to $1$,
 which corresponds to constant returns to scale.
+If the CES function includes a time variable,
+the starting value of $\lambda$ is set to $0.015$,
+which corresponds to a technological progress of 1.5\% per time period.
 Finally, the starting value of $\gamma$ is set to a value
-so that the mean of the endogenous variable
-is equal to the mean of its fitted values, i.e.
+so that the mean of the residuals is equal to zero, i.e.
 \begin{equation}
-\gamma = \frac{ \frac{1}{N} \sum_{i=1}^N y_i }
-{ \frac{1}{N} \sum_{i=1}^N \left( 0.5 \; x_{1i}^{-\rho_0}
-   + 0.5 \; x_{2i}^{-\rho_0} \right)^{-\frac{1}{\rho_0}}},
+\gamma = \frac{ \sum_{i=1}^N y_i }{ \sum_{i=1}^N CES_i },
 \end{equation}
-where $\rho_0$ is either the pre-selected value of $\rho$
-(if $\rho$ is fixed)
-or the starting value of $\rho$, i.e.\ $0.25$
-(if $\rho$ is estimated).
+where $CES_i$ indicates the (nested) CES function 
+evaluated at the input quantities of the $i$th observation
+and with coefficient~$\gamma$ equal to one,
+all ``fixed'' coefficients (e.g.\ $\rho_1$, $\rho_2$, or $\rho$)
+equal to their pre-selected values,
+and all other coefficients equal to the above-described starting values.
 
 \subsection{Other internal functions}
 
-The internal function \code{cesCoefAddRho} is used to add the value of $\rho$
+The internal function \code{cesCoefAddRho} is used to add 
+the values of $\rho_1$, $\rho_2$, and $\rho$
 to the vector of coefficients,
-when $\rho$ is fixed (e.g.\ during grid search for $\rho$)
-and hence, not included in the vector of estimated coefficients.
+if these coefficients are fixed (e.g.\ during grid search for $\rho$)
+and hence, are not included in the vector of estimated coefficients.
 
 If the user selects the optimization algorithm
 Differential Evolution, L-BFGS-B, or PORT
@@ -1400,6 +1922,10 @@ as described in sections~\ref{sec:global} and~\ref{sec:optimConstraint}.
 The internal function \code{cesCoefNames} returns a vector of character strings,
 which are the names of the coefficients of the CES function.
 
+The internal function \code{cesCheckRhoApprox}
+checks argument \code{rhoApprox} of functions \code{cesEst},
+\code{cesDerivCoef}, \code{cesRss}, and \code{cesRssDeriv}.
+
 \subsection{Methods}
 
 The \pkg{micEconCES} package makes use of the ``S3'' class system
@@ -1407,29 +1933,44 @@ of the \proglang{R} language introduced in \citet{chambers92}.
 Objects returned by function \code{cesEst} are of class \code{"cesEst"}
 and the \pkg{micEconCES} package includes several methods for objects
 of this class.
-The \code{print} method prints the call and the estimated coefficients.
+The \code{print} method prints the call, the estimated coefficients,
+and the estimated elasticities of substitution.
 The \code{coef}, \code{vcov}, \code{fitted}, and \code{residuals} methods
 extract and return the estimated coefficients, their covariance matrix,
 the fitted values, and the residuals, respectively.
+
 The \code{plot} method can be applied
-only if the model was estimated by grid search;
-it plots a scatter plot of the pre-selected values of $\rho$
+only if the model was estimated by grid search
+(see section~\ref{sec:gridSearch}).
+If the model was estimated by a one-dimensional grid search
+for $\rho_1$, $\rho_2$, or $\rho$,
+this methods plots a simple scatter plot of the pre-selected values
 against the corresponding sums of the squared residuals
-(see section~\ref{sec:gridSearch})
-by using the \code{plot.default} and \code{points} commands
-of the \pkg{graphics} package \citep{r-project09}.
+by using the commands \code{plot.default} and \code{points}
+of the \pkg{graphics} package \citep{r-project11}.
+In case of a two-dimensional grid search,
+the plot method draws a perspective plot
+by using the command \code{persp} of the \pkg{graphics} package 
+\citep{r-project11}
+and the command \code{colorRampPalette} of the \pkg{grDevices} package 
+\citep{r-project11} (for generating a colour gradient).
+In case of a three-dimensional grid search,
+the \code{plot} method plots three perspective plots
+by holding one of the three coefficients $\rho_1$, $\rho_2$, and $\rho$
+constant in each of the three plots.
 
 The \code{summary} method calculates the estimated standard error
 of the residuals $(\hat{\sigma})$,
-the covariance matrix of the coefficients estimated by non-linear least-squares,
+the covariance matrix of the estimated coefficients
+and elasticities of substitution,
 the $R^2$ value
 as well as the standard errors, $t$-values, and marginal significance levels
-(P~values) of the estimated parameters.
+(P~values) of the estimated parameters and elasticities of substitution.
 The object returned by the \code{summary} method is of class
 \code{"summary.cesEst"}.
 The \code{print} method for objects of class \code{"summary.cesEst"}
-prints the call, the estimated coefficients, their standard errors,
-$t$-values, and marginal significance levels
+prints the call, the estimated coefficients and elasticities of substitution, 
+their standard errors, $t$-values, and marginal significance levels
 as well as some information on the estimation procedure
 (e.g.\ algorithm, convergence).
 The \code{coef} method for objects of class \code{"summary.cesEst"}
@@ -1438,257 +1979,666 @@ containing the estimated coefficients, their standard errors,
 $t$-values, and marginal significance levels, respectively.
 
 
-\section{Monte Carlo study}
+\section{Replication studies}
 
-In this section we perform a Monte Carlo study to compare
-the different estimation methods described above.
-These are the estimation by \proglang{R}'s standard tool
-for non-linear least-squares estimations, \code{nls},
-as well as the linear estimation of the Kmenta approximation
-and the non-linear least-squares estimations using
-the various optimization algorithms described
-in sections~\ref{sec:marquardt} to~\ref{sec:optimConstraint}
-using function \code{cesEst}.%
+In this section,
+we aim at replicating estimations of CES functions
+published in two journal articles.
+This section has three objectives:
+first, in contrast to the previous sections,
+the econometric estimations in this section are based on real-world data
+so that problems that occur when using real-world data become apparent
+and can be discussed;
+second, a comparison of \code{cesEst}'s results with results published
+in the literature can confirm the reliability of the \pkg{micEconCES} package.
+Third, the section encourages reproducible research,
+which should become a more emphasized goal in scientific economic research
+\citep[e.g.][]{buckheit95,schwab00,mccullough08a,anderson08e,mccullough09}.
+
+
+\subsection{Sun, Henderson, and Kumbhakar (2011)}
+
+Our first replication study aims at replicating some of the estimations
+published in \citet{sun11}.
+This article is itself a replication study of \citet{masanjala04}.
+We will re-estimate a Solow growth model
+based on an aggregate CES production function
+with capital and ``augmented labour'' 
+(i.e.\ the quantity of labour multiplied by the efficiency of labour) 
+as inputs.
+This model is given in \citet[eq.~3]{masanjala04}:%
 \footnote{%
-The estimation by \code{nls} in this Monte Carlo study
-is done through function \code{cesEst},
-which uses \code{nls} for the estimation
-if argument \code{method} is set to \code{"nls"}.
-This feature is not mentioned in the documentation of \code{cesEst},
-because it is not completely implemented yet.
+In contrast to equation~3 in \citet{masanjala04},
+we decomposed the (unobservable) steady-state output
+per unit of \emph{augmented} labour in country $i$
+($y_i^* = Y_i / ( A \, L_i )$
+with $Y_i$ being aggregate output,
+$L_i$ being aggregate labour,
+and $A$ being the efficiency of labour)
+into the (observable) steady-state output per unit of labour
+($y_i =  Y_i / L_i$)
+and the (unobservable) efficiency component~($A$)
+to get the equation that is actually estimated.
 }
-% This Monte Carlo analysis consists of several scenarios,
-% where we alter some settings:
-% \begin{itemize}
-% \item number of observations: 20, 50, and 200
-% \item correlation between input quantities: 0, and 0.7
-% \item elasticity of substitution: 1, 0.75, and 0.5
-%    (corresponding to $\rho$ values of 0, $1/3$, and 1, respectively)
-% \item variance of the error term: low and high
-%    (corresponding to $R^2$ values of around $0.95$ and
-%    around $0.5$, respectively)
-% \end{itemize} 
-The data set used in this Monte Carlo study has 100 observations,
-where the input quantitites are drawn from a $\chi^2$ distribution
-with 10 degrees of freedom.
-We generate the ``deterministic'' output quantity
-by a CES function with variable returns to scale,
-where the parameters are $\gamma = 1$, $\delta = 0.6$,
-$\rho = 1/3$, and $\nu = 1.1$.
-This function has an elasticity of substitution of $\sigma = 0.75$.
-In each of the 1000 replications,
-a new set of disturbance terms is drawn from a normal distribution
-with a mean of zero and standard deviation of~$1.5$.
-This results in $R^2$ values of the estimated models of around~$0.915$
+\begin{equation}
+y_i = A
+   \left[ \frac{1}{1-\alpha} - \frac{\alpha}{1-\alpha}
+      \left( \frac{s_{ik}}{n_i + g + \delta} \right)^{
+         \frac{\sigma - 1}{\sigma} }
+   \right]^{-\frac{\sigma}{\sigma - 1}}
+\end{equation}
+Here, $y_i$ is the steady-state aggregate output
+(Gross Domestic Product, GDP) per unit of labour,
+$s_{ik}$ is the ratio of investment to aggregate output,
+$n_i$ is the population growth rate,
+subscript $i$ indicates the country,
+$g$ is the technology growth rate,
+$\delta$ is the depreciation rate of capital goods,
+$A$ is the efficiency of labour (with growth rate $g$),
+$\alpha$ is the distribution parameter of capital, and
+$\sigma$ is the elasticity of substitution.
+We can re-define the parameters and variables in the above function
+in order to get the standard two-input CES function (eq.~\ref{eq:ces}),
+where
+$\gamma = A$,
+$\delta = \frac{1}{1-\alpha}$,
+$x_1 = 1$,
+$x_2 = ( n_i + g + \delta ) / s_{ik}$,
+$\rho = ( \sigma - 1 ) / \sigma$,
+and $\nu = 1$.
+Please note
+that the relationship between the coefficient $\rho$
+and the elasticity of substitution is slightly different
+from this relationship in the original two-input CES function:
+in this case, the elasticity of substitution is
+$\sigma = 1 / ( 1 - \rho )$,
+i.e.\ the coefficient $\rho$ has the opposite sign.
+Hence, the estimated $\rho$ must lie between minus infinity and (plus) one.
+Furthermore, the distribution parameter $\alpha$ should
+lie between zero and one,
+so that the estimated parameter $\delta$ must have%
+---in contrast to the standard CES function---%
+a value larger than or equal to one.
 
-Function \code{cesEst} is generally called with the default values
-of all arguments (except for argument \code{method}, of course).
-However, we override following default settings:
+The data used in \citet{sun11} and \citet{masanjala04}
+are actually from \citet{mankiw92} and \citet{durlauf95}
+and comprise cross-sectional data on country level.
+This data set is available in the \proglang{R} package \pkg{AER}
+\citep{r-aer-1.1}
+and includes, amongst others, the variables
+\code{gdp85} (per capita GDP in 1985),
+\code{invest} (average ratio of investment (including government investment)
+   to GDP from 1960 to 1985 in percent), and
+\code{popgrowth} (average growth rate of working-age population 1960 to
+   1985 in percent).
+The following commands load this data set
+and remove data from oil producing countries
+in order to obtain the same subset of 98~countries
+that is used by \citet{masanjala04} and \citet{sun11}.
+
+<<>>=
+data( "GrowthDJ", package = "AER" )
+GrowthDJ <- subset( GrowthDJ, oil == "no" )
+@
+
+Now we calculate the two ``input'' variables for the Solow growth model
+as described above and in \citet{masanjala04}
+(following the assumption of \citet{mankiw92}
+that $g + \delta$ is equal to 5\%):
+<<>>=
+GrowthDJ$x1 <- 1
+GrowthDJ$x2 <- ( GrowthDJ$popgrowth + 5 ) / GrowthDJ$invest
+@
+
+The following commands estimate the Solow growth model
+based on the CES function by non-linear least-squares (NLS)
+and print summary results,
+where we suppress the presentation of the elasticity of substitution ($\sigma$),
+because it has to be calculated with a non-standard formula in this model.
+<<>>=
+cesNls <- cesEst( "gdp85", c( "x1", "x2"), data = GrowthDJ )
+summary( cesNls, ela = FALSE)
+@
+Now, we calculate the distribution parameter of capital ($\alpha$)
+and the elasticity of substitution ($\sigma$) manually.
+<<>>=
+cat( "alpha =", ( coef( cesNls )[ "delta" ] - 1 ) / coef( cesNls )[ "delta" ], "\n" )
+cat( "sigma =", 1 / ( 1 - coef( cesNls )[ "rho" ] ), "\n" )
+@
+These calculations show that we can successfully replicate
+the estimation results shown in 
+\citet[Table~1: $\alpha = 0.7486$, $\sigma = 0.8354$]{sun11}.
+
+As the CES function approaches a Cobb-Douglas function
+if the coefficient $\rho$ approaches zero
+and \code{cesEst} internally uses the limit for $\rho$ approaching zero
+if $\rho$ equals zero,
+we can use function \code{cesEst} for estimating
+Cobb-Douglas functions by non-linear least-squares (NLS),
+if we restrict coefficient $\rho$ to be zero:
+<<>>=
+cdNls <- cesEst( "gdp85", c( "x1", "x2"), data = GrowthDJ, rho = 0 )
+summary( cdNls, ela = FALSE )
+cat( "alpha =", ( coef( cdNls )[ "delta" ] - 1 ) /  coef( cdNls )[ "delta" ], "\n" )
+@
+As the deviation between our calculated $\alpha$
+and the corresponding value published in \citet[Table~1: $\alpha = 0.5907$]{sun11}
+is very small,
+we consider also this replication exercise as successful.
+
+If we restrict $\rho$ to be zero
+and assume a multiplicative error term,
+the estimation is in fact equivalent to an OLS estimation
+of the logarithmized version of the Cobb-Douglas function:
+<<>>=
+cdLog <- cesEst( "gdp85", c( "x1", "x2"), data = GrowthDJ, rho = 0, multErr = TRUE )
+summary( cdLog, ela = FALSE )
+cat( "alpha =", ( coef( cdLog )[ "delta" ] - 1 ) /  coef( cdLog )[ "delta" ], "\n" )
+@
+Again, we can successfully replicate the $\alpha$ shown in 
+\citet[Table~1: $\alpha = 0.5981$]{sun11}.%
+\footnote{%
+This is indeed a rather complex way of estimating a simple linear model
+by least squares.
+We do this just for testing the reliability of \code{cesEst} and for curiosity
+but generally we recommend using simple linear regression tools
+for estimating this model.
+}
+
+As all of our replication exercises above were successful,
+we conclude that the \pkg{micEconCES} package has no problems
+with replicating the estimations of the two-input CES functions
+presented in \citet{sun11}.
+
+
+\subsection{Kemfert (1998)}
+\label{sec:kemfert}
+
+Our second replication study aims at replicating the estimation results
+published in \citet{kemfert98}.
+She estimates nested CES production functions
+for the German industrial sector
+in order to analyse the substitutability between the three aggregate inputs
+\emph{capital}, \emph{energy}, and \emph{labour}.
+As nested CES functions are not invariant to the nesting structure,
+\citet{kemfert98} estimates nested CES functions with all three possible nesting structures.
+Her CES functions basically have the same specification
+as our three-input nested CES function defined in equation~\ref{eq:3-ces-nested}
+and allow for Hicks-neutral technological change as in equation~\ref{eq:hicks}.
+However, she does not allow for increasing or decreasing returns to scale
+and the naming of the parameters is different with
+$\gamma = A_s$,
+$\lambda = m_s$,
+$\delta_1 = b_s$,
+$\delta = a_s$,
+$\rho_1 = \alpha_s$,
+$\rho = \beta_s$, and
+$\nu = 1$,
+where the subscript $s = 1, 2, 3$ of the parameters in \citet{kemfert98}
+indicates the nesting structure.
+In the first nesting structure ($s = 1$),
+the three inputs $x_1$, $x_2$, and $x_3$ are
+capital, energy, and labour, respectively,
+in the second nesting structure ($s = 2$),
+they are capital, labour, and energy;
+and in the third nesting structure ($s = 3$),
+they are energy, labour, and capital,
+where---according to the specification of the three-input nested CES function
+(see equation~\ref{eq:3-ces-nested})---%
+the first and second input ($x_1$ and $x_2$) are nested together
+so that the (constant) Allen-Uzawa elasticities of substitution
+between $x_1$ and $x_3$ ($\sigma_{13}$)
+and between $x_2$ and $x_3$ ($\sigma_{23}$) are equal.
+
+The data used by \citet{kemfert98} are available in the \proglang{R}
+package \pkg{micEconCES}.
+Indeed these data are taken from the appendix of \citet{kemfert98}
+so that it should be ensured
+that we use exactly the same data.
+These data are annual aggregated time series data
+of the entire German industry for the period 1960 to 1993.
+They are originally published by the German statistical office.
+Output (\code{Y}) is given by gross value added of the West German
+industrial sector (in billion Deutsche Mark at prices of 1991),
+capital input (\code{K}) is given by gross stock of fixed assets of the West
+German industrial sector (in billion Deutsche Mark at prices of 1991),
+labour input (\code{A}) is the total number of persons employed in the West
+German industrial sector (in million),
+and energy input (\code{E}) is determined by final energy consumption
+of the West German industrial sector (in GWh).
+
+The following commands
+load the data set,
+add a linear time trend (starting at zero in 1960),
+and remove the years of economic disruptions during the oil crisis
+(1973 to 1975) in order to obtain the same subset as used by \citet{kemfert98}. 
+<<>>=
+data( "GermanIndustry" )
+GermanIndustry$time <- GermanIndustry$year - 1960
+GermanIndustry <- subset( GermanIndustry, year < 1973 | year > 1975, )
+@
+
+First, we try to estimate the first model specification
+using the standard function for non-linear least-squares estimations
+in \proglang{R} (\code{nls}).
+<<>>=
+cesNls1 <- try( nls( Y ~ gamma * exp( lambda * time ) *
+   ( delta2 * ( delta1 * K ^(-rho1) +
+      ( 1 - delta1 ) * E^(-rho1) )^( rho / rho1 ) +
+   ( 1 - delta2 ) * A^(-rho) )^( - 1 / rho ),
+   start = c( gamma = 1, lambda = 0.015, delta1 = 0.5,
+      delta2 = 0.5, rho1= 0.2, rho = 0.2 ),
+   data = GermanIndustry ) )
+cat( cesNls1 )
+@ 
+However, as in many estimations of nested CES functions
+with real-world data,
+\code{nls} terminates with an error message.
+In contrast, the estimation with \code{cesEst}
+using, e.g., the Levenberg-Marquardt algorithm,
+usually returns parameter estimates.
+<<>>=
+cesLm1 <- cesEst( "Y", c( "K", "E", "A" ), tName = "time",
+   data = GermanIndustry,
+   control = nls.lm.control( maxiter = 1024, maxfev = 2000 ) )
+summary( cesLm1 )
+@
+Although we set the maximum number of iterations
+to the maximum possible value (1024),
+the default convergence criteria are not fulfilled
+after this number of iterations.%
+\footnote{%
+Of course, we can achieve ``successful convergence''
+by increasing the tolerance levels for convergence.
+}
+While our estimated coefficient $\lambda$ is not too
+far away from the corresponding coefficient in \citet{kemfert98}
+($m_1 = 0.222$),
+this is not the case for the estimated coefficients $\rho_1$ and $\rho$
+\citep[$\rho_1 = \alpha_1 = 0.5300$, $\rho = \beta_1 = 0.1813$ in]{kemfert98}.
+Consequently, our Hicks-McFadden elasticity of substitution
+between capital and energy considerably deviates
+from the corresponding elasticity published in \citet{kemfert98}
+($\sigma_{\alpha_1}$ = 0.653).
+Moreover, coefficient $\rho$ estimated by \code{cesEst}
+is not in the economically meaningful range,
+i.e.\ contradicts economic theory,
+so that the elasticities of substitution between capital/energy and labour
+are not defined.
+Unfortunately, \citet{kemfert98} does not report the estimates
+of the other coefficients.
+
+For the two other nesting structures,
+\code{cesEst} using the Levenberg-Marquardt algorithm
+reaches a successful convergence
+but again the estimated $\rho_1$ and $\rho$ parameters
+are far from the estimates reported in \citet{kemfert98}
+and are not in the economically meaningful range.
+
+In order to avoid the problem with economically not meaningful estimates,
+we re-estimate the model with \code{cesEst} using the \code{PORT} algorithm,
+which allows for box constraints on the parameters.
+If \code{cesEst} is called with argument \code{method} equal to \code{"PORT"},
+the coefficients are constrained to be in the economically meaningful region
+by default.
+<<>>=
+cesPort1 <- cesEst( "Y", c( "K", "E", "A" ), tName = "time",
+   data = GermanIndustry, method = "PORT",
+   control = list( iter.max = 1000, eval.max = 2000) )
+summary( cesPort1 )
+@
+As expected, these estimated coefficients are in the economically meaningful
+region and the fit of the model is worse than for the unrestricted estimation
+using the Levenberg-Marquardt algorithm
+(larger standard deviation of the residuals).
+However, the optimization algorithm reports a non-successful convergence
+and estimates of the coefficients and elasticities of substitution
+are still not close to the estimates
+reported in \citet{kemfert98}.%
+\footnote{
+As we were not able to replicate the results of \citet{kemfert98}
+by assuming an additive error term,
+we re-estimated the models assuming 
+that the error term is \emph{multiplicative}
+(i.e.\ by setting argument \code{multErr} of function \code{cesEst} 
+to \code{TRUE}),
+because we thought
+that \citet{kemfert98} could have estimated the model in logarithms
+without reporting this in the paper.
+However, even using this method,
+we could not replicate the estimates reported in \citet{kemfert98}.
+}
+
+In the following,
+we restrict the coefficients $\lambda$, $\rho_1$, and $\rho$ to the estimates
+reported in \citet{kemfert98}
+and estimate only the coefficients that are not reported,
+i.e.\ $\gamma$, $\delta_1$, and $\delta$.
+While $\rho_1$ and $\rho_2$ can be restricted
+automatically by arguments \code{rho1} and \code{rho} of \code{cesEst},
+we have to impose the restriction on $\lambda$ manually.
+As the model estimated by \citet{kemfert98} is restricted
+to have constant returns to scale
+(i.e.\ the output is linearly homogeneous in all three inputs),
+we can simply multiply all inputs by $e^{\lambda \, t}$.
+The following commands adjust the three input variables
+and re-estimate the model with coefficients $\lambda$, $\rho_1$, and $\rho$
+restricted to be equal to the estimates reported in \citet{kemfert98}.
+<<>>=
+GermanIndustry$K1 <- GermanIndustry$K * exp( 0.0222 * GermanIndustry$time )
+GermanIndustry$E1 <- GermanIndustry$E * exp( 0.0222 * GermanIndustry$time )
+GermanIndustry$A1 <- GermanIndustry$A * exp( 0.0222 * GermanIndustry$time )
+cesLmFixed1 <- cesEst( "Y",  c( "K1", "E1", "A1" ), data = GermanIndustry,
+   rho1 = 0.5300, rho = 0.1813,
+   control = nls.lm.control( maxiter = 1000, maxfev = 2000 ) )
+summary( cesLmFixed1 )
+@
+The fit of this model is---of course---even worse
+than the fit of the two previous models.
+Given that $\rho_1$ and $\rho$ are identical
+to the corresponding parameters published in \citet{kemfert98},
+also the reported elasticities of substitution
+are equal to the values published in \citet{kemfert98}.
+Surprisingly, the $R^2$ value of our restricted estimation is not equal
+to the $R^2$ value reported in \citet{kemfert98}
+although the coefficients $\lambda$, $\rho_1$, and $\rho$ are exactly the same.
+Moreover, the coefficient $\delta_1$ is not in the economically meaningful
+range.
+For the two other nesting structures,
+the $R^2$ values strongly deviate from the values reported in \citet{kemfert98},
+where for one nesting structure our $R^2$ value is much larger
+and for the other nesting structure it is considerably smaller.
+
+Given our unsuccessful attempts to reproduce the results of \citet{kemfert98}
+and the convergence problems in our estimations above,
+we systematically re-estimated the models of \citet{kemfert98}
+using \code{cesEst} with many different estimation methods:
 \begin{itemize}
-\item Function \code{nls}:\\
-   we set the control parameter \code{warnOnly} to \code{TRUE}
-   so that this function returns coefficients
-   (rather than just an error message)
-   if the optimization does not converge.
-\item Levenberg-Marquardt, Newton, BFGS, L-BFGS-B:\\
-   we increased the maximum number of iterations to 250
-   to increase the chance that these algorithms reach convergence.
-\item Conjugate Gradients:\\
-   we changed control parameter \code{type} to \code{2}
-   so that the update formula of \citet{polak69} is used,
-   increased the maximum number of iterations to 1000
-   and increased the tolerance level (argument \code{reltol})
-   to $10^{-4}$
-   so that this algorithm reaches convergence in most replications
-   (see example in section~\ref{sec:optimGradient})
-\item Simulated Annealing:\\
-   we increased the number of iterations to $50,000$
-   so that the estimate is closer to the global minimum
-   of the objective function
-   (see section~\ref{sec:global})
-\item Differential Evolution:\\
-   we increased the number of iterations to $1,000$
-   so that the estimate is closer to the global minimum
-   of the objective function
-   (see section~\ref{sec:global})
+\item all gradient-based algorithms for unrestricted optimisation (Newton, BFGS, LM)
+\item all gradient-based algorithms for restricted optimisation (L-BFGS-B, PORT)
+\item all global algorithms (NM, SANN, DE)
+\item one gradient-based algorithms for unrestricted optimisation (LM)
+   with starting values equal to the estimates from the global algorithms
+\item one gradient-based algorithms for restricted optimisation (PORT)
+   with starting values equal to the estimates from the global algorithms
+\item two-dimensional grid search for $\rho_1$ and $\rho$
+   using all gradient-based algorithms (Newton, BFGS, L-BFGS-B, LM, PORT)%
+\footnote{
+The two-dimensional grid search included 61 different values
+for $\rho_1$ and $\rho$:
+-1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1,
+ 0.0,  0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,
+ 1.0,  1.2,  1.4,  1.6,  1.8,  2.0,  2.2,  2.4,  2.6,  2.8,
+ 3.0,  3.2,  3.4,  3.6,  3.8,  4.0,  4.4,  4.8,  5.2,  5.6,
+ 6.0,  6.4,  6.8,  7.2,  7.6,  8.0,  8.4,  8.8,  9.2,  9.6,
+10.0, 10.4, 10.8, 11.2, 11.6, 12.0, 12.4, 12.8, 13.2, 13.6,
+and 14.0. 
+Hence, each grid search included $61^2 = 3721$ estimations.
+}
+\item all gradient-based algorithms (Newton, BFGS, L-BFGS-B, LM, PORT)
+   with starting values equal to the estimates
+   from the corresponding grid searches.
 \end{itemize}
 
-The script used for the Monte Carlo simulation
-is shown in appendix~\ref{sec:cesMcScript}.
-The general results of this Monte Carlo study
-are shown in table~\ref{tab:mcGeneral}.
-Function \code{nls} reports 29 times
-that the non-linear minimization of the squared residuals
-has not converged.
-The Newton and the Nelder-Mead algorithms
-report this 5 and 3 times, respectively.
-All other algorithms always report convergence.
-Even if \code{nls} or the Newton or Nelder-Mead algorithm
-report non-convergence,
-the coefficients estimated by those methods
-are very close to the coefficients estimated by most other methods.
-Moreover, sum of squared residuals of the ``non-converged''
-estimations is virtually the same
-as the sum of squared residuals of most other algorithms
-in the same replication.
-Hence, it seems that only the default values of the convergence tolerance
-of \code{nls} and the Newton and Nelder-Mead algorithms,
-which are used in this Monte Carlo study,
-are a little too low for this optimization problem.
-The average sums of the squared residuals
-are virtually identical for most estimation methods;
-only the Simulated Annealing method has on average slightly larger
-sums of the squared residuals
-and the Kmenta approximation,
-which does \emph{not} aim at minimizing the sum of squared residuals
-of the (non-linear) CES function,
-has a somewhat larger average sum of squared residuals.
+For these estimations,
+we changed following control parameters of the optimisation algorithms:
+\begin{itemize}
+\item Newton: \code{iterlim = 500} (max.\ 500 iterations)
+\item BFGS: \code{maxit = 5000} (max.\ 5,000 iterations)
+\item L-BFGS-B: \code{maxit = 5000} (max.\ 5,000 iterations)
+\item Levenberg-Marquardt: \code{maxiter = 1000} (max.\ 1,000 iterations),
+   \code{maxfev = 2000} (max.\ 2,000 function evaluations)
+\item PORT: \code{iter.max = 1000} (max.\ 1,000 iterations),
+   \code{eval.max = 1000} (max.\ 1,000 function evaluations)
+\item Nelder-Nead: \code{maxit = 5000} (max.\ 5,000 iterations)
+\item SANN: \code{maxit = 2e6} (2,000,000 iterations)
+\item DE: \code{NP = 500} (500~population members),
+   \code{itermax = 1e4} (max.\ 10,000 population generations)
+\end{itemize}
+
+The results of all these estimation approaches
+for the three different nesting structures
+are summarized in tables~\ref{tab:kemfert1Coef}, \ref{tab:kemfert2Coef},
+and~\ref{tab:kemfert3Coef}, respectively.
 
 \begin{table}[htbp]
-\caption{General results of the Monte Carlo simulation}
-\label{tab:mcGeneral}
-\begin{small}
-\centering
-\input{tables/mcGeneral}\\[2ex]
-\raggedright
-Description of columns:
-\begin{description}
-\item nNoConv: number of replications, where the estimation procedure
-   with the corresponding method warned about non-convergence
-\item nConv: number of replications, where the estimation
-   with the corresponding method converged
-\item rssAll: mean sum of squared residuals of all replications
-\item rssConv: mean sum of squared residuals of the replications,
-   where all methods converged
-\end{description}
-\end{small}
+\caption{Estimation results with first nesting structure}
+\label{tab:kemfert1Coef}
+\small
+\input{tables/kemfert1Coef.tex}\\[1ex]
+Note: in the column titled ``c'',
+a ``1'' indicates
+that the optimisation algorithm reports a successful convergence,
+whereas a ``0'' indicates
+that the optimisation algorithm reports non-convergence.
+The row titled ``fixed'' presents the results
+when $\lambda$, $\rho_1$, and $\rho$ are restricted
+to have exactly the same values that are published in \citet{kemfert98}.
+The rows titled ``<globAlg> - <gradAlg>'' present the results
+when the model is first estimated by the global algorithm ``<globAlg>''
+and then estimated by the gradient-based algorithm ``<gradAlg>''
+using the estimates of the first step as starting values.
+The rows titled ``<gradAlg> grid'' present the results
+when a two-dimensional grid search for $\rho_1$ and $\rho$
+was done using the gradient-based algorithm ``<gradAlg>''
+at each grid point.
+The rows titled ``<gradAlg> grid start'' present the results
+when the gradient-based algorithm ``<gradAlg>'' was used
+with starting values equal to the results
+of a two-dimensional grid search for $\rho_1$ and $\rho$
+with using the same gradient-based algorithm
+at each grid point.
+The rows highlighted with red font colour include estimates
+that are economically not meaningful.
 \end{table}
 
-We summarize the results of the Monte Carlo study by presenting
-the biases and root mean square errors (RMSE) of the coefficients
-and the elasticity of substitution.
-The bias of a parameter $\theta$ estimated by method $m$ is
-\begin{equation}
-\frac{1}{K} \sum_{i=1}^K \hat{\theta}_{i,m} - \theta
-\label{eq:bias},
-\end{equation}
-where $K$ is the number of replications in the Monte Carlo study,
-$\hat{\theta}_{i,m}$ is the estimate of parameter $\theta$
-estimated by method $m$ in the $i$th replication, and
-$\theta$ is the true value of this parameter.
-The root mean square error of this parameter $\theta$
-estimated by method $m$ is
-\begin{equation}
-\sqrt{\frac{1}{K} \sum_{i=1}^K \left( \hat{\theta}_{i,m} - \theta \right)^2},
-\label{eq:rmse}
-\end{equation}
-where all variables are as defined above.
+\begin{table}[htbp]
+\caption{Estimation results with second nesting structure}
+\label{tab:kemfert2Coef}
+\small
+\input{tables/kemfert2Coef.tex}\\[1ex]
+See note below figure~\ref{tab:kemfert1Coef}.
+\end{table}
 
-The biases of the estimated coefficients of the CES function
-and of the elasticity of substitution determined in our Monte Carlo study
-are shown in table~\ref{tab:mcBias}.
-These biases are generally very small,
-which means that the \emph{means} of the estimated parameters are very close
-to their true values, no matter which estimation method is used.
-Only the Kmenta approximation returns on average
-a $\gamma$ that is somewhat too small and
-a $\nu$ that is a little too large
-but the bias of $\delta$ and $\rho$ is even smaller
-than the corresponding biases from the non-linear least-squares estimations.
-The estimated elasticities of substitution are on average a little larger
-than the true value---%
-particularly for the Kmenta approximation.%
-\footnote{%
-This is a little surprising as the Kmenta approximation has the smallest
-bias of the corresponding parameter $\rho$
-but this can be explained by the non-linear relationship
-between $\rho$ and $\sigma$
-(see section~\ref{sec:cesIntro}).
+\begin{table}[htbp]
+\caption{Estimation results with third nesting structure}
+\label{tab:kemfert3Coef}
+\small
+\input{tables/kemfert3Coef.tex}\\[1ex]
+See note below figure~\ref{tab:kemfert1Coef}.
+\end{table}
+
+The models with the best fit,
+i.e.\ with the smallest sums of squared residuals,
+are always obtained by the Levenberg-Marquardt algorithm---%
+either with the standard starting values (third nesting structure)
+or with starting values taken from global algorithms (second and third nesting structure)
+or grid search (first and third nesting structure).
+However, all estimates that give the best fit
+are economically not meaningful,
+because either coefficient $\rho_1$ or coefficient $\rho$
+is smaller than minus one.
+Assuming that the basic assumptions of economic production theory
+are satisfied in reality,
+these results suggests
+that the three-input nested CES production technology
+is a poor approximation of the true production technology
+or that the data are not reasonably constructed
+(e.g.\ problems with aggregation or deflation).
+
+If we consider only estimates
+that are economically meaningful,
+the models with the best fit
+are obtained by
+grid-search with the Levenberg-Marquardt algorithm
+(first and second nesting structure),
+grid-search with the PORT or BFGS algorithm (second nesting structure),
+the PORT algorithm with default starting values (second nesting structure),
+or the PORT algorithm with starting values
+taken from global algorithms or grid search (second and third nesting structure).
+ 
+Hence, we can conclude
+that the Levenberg-Marquardt and the PORT algorithms
+are---at least in this study---most likely to find the coefficients
+that give the best fit to the model,
+where the PORT algorithm
+can be used to restrict the estimates to the economically
+meaningful region.%
+\footnote{
+Please note
+that the grid-search with an algorithm for unrestricted optimisation
+(e.g.\ Levenberg-Marquardt)
+can be used to guarantee economically meaningful values for $\rho_1$ and $\rho$
+but not for $\gamma$, $\delta_1$, $\delta$, and $\nu$.
 }
 
-\begin{table}[htbp]
-\caption{Bias of the estimates}
-\label{tab:mcBias}
-\begin{small}
-\centering
-\input{tables/mcBias}\\[2ex]
-\raggedright
-Note:
-the biases are calculated based on all replications,
-i.e.\ including replications, where the algorithm warned about non-convergence;
-the biases calculated only with the replications,
-where all estimation methods converged,
-are mostly rather similar to the reported biases
-but the biases of $\rho$ are about 3 times larger than the reported biases.
-The column ``sigma'' represents the biases of the elasticity of substitution.
-\end{small}
-\end{table}
+Given the considerable variation of the estimation results,
+we scrutinize the results of the grid searches for $\rho_1$ and $\rho$,
+as this will help us to understand the problems
+that the optimisation algorithms have
+in finding the minimum of the sum of squared residuals.
+We demonstrate this with the first nesting structure
+and the Levenberg-Marquardt algorithm
+using the same values for $\rho_1$ and $\rho$
+and the same control parameters as before.
+Hence, we get the same results as shown in table~\ref{tab:kemfert1Coef}:
+<<eval=FALSE>>=
+rhoVec <- c( seq( -1, 1, 0.1 ), seq( 1.2, 4, 0.2 ), seq( 4.4, 14, 0.4 ) )
+cesLmGridRho1 <- cesEst( "Y", xNames1, tName = "time", data = GermanIndustry,
+   rho1 = rhoVec, rho = rhoVec,
+   control = nls.lm.control( maxiter = 1000, maxfev = 2000 ) )
+@
+<<echo=FALSE>>=
+load( "Kemfert/cesLmGridRho1.RData" )
+@
+<<>>=
+print( cesLmGridRho1 )
+@
 
-The root mean square errors (RMSE) of the estimated coefficients of the CES function
-and of the elasticity of substitution obtained by our Monte Carlo study
-are shown in table~\ref{tab:mcRmse}.
-The RMSEs of $\gamma$, $\delta$, and $\nu$ are mostly rather small,
-which means that these coefficients are estimated rather precisely,
-i.e.\ the estimated coefficients are mostly very close to their true values.
-In contrast, the RMSEs of $\rho$ are rather large,
-which means that the estimation of this coefficient is rather imprecise.
-However, the elasticities of substitution calculated from the estimated $\rho$s
-have rather small RMSEs, i.e.\ are mostly rather close to their true values.
-As the elasticities of substitution---and not the $\rho$s---%
-are usually used for interpreting the substitutability of inputs,
-the imprecise estimation of $\rho$ is not a major problem.
-The RMSEs of most algorithms for non-linear least-squares estimations
-are virtually identical.
-The RMSEs of the Simulated Annealing algorithm are slightly larger
-than the RMSEs of the other algorithms for non-linear least-squares
-but these differences are so small
-that they are negligible in practical work.
-The estimates of the Kmenta approximation are less precise
-than the estimates from the non-linear least-squares estimations.
-
-\begin{table}[htbp]
-\caption{Root mean square error of the estimates}
-\label{tab:mcRmse}
-\begin{small}
+We start our analysis of the results from the grid search
+by applying the standard \code{plot} method.
+<<echo=FALSE>>=
+pdf( "kemfertGrid.pdf", width = 7, height = 7 )
+par( mar = c( 0, 1.5, 3, 0 ) )
+@
+<<>>=
+plot( cesLmGridRho1 )
+@
+<<echo=FALSE,results=hide>>=
+dev.off()
+@
+\begin{figure}[htbp]
 \centering
-\input{tables/mcRmse}\\[2ex]
-\raggedright
-Note:
-the root mean square errors are calculated based on all replications,
-i.e.\ including replications, where the algorithm warned about non-convergence;
-the root mean square errors calculated only with the replications,
-where all estimation methods converged,
-are very close to the reported root mean square errors.
-\end{small}
-\end{table}
+\includegraphics[width=12cm]{kemfertGrid}
+\caption{Goodness of fit for different values of $\rho_1$ and $\rho$}
+\label{fig:kemfert}
+\end{figure}
+%
+As it is much easier to spot the summit of a hill
+than the deepest place of a valley
+(e.g.\ because the deepest place could be hidden behind a ridge),
+the \code{plot} method plots the \emph{negative}
+sum of squared residuals against $\rho_1$ and $\rho$.
+This is shown in figure~\ref{fig:kemfert}.
+This figure indicates that the surface is not always smooth.
+The fit of the model is best
+(small sum of squared residuals, light green colour)
+if $\rho$ is approximately in the interval $[ -1, 1 ]$
+(no matter the value of $\rho_1$)
+or if $\rho_1$ is approximately in the interval $[ 2, 7 ]$
+and $\rho$ is smaller than~7.
+Furthermore, the fit is worst
+(large sum of squared residuals, red colour)
+if $\rho$ is larger than~5
+and $\rho_1$ has a small value
+(the upper limit is between~$-0.8$ and~2 depending the value of $\rho$).
+
+In order to get a more detailed insight into the best-fitting region,
+we re-plot figure~\ref{fig:kemfert} with only sums of squared residuals
+that are smaller than~5,000.
+<<echo=FALSE>>=
+pdf( "kemfertGridBest.pdf", width = 7, height = 7 )
+par( mar = c( 0, 1.5, 3, 0 ) )
+@
+<<>>=
+cesLmGridRho1a <- cesLmGridRho1
+cesLmGridRho1a$rssArray[ cesLmGridRho1a$rssArray >= 5000 ] <- NA
+plot( cesLmGridRho1a )
+@
+<<echo=FALSE,results=hide>>=
+dev.off()
+@
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=12cm]{kemfertGridBest}
+\caption{Goodness of fit (best-fitting region only)}
+\label{fig:kemfertBest}
+\end{figure}
+%
+The resulting figure~\ref{fig:kemfertBest} shows
+that the fit of the model clearly improves
+with increasing $\rho_1$ and decreasing $\rho$.
+At the estimates of \citet{kemfert98},
+i.e.\ $\rho_1 = 0.53$ and $\rho = 0.1813$,
+the sum of the squared residuals is clearly not at its minimum.
+We got similar results for the other two nesting structures.
+We also replicated the estimations for seven industrial sectors
+but again, we could not reproduce any of the estimates
+published in \citet{kemfert98}.
+We contacted the author
+and asked her to help us in finding the reasons
+for the differences between her results and our results.
+Unfortunately, she could find neither the \proglang{Shazam} scripts
+that she used for the estimations
+nor the corresponding output files.
+Hence, we were not able to find the reason
+for the large deviations in the estimates.
+However, we are confident
+that the results obtained by \code{cesEst} are correct,
+i.e.\ correspond to the smallest sums of squared residuals.
+
 
 \section{Conclusion}
-We have demonstrated several approaches to estimate the CES function, 
-e.g.\ the Kmenta approximation, the Levenberg-Marquardt algorithm,
-several other gradient-based and global optimisation algorithms, 
-a grid search, and the standard tool for non-linear least-squares
-estimations in \proglang{R}, \code{nls}.
-We compared the performance of these methods in a Monte Carlo simulation.
-For the given data generating process, all methods proved satisfying results.
-Anyway, our simulation confirms other simulation studies \citep[e.g.][]{thursby80}
-in respect to the unsatisfying result for the estimate of $\rho$.
-However, our results show that the elasticity of substitution $\sigma$%
----which is generally of interest---is close to the §true§ value.
-Hence, one should not range this problem as too severe.
 
-The results were derived under the ideal lab-conditions of a simulation.
-It is clear that not all methods will return such
-satisfying results if they face real-world data.
-Given the econometric problems that are often caused by real-world data,
-the presented methods will more clearly display
-their fortitudes and weaknesses in empirical applications.
+In recent years, the CES function has gained in popularity in macroeconomics 
+and especially growth theory, as it is clearly 
+more flexible than the classical Cobb-Douglas function. 
+As the CES function is not easily estimable, given an objective 
+function that is seldom well-behaved, a software solution 
+to estimate the CES function may further increase its
+popularity. 
 
-However, the \pkg{micEconCES} package provides the user with a multitude of 
-instruments to address common econometric problems
-in estimating the CES function with real-world data.
-So the user should be able to find a satisfying solution
-for estimating the CES function in most cases.
- 
+The \pkg{micEconCES} package provides such a solution.
+Its function \code{cesEst} can estimate
+not only the traditional two-input CES function but also all major extensions,
+i.e.\ technological change and three-input and four-input nested CES functions.
+Furthermore, the \pkg{micEconCES} package provides the user with a multitude of 
+estimation and optimisation procedures. 
+These include the linear approximation suggested by \citet{kmenta67}, gradient-based and global 
+optimisation algorithms, and an extended grid-search procedure that returns 
+stable results and alleviates convergence problems. 
+Additionally, the user can impose restrictions on the parameters
+to enforce economically meaningful parameter estimates. 
+
+The function \code{cesEst} is constructed in a way that allows the user 
+to switch easily between different estimation and optimisation procedures.
+Hence, the user can easily use several different methods and compare the results.
+Especially the grid search procedure increases the probability to find a global optimum.
+Additionally, the grid search allows to plot the objective function 
+for different values of the substitution parameters ($\rho_1$, $\rho_2$, $\rho$). 
+In doing so, the user can visualise the surface of the objective function 
+to be minimised and, hence, check to which extend the objective function
+is well behaved and which parameter ranges of the substitution parameters
+give the best fit to the model. 
+This option is a further control instrument to ensure to have reached the global 
+optimum. 
+Section~\ref{sec:kemfert} demonstrates how these control instruments support finding the global 
+optimum where by contrast a simple non-linear estimation fails. 
+
+The \pkg{micEconCES} package is open-source software and modularly programmed, 
+which makes it easily extendible and modifiable by the user (e.g.\ including factor augmented
+technological change).   
+    
 
 \clearpage
 
@@ -1698,12 +2648,29 @@ for estimating the CES function in most cases.
 
 \clearpage
 
-\section{Script for Monte Carlo Simulation}
-\label{sec:cesMcScript}
+\section{Scripts for replicating the analysis of Kemfert (1998)}
+\label{sec:scriptKemfert}
 
+\subsection{Standard non-linear least-squares estimations}
 \lstset{language = R, basicstyle =\footnotesize\ttfamily\slshape,
    commentstyle = \color{black!60!white}, basewidth = 0.5em}
-\lstinputlisting[frame = tb]{monteCarlo/monteCarlo.R}
+\lstinputlisting[frame = tb]{Kemfert/kemfert98_nls.R}
+
+\subsection{Estimations with lambda, rho1, and rho fixed}
+\lstset{language = R, basicstyle =\footnotesize\ttfamily\slshape,
+   commentstyle = \color{black!60!white}, basewidth = 0.5em}
+\lstinputlisting[frame = tb]{Kemfert/kemfert98_fixed.R}
+
+\subsection{Estimations using grid search}
+\lstset{language = R, basicstyle =\footnotesize\ttfamily\slshape,
+   commentstyle = \color{black!60!white}, basewidth = 0.5em}
+\lstinputlisting[frame = tb]{Kemfert/kemfert98_grid.R}
+
+\subsection{Estimations of models for the different industrial sectors}
+\lstset{language = R, basicstyle =\footnotesize\ttfamily\slshape,
+   commentstyle = \color{black!60!white}, basewidth = 0.5em}
+\lstinputlisting[frame = tb]{Kemfert/kemfert98_industries.R}
+
 
 % Some notes/observations/ideas that should/could be mentioned in this paper
 % 
@@ -1711,7 +2678,7 @@ for estimating the CES function in most cases.
 
 \clearpage
 %onlyDiss: \bibliographystyle{jss}
-% \bibliography{agrarpol}
-\bibliography{references}
+\bibliography{agrarpol}
+%\bibliography{references}
 
 \end{document}

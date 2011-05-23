@@ -1,0 +1,62 @@
+\subsection{Elasticities of substitution}
+\label{sec:elaSub4}
+
+Allen-Uzawa elasticity of substitution
+\citep[see][]{sato67} 
+
+\begin{equation}
+\sigma_{i,j} = \begin{cases} 
+        (1 - \rho )^{-1}
+        & \text{for } i=1,2; \; j=3,4 \\ 
+        & \\
+        \dfrac{ (1-\rho_1)^{-1} - (1-\rho)^{-1}}
+        {\delta \left( \dfrac{y}{
+        B_1^{-\frac{1}{\rho_1}}}\right)^{1+\rho}}+(1-\rho)^{-1}  
+        & \text{for } i=1; \; j=2\\
+        & \\
+        \dfrac{ (1-\rho_2)^{-1} - (1-\rho)^{-1}}
+        {(1-\delta) \left( \dfrac{y}{ 
+        B_2^{-\frac{1}{\rho_2}}}\right)^{1+\rho}}+(1-\rho)^{-1}  
+        & \text{for } i=3; \; j=4 
+   \end{cases}
+\end{equation}  
+
+
+Hicks-McFadden elasticity of substitution
+\citep[see][]{sato67} 
+
+\begin{equation}
+\sigma_{i,j} = \begin{cases} 
+        \dfrac{\dfrac{1}{\theta_i} + \dfrac{1}{\theta_j}}
+        {(1-\rho_1) \left( \dfrac{1}{\theta_i} - \dfrac{1}{\theta^*} \right)
+        + (1-\rho_2) \left( \dfrac{1}{\theta_j} - \dfrac{1}{\theta} \right)
+        + (1-\rho) \left( \dfrac{1}{\theta^*} - \dfrac{1}{\theta} \right) }
+        & \text{for } i=1,2; \; j=3,4 \\ 
+        & \\
+        (1-\rho_1)^{-1}
+        & \text{for } i=1; \; j=2 \\
+        & \\
+        (1-\rho_2)^{-1}
+        & \text{for } i=3, \; j=4 
+   \end{cases}
+\end{equation} 
+
+with 
+\begin{align}
+& \theta^* = \delta
+            B_1^{\frac{\rho}{\rho_1}} \cdot y^\rho \\
+& \theta = (1-\delta)
+            B_2^{\frac{\rho}{\rho_2}} \cdot y^{\rho} \\
+& \theta_1 = \delta \delta_1 x_1^{-\rho_1} 
+            B_1^{-\frac{\rho_1 - \rho}{\rho_1}}
+            \cdot y^{\rho} \\
+& \theta_2 = \delta (1 - \delta_1) x_2^{-\rho_1} 
+            B_1^{-\frac{\rho_1 - \rho}{\rho_1}}
+            \cdot y^{\rho} \\
+& \theta_3 = ( 1 - \delta ) \delta_2 x_3^{-\rho_2} 
+            B_2^{-\frac{\rho_2 - \rho}{\rho_2}}
+            \cdot y^{\rho} \\
+& \theta_4 = ( 1 - \delta ) (1 - \delta_2) x_4^{-\rho_2} 
+            B_2^{-\frac{\rho_2 - \rho}{\rho_2}}
+            \cdot y^{\rho} 
+\end{align}
