@@ -5,33 +5,37 @@ A full ChangeLog is available in the log messages of the SVN repository
 on R-Forge.
 
 
+            CHANGES IN VERSION 0.9-2   (2011-06-04)
+
+* improved the vignette
+
+
             CHANGES IN VERSION 0.9-0   (2011-05-23)
 
-* all CES function can account for technological change now
+* cesCalc() and cesEst() can account for technological change
 
 * cesEst() can estimate CES functions by assuming that the error term is 
 multiplicative (i.e. taking the residuals from the logged model)
 
-* cestEst() additionally returns a named scalar/vector that contains the 
-constant elasticity/elasticities of substitution and print.cesEst() now prints 
-the constant elasticity/elasticities of substitution
+* cestEst() additionally returns the constant elasticity/elasticities of 
+substitution and print.cesEst() additionally prints the constant 
+elasticity/elasticities of substitution
 
-* summary.cestEst() additionally returns the covariance matrix of the constant 
-elasticity/elasticities of substitution and changes object "ela", which is a 
-matrix with four columns now (elasticities of substitution, std. err., 
-t-values, P-values) and print.summary.cesEst() now prints the constant 
-elasticity/elasticities of substitution, as well as the corresponding 
-std. errors, t-values, and P-values
+* summary.cestEst() additionally returns the variance/covariance matrix, 
+standard error(s), t-value(s) and P-value(s) of the constant 
+elasticity/elasticities of substitution and print.summary.cesEst() 
+additionally prints the constant elasticity/elasticities of substitution 
+as well as the corresponding standard error(s), t-value(s), and P-value(s)
 
-* the 3-input nested CES function has no longer coefficient "gamma_1", because 
+* the 3-input nested CES function no longer has coefficient "gamma_1", because 
 it is obsolete and cannot be identified in econometric estimations
 
 * renamed some coefficients of the 3-input and 4-input nested CES functions
 
 * added data set "GermanIndustry"
 
-* the package vignette now additionally describes the features regarding the 
-3-input and 4-input CES functions
+* the package vignette additionally describes the features regarding the 
+3-input and 4-input nested CES functions
 
 
 
