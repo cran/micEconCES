@@ -1,4 +1,4 @@
-plot.cesEst <- function( x, ... ) {
+plot.cesEst <- function( x, negRss = TRUE, bw = FALSE, ... ) {
 
    if( is.null( x$allRhoSum ) ) {
       stop( "the 'plot' method for objects of class 'cesEst' can be applied",
@@ -6,6 +6,38 @@ plot.cesEst <- function( x, ... ) {
          " or 'rho',",
          " i.e. 'cesEst' was called with argument 'rho1' or 'rho' set to a vector",
          " with more than one element" )
+   }
+
+   if( bw ) {
+      colors <- c( "white", "black" )
+   } else {
+      colors <- c( "green", "red" )
+   }
+
+   if( !is.null( x$rssArray ) ) {
+      argList <- list( ... )
+      if( is.null( argList$main ) ) {
+         if( negRss ) {
+            argList$main <- "negative sums of squared residuals"
+         } else {
+            argList$main <- "sums of squared residuals"
+         }
+      }
+      if( is.null( argList$phi ) ) {
+         argList$phi <- 50
+      }
+      if( is.null( argList$theta ) ) {
+         argList$theta <- -45
+      }
+      if( is.null( argList$expand ) ) {
+         argList$expand <- 0.75
+      }
+      if( is.null( argList$ticktype ) ) {
+         argList$ticktype = "detailed"
+      }
+      if( is.null( argList$zlab ) ) {
+         argList$zlab = ""
+      }
    }
 
    if( length( dim( x$rssArray ) ) == 3 ) {
@@ -36,7 +68,7 @@ plot.cesEst <- function( x, ... ) {
          }
 
          # Create a function interpolating colors in the range of specified colors
-         jet.colors <- colorRampPalette( c( "green", "red" ) ) 
+         jet.colors <- colorRampPalette( colors ) 
          # Generate the desired number of colors from this palette
          nbcol <- 100
          color <- jet.colors( nbcol )
@@ -48,11 +80,13 @@ plot.cesEst <- function( x, ... ) {
          # Recode facet z-values into color indices
          facetcol <- cut( log( zfacet ), nbcol )
          # plot
-         persp( xValues, yValues, -zValues, 
-            phi = 50, theta = -45, expand = 0.75, col = color[ facetcol ],
-            xlab = xLabel, ylab = yLabel, zlab = "", ticktype = "detailed",
-            main = ifelse( i == 1, "negative sums of squared residuals", "" ),
-            ... )
+         if( i > 1 ) {
+            argList$main <- NULL
+         }
+         do.call( persp, args = c( list( x = xValues, y = yValues, 
+            z = zValues * (-1)^negRss, 
+            col = color[ facetcol ], xlab = xLabel, ylab = yLabel ),
+            argList ) )
       }
    } else if( is.matrix( x$rssArray ) ) {
       # for two-dimensional grid ssearches
@@ -75,7 +109,7 @@ plot.cesEst <- function( x, ... ) {
       }
 
       # Create a function interpolating colors in the range of specified colors
-      jet.colors <- colorRampPalette( c( "green", "red" ) ) 
+      jet.colors <- colorRampPalette( colors ) 
       # Generate the desired number of colors from this palette
       nbcol <- 100
       color <- jet.colors( nbcol )
@@ -87,10 +121,10 @@ plot.cesEst <- function( x, ... ) {
       # Recode facet z-values into color indices
       facetcol <- cut( log( zfacet ), nbcol )
       # plot
-      persp( xValues, yValues, -x$rssArray, 
-         phi = 50, theta = -45, expand = 0.75, col = color[ facetcol ],
-         xlab = xLabel, ylab = yLabel, zlab = "", ticktype = "detailed",
-         main = "negative sum of squared residuals", ... )
+      do.call( persp, args = c( list( x = xValues, y = yValues, 
+         z = x$rssArray * (-1)^negRss, 
+         col = color[ facetcol ], xlab = xLabel, ylab = yLabel ),
+         argList ) )
    } else if( is.null( x$rssArray ) ) { 
       # for one-dimensional grid searches
       if( !is.null( x$allRhoSum[[ "rho1" ]] ) ) {
