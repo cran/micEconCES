@@ -682,6 +682,7 @@ pdf( "plotFittedKmenta.pdf", width = 4, height = 4 )
 par( mar = c( 4.5, 4, 1, 1 ) )
 @
 <<>>=
+library( "miscTools" )
 compPlot ( cesData$y2, fitted( cesKmenta ), xlab = "actual values",
    ylab = "fitted values" )
 @

@@ -5,9 +5,9 @@
 \title{Estimate a CES function}
 
 \description{
-   Estimate a Constant-Elasticities-of-Scale (CES) function
+   Estimate a Constant-Elasticity-of-Substitution (CES) function
    with two exogenous variables
-   or a nested Constant-Elasticities-of-Scale (CES) function
+   or a nested Constant-Elasticity-of-Substitution (CES) function
    proposed by Sato (1967) with three or four exogenous variables
    by Least Squares.
    The functional forms are shown in the documentation of
@@ -38,8 +38,8 @@ cesEst( yName, xNames, data, tName = NULL, vrs = FALSE, method = "LM",
 \arguments{
    \item{yName}{a string containing the name of the dependent
       variable.}
-   \item{xNames}{a vector of two strings containing the names of the
-      independent variables.}
+   \item{xNames}{a vector of two, three or four character strings containing 
+      the names of the independent variables.}
    \item{data}{data frame containing the data.}
    \item{tName}{optional character string specifying the name of the 
       time variable (\eqn{t}).}
@@ -400,7 +400,7 @@ cesEst( yName, xNames, data, tName = NULL, vrs = FALSE, method = "LM",
 \author{Arne Henningsen and Geraldine Henningsen}
 
 \examples{
-   data( germanFarms )
+   data( germanFarms, package = "micEcon" )
    # output quantity:
    germanFarms$qOutput <- germanFarms$vOutput / germanFarms$pOutput
    # quantity of intermediate inputs

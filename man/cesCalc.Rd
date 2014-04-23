@@ -4,7 +4,7 @@
 
 \description{
    Calculate the endogenous variable
-   of a \sQuote{Constant Elasticities of Scale} (CES)
+   of a \sQuote{Constant Elasticity of Substitution} (CES)
    function.
 
    The original CES function with two explanatory variables is
@@ -136,7 +136,7 @@ Review of Economic Studies 43, p. 201-218.
 \author{Arne Henningsen and Geraldine Henningsen}
 
 \examples{
-   data( germanFarms )
+   data( germanFarms, package = "micEcon" )
    # output quantity:
    germanFarms$qOutput <- germanFarms$vOutput / germanFarms$pOutput
    # quantity of intermediate inputs
