@@ -26,10 +26,11 @@
 \usage{
 cesEst( yName, xNames, data, tName = NULL, vrs = FALSE, method = "LM",
    start = NULL, lower = NULL, upper = NULL, multErr = FALSE,
-   rho1 = NULL, rho2, rho = NULL, returnGridAll = FALSE, random.seed = 123,
+   rho1 = NULL, rho2, rho = NULL, returnGridAll = FALSE, 
+   returnGrad = FALSE, random.seed = 123,
    rhoApprox = c( y = 5e-6, gamma = 5e-6, delta = 5e-6, 
       rho = 1e-3, nu = 5e-6 ),
-   \dots )
+   checkStart = TRUE, \dots )
 
 \method{print}{cesEst}( x, digits = max(3, getOption("digits") - 3),
    \dots )
@@ -80,6 +81,12 @@ cesEst( yName, xNames, data, tName = NULL, vrs = FALSE, method = "LM",
       should be returned
       (ignored if argument \code{rho} is \code{NULL}
       or has only a single element).}
+   \item{returnGrad}{logical value that indicates
+      whether a matrix with the gradients of the dependent variable
+      (i.e., \eqn{y}{y} if argument \code{multErr} is \code{FALSE}
+      and \eqn{\log(y)}{log(y)} if argument \code{multErr} is \code{TRUE})
+      with respect to the parameters (evaluated at the estimated parameters)
+      should be returned.}
    \item{random.seed}{an integer used to seed R's random number generator.
       This is to ensure replicability when the \code{"SANN"}
       or \code{"DE"} method is used. Defaults to 123.}
@@ -109,6 +116,9 @@ cesEst( yName, xNames, data, tName = NULL, vrs = FALSE, method = "LM",
       \eqn{\rho_1}{rho_1}, and \eqn{\rho_2}{rho_2};
       the fifth element determines the threshold for calculating
       the derivatives with respect to \eqn{\nu}{nu}.}
+   \item{checkStart}{logical. If \code{TRUE} (the default),
+      it is checked whether the starting values are in the expected ranges
+      for a production function.}
    \item{x}{an object of class \code{cesEst}.}
    \item{digits}{number of digits.}
    \item{\dots}{further arguments to \code{cesEst} are passed to
@@ -328,6 +338,11 @@ cesEst( yName, xNames, data, tName = NULL, vrs = FALSE, method = "LM",
       for the coefficients \eqn{\rho_1}{rho_1} (first dimension, e.g. rows of a matrix),
       \eqn{\rho_2}{rho_2}, and \eqn{\rho}{rho} (last dimension, e.g. columns of a matrix)
       (only if a two-dimensional or threedimensional grid search was performed).}
+   \item{grad}{matrix with the gradients of the dependent variable
+      (i.e., \eqn{y}{y} if argument \code{multErr} is \code{FALSE}
+      and \eqn{\log(y)}{log(y)} if argument \code{multErr} is \code{TRUE})
+      with respect to the parameters evaluated at the estimated parameters
+      (only if argument \code{returnGrad} is set to \code{TRUE}).}
 }
 
 \references{
@@ -358,8 +373,7 @@ cesEst( yName, xNames, data, tName = NULL, vrs = FALSE, method = "LM",
    Gay, D.M. (1990):
    Usage Summary for Selected Optimization Routines,
    Computing Science Technical Report No. 153,
-   AT&T Bell Laboratories, Murray Hill NJ,
-   \url{http://netlib.bell-labs.com/cm/cs/cstr/153.pdf}.
+   AT&T Bell Laboratories, Murray Hill NJ.
 
    Goldfarb, D. (1970):
    A Family of Variable Metric Updates Derived by Variational Means,

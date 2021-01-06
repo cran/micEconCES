@@ -3,6 +3,7 @@ export( "cesEst" )
 
 S3method( "coef", "cesEst" )
 S3method( "coef", "summary.cesEst" )
+S3method( "durbinWatsonTest", "cesEst" )
 S3method( "fitted", "cesEst" )
 S3method( "plot", "cesEst" )
 S3method( "print", "cesEst" )
@@ -11,9 +12,17 @@ S3method( "residuals", "cesEst" )
 S3method( "summary", "cesEst" )
 S3method( "vcov", "cesEst" )
 
+importFrom( "car", "durbinWatsonTest" )
 importFrom( "car", "lht" )
 
 importFrom( "DEoptim", "DEoptim" )
+
+importFrom( "graphics", "par" )
+importFrom( "graphics", "persp" )
+importFrom( "graphics", "plot.default" )
+importFrom( "graphics", "points" )
+
+importFrom( "grDevices", "colorRampPalette")
 
 importFrom( "micEcon", "translogEst" )
 
@@ -22,5 +31,20 @@ importFrom( "miscTools", "coefTable" )
 importFrom( "miscTools", "rSquared" )
 
 importFrom( "minpack.lm", "nls.lm" )
+
+importFrom( "stats", "as.formula" )
+importFrom( "stats", "coef" )
+importFrom( "stats", "deviance" )
+importFrom( "stats", "fitted" )
+importFrom( "stats", "formula" )
+importFrom( "stats", "lm" )
+importFrom( "stats", "model.frame" )
+importFrom( "stats", "nlm" )
+importFrom( "stats", "nlminb" )
+importFrom( "stats", "nls" )
+importFrom( "stats", "optim" )
+importFrom( "stats", "printCoefmat" )
+importFrom( "stats", "residuals" )
+importFrom( "stats", "vcov" )
 
 importFrom( "systemfit", "systemfit" )

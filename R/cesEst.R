@@ -2,8 +2,10 @@ cesEst <- function( yName, xNames, data, tName = NULL, vrs = FALSE,
       method = "LM", start = NULL, lower = NULL, upper = NULL,
       multErr = FALSE,
       rho1 = NULL, rho2 = NULL, rho = NULL, returnGridAll = FALSE, 
+      returnGrad = FALSE,
       random.seed = 123, rhoApprox = c( y = 5e-6, gamma = 5e-6, delta = 5e-6, 
-         rho = 1e-3, nu = 5e-6 ), ... ) {
+         rho = 1e-3, nu = 5e-6 ),
+      checkStart = TRUE, ... ) {
 
    # y = gamma * ( delta * x1^(-rho) + ( 1 - delta ) * x2^(-rho) )^(-nu/rho)
    # s = 1 / ( 1 + rho )
@@ -60,7 +62,7 @@ cesEst <- function( yName, xNames, data, tName = NULL, vrs = FALSE,
             " nested CES functions" )
       } else if( !is.numeric( rho1 ) ) {
          stop( "argument 'rho1' must be either 'NULL' or numeric" )
-      } else if( min( rho1 ) < -1 ) {
+      } else if( min( rho1 ) < -1 & checkStart ) {
          stop( "the rho1s specified in argument 'rho1'",
             " must not be smaller than '-1'" )
       }
@@ -73,7 +75,7 @@ cesEst <- function( yName, xNames, data, tName = NULL, vrs = FALSE,
             " nested CES functions" )
       } else if( !is.numeric( rho2 ) ) {
          stop( "argument 'rho2' must be either 'NULL' or numeric" )
-      } else if( min( rho2 ) < -1 ) {
+      } else if( min( rho2 ) < -1 & checkStart ) {
          stop( "the rho2s specified in argument 'rho2'",
             " must not be smaller than '-1'" )
       }
@@ -83,7 +85,7 @@ cesEst <- function( yName, xNames, data, tName = NULL, vrs = FALSE,
    if( !is.null( rho ) ) {
       if( !is.numeric( rho ) ) {
          stop( "argument 'rho' must be either 'NULL' or numeric" )
-      } else if( min( rho ) < -1 ) {
+      } else if( min( rho ) < -1 & checkStart ) {
          stop( "the rhos specified in argument 'rho'",
             " must not be smaller than '-1'" )
       }
@@ -95,8 +97,9 @@ cesEst <- function( yName, xNames, data, tName = NULL, vrs = FALSE,
          data = data, vrs = vrs, method = method, start = start,
          lower = lower, upper = upper, multErr = multErr,
          rho1Values = rho1, rho2Values = rho2, rhoValues = rho, 
-         returnAll = returnGridAll,
-         random.seed = random.seed, rhoApprox = rhoApprox, ... )
+         returnAll = returnGridAll, returnGrad = returnGrad,
+         random.seed = random.seed, rhoApprox = rhoApprox, 
+         checkStart = checkStart, ... )
       result$call <- match.call()
       return( result )
    }
@@ -110,7 +113,7 @@ cesEst <- function( yName, xNames, data, tName = NULL, vrs = FALSE,
    start <- cesEstStart( yName = yName, xNames = xNames, data = data,
       tName = tName, vrs = vrs, method = method, start = start, 
       rho1 = rho1, rho2 = rho2, rho = rho, nParam = nParam, nested = nested,
-      multErr = multErr )
+      multErr = multErr, checkStart = checkStart )
 
    # dertermining lower and upper bounds automatically
    if( is.null( lower ) ) {
@@ -391,31 +394,19 @@ cesEst <- function( yName, xNames, data, tName = NULL, vrs = FALSE,
    # calculate and return (constant!) elasticities of substitution
    if( !nested ) {
       result$ela <- NA
-      if( result$coefficients[ "rho" ] >= -1 ) {
-         result$ela <- 1 / ( 1 + result$coefficients[ "rho" ] )
-      }
+      result$ela <- 1 / ( 1 + result$coefficients[ "rho" ] )
       names( result$ela ) <- "E_1_2 (all)"
    } else {
       if( nExog == 3 ) {
          result$ela <- rep( NA, 2 )
-         if( result$coefficients[ "rho_1" ] >= -1 ) {
-            result$ela[1] <- 1 / ( 1 + result$coefficients[ "rho_1" ] )
-         }
-         if( result$coefficients[ "rho" ] >= -1 ) {
-            result$ela[2] <- 1 / ( 1 + result$coefficients[ "rho" ] )
-         }
+         result$ela[1] <- 1 / ( 1 + result$coefficients[ "rho_1" ] )
+         result$ela[2] <- 1 / ( 1 + result$coefficients[ "rho" ] )
          names( result$ela ) <- c( "E_1_2 (HM)", "E_(1,2)_3 (AU)" )
       } else if( nExog == 4 ) {
          result$ela <- rep( NA, 3 )
-         if( result$coefficients[ "rho_1" ] >= -1 ) {
-            result$ela[1] <- 1 / ( 1 + result$coefficients[ "rho_1" ] )
-         }
-         if( result$coefficients[ "rho_2" ] >= -1 ) {
-            result$ela[2] <- 1 / ( 1 + result$coefficients[ "rho_2" ] )
-         }
-         if( result$coefficients[ "rho" ] >= -1 ) {
-            result$ela[3] <- 1 / ( 1 + result$coefficients[ "rho" ] )
-         }
+         result$ela[1] <- 1 / ( 1 + result$coefficients[ "rho_1" ] )
+         result$ela[2] <- 1 / ( 1 + result$coefficients[ "rho_2" ] )
+         result$ela[3] <- 1 / ( 1 + result$coefficients[ "rho" ] )
          names( result$ela ) <- 
             c( "E_1_2 (HM)", "E_3_4 (HM)", "E_(1,2)_(3,4) (AU)" )
       }
@@ -485,6 +476,11 @@ cesEst <- function( yName, xNames, data, tName = NULL, vrs = FALSE,
    rownames( result$cov.unscaled ) <- names( result$coefficients )
    colnames( result$cov.unscaled ) <- names( result$coefficients )
 
+   # gradient matrix evaluated at the estimated parameters
+   if( returnGrad ) {
+      result$grad <- gradients
+   }
+   
    class( result ) <- c( "cesEst", class( result ) )
    return( result )
 }

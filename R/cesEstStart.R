@@ -1,6 +1,6 @@
 cesEstStart <- function( yName, xNames, tName, data, vrs,
       method, start, rho1, rho2, rho, nParam, nested = FALSE,
-      multErr ) {
+      multErr, checkStart ) {
 
    withTime <- !is.null( tName )
 
@@ -40,8 +40,11 @@ cesEstStart <- function( yName, xNames, tName, data, vrs,
             tName = tName, nested = nested )
          if( multErr ) {
             start[ 1 ] <- 
-               mean( log( data[[ yName ]] ), na.rm = TRUE ) -
-               mean( log( yTemp ), na.rm = TRUE )
+               exp( mean( log( data[[ yName ]] ), na.rm = TRUE ) ) /
+               exp( mean( log( yTemp ), na.rm = TRUE ) )
+            if( method %in% c( "PORT", "nls" ) ) {
+               start[1] <- start[1] / 10
+            }
          } else {
             start[ 1 ] <- 
                mean( data[[ yName ]], na.rm = TRUE ) /
@@ -72,16 +75,16 @@ cesEstStart <- function( yName, xNames, tName, data, vrs,
       }
       # checking gamma
       if( nested && nExog == 3 ) {
-         if( start[ "gamma" ] <= 0 ) {
+         if( start[ "gamma" ] <= 0 & checkStart ) {
             stop( "the starting value for 'gamma' must be positive" )
          }
       } else {
-         if( start[ "gamma" ] <= 0 ) {
+         if( start[ "gamma" ] <= 0 & checkStart ) {
             stop( "the starting value for 'gamma' must be positive" )
          }
       }
       # checking delta
-      if( nested ) {
+      if( nested & checkStart ) {
          if( start[ "delta_1" ] < 0 || start[ "delta_1" ] > 1 ) {
             stop( "the starting value for 'delta_1' must be between 0 and 1" )
          }
@@ -91,27 +94,27 @@ cesEstStart <- function( yName, xNames, tName, data, vrs,
             }
          }
       }
-      if( start[ "delta" ] < 0 || start[ "delta" ] > 1 ) {
+      if( ( start[ "delta" ] < 0 || start[ "delta" ] > 1 ) & checkStart ) {
             stop( "the starting value for 'delta' must be between 0 and 1" )
       }
       # checking rho
-      if( is.null( rho ) ) {
+      if( is.null( rho ) & checkStart ) {
          if( start[ "rho" ] < -1 ) {
             stop( "the starting value for 'rho' must be -1 or larger" )
          }
       }
-      if( is.null( rho1 ) && nested ) {
+      if( is.null( rho1 ) && nested & checkStart ) {
          if( start[ "rho_1" ] < -1 ) {
             stop( "the starting value for 'rho_1' must be -1 or larger" )
          }
       }
-      if( is.null( rho2 ) && nested && nExog == 4 ) {
+      if( is.null( rho2 ) && nested && nExog == 4 & checkStart ) {
          if( start[ "rho_2" ] < -1 ) {
             stop( "the starting value for 'rho_2' must be -1 or larger" )
          }
       }
       # checking nu
-      if( vrs ) {
+      if( vrs & checkStart ) {
          if( start[ "nu" ] <= 0 ) {
             stop( "the starting value for 'nu' must be positive" )
          }
