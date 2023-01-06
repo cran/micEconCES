@@ -1,6 +1,6 @@
 
-R version 3.1.0 (2014-04-10) -- "Spring Dance"
-Copyright (C) 2014 The R Foundation for Statistical Computing
+R version 4.2.2 Patched (2022-11-10 r83330) -- "Innocent and Trusting"
+Copyright (C) 2022 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -19,14 +19,26 @@ Type 'q()' to quit R.
 > library( "micEconCES" )
 Loading required package: minpack.lm
 Loading required package: DEoptim
+Loading required package: parallel
 
 DEoptim package
 Differential Evolution algorithm in R
 Authors: D. Ardia, K. Mullen, B. Peterson and J. Ulrich
 
+Loading required package: car
+Loading required package: carData
 
-If you have questions, suggestions, or comments regarding one of the 'micEcon' packages, please use a forum or 'tracker' at micEcon's R-Forge site:
-https://r-forge.r-project.org/projects/micecon/
+To cite package 'micEconCES' in publications use:
+  Henningsen, Arne, Géraldine Henningsen, and Gergő Literáti (2021):
+  Econometric Estimation of the 'Constant Elasticity of Substitution'
+  Function in R: the micEconCES Package. In Hashimzade, N. and M.
+  Thornton (editors), Handbook of Research Methods and Applications in
+  Empirical Microeconomics. Edward Elgar, p. 596–640.
+  https://doi.org/10.4337/9781788976480.00030 (open access:
+  https://bit.ly/3I5U310).
+
+If you have questions, suggestions, or comments regarding the 'micEconCES' package, please use the 'issue' tracker at the GitHub page of the package:
+https://github.com/micEcon/micEconCES
 > options( digits = 3 )
 > 
 > # seed for random number generation
@@ -126,4 +138,4 @@ https://r-forge.r-project.org/projects/micecon/
 > 
 > proc.time()
    user  system elapsed 
-   1.64    0.04    1.68 
+  1.160   0.072   1.225 

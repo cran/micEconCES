@@ -1,6 +1,6 @@
-ed2166d308bac7f21a3ce87d81b9c8b1 *DESCRIPTION
-d12447635451425a906f5c9d27dc3b84 *NAMESPACE
-cc6e1f8c5bde2624902993d9e9fcda7c *NEWS
+0ea4a5f0275536f72d10321fb2343ee5 *DESCRIPTION
+a6ef9c5a9afec30af2643dab0d20e961 *NAMESPACE
+2d49b04a10c049f04ceaed933ff54b89 *NEWS
 2f7e63847e58ec23ffe03d396e7bcd90 *R/cesCalc.R
 06fae2ea6c0b4fd6262eefc40d9cd283 *R/cesCalcN3.R
 175d9c283d0c33546ebfd89b65d438d8 *R/cesCalcN4.R
@@ -29,10 +29,10 @@ dde5b54635dd43e2b7468f187bd27bf3 *R/plot.cesEst.R
 cf162faa6d0bd67998dbb2afa555336c *R/residuals.cesEst.R
 b78197aa10a002923372a108863e5862 *R/summary.cesEst.R
 b7a3c0abef7cab4092de07701255d5e2 *R/vcov.cesEst.R
-da5934d6c678b9aa138b6ae164093151 *R/zzz.R
+e9c581c4cdbe4144f39f8973478e377f *R/zzz.R
 9fe91f9ef34f1ee463350463f6d41508 *data/GermanIndustry.tab.gz
 e0d8451b5194df1fdf3390b2b44a29e3 *data/MishraCES.tab.gz
-b6b062b7e1ae8dff60f78a97b73f5fbf *inst/CITATION
+ce132ca6956ca8de93c69f8e8d2cd5b7 *inst/CITATION
 5297efc5374ba287497de6aef36f553e *inst/Kemfert98Nest1GridLm.RData
 d05dc3bc237926615f538e934db444c3 *man/GermanIndustry.Rd
 a5d13b414522440566a3e5bb8a75a36d *man/MishraCES.Rd
@@ -43,6 +43,6 @@ a849c1acfaf93954ae3b121b5f99cde5 *man/cesEst-methods.Rd
 8e3feaf9c0fa9ac21c5c9c162543bcb1 *man/plot.cesEst.Rd
 841829015f7370f0a272b391951a7645 *man/summary.cesEst.Rd
 41e74170230f78426b8586a16c343d0d *tests/SunHenKum.R
-4eecc542d39577d2a516f07c7c3f7aac *tests/SunHenKum.Rout.save
+243828814e4fce89c4401bc436b9df08 *tests/SunHenKum.Rout.save
 7d8140d383a838cd3097f8e4fa93f49e *tests/xMult.R
-6d8bc5408b6723724b3d54dd424821f7 *tests/xMult.Rout.save
+92bd3eda3ffa149953e8ce42624090de *tests/xMult.Rout.save

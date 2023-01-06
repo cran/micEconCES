@@ -4,6 +4,13 @@ Please note that only the most significant changes are reported here.
 A full ChangeLog is available in the log messages of the SVN repository
 on R-Forge.
 
+            CHANGES IN VERSION 1.0-2   (2022-12-23)
+
+* updated the citation information: now referring to the book chapter
+
+* now referring to the package's GitHub page instead of to its R-Forge page
+
+
             CHANGES IN VERSION 1.0-0   (2021-01-05)
 
 * added durbinWatsonTest.cesEst() for conducting Durbin-Watson tests for serial

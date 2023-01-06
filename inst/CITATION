@@ -1,19 +1,24 @@
 citHeader("To cite package 'micEconCES' in publications use:")
 
-citEntry(entry="Techreport",
-   title = "Econometric Estimation of the 'Constant Elasticity of Substitution' Function in R: Package micEconCES",
+citEntry(entry="InCollection",
+   title = "Econometric Estimation of the 'Constant Elasticity of Substitution' Function in R: the micEconCES Package",
    author = personList(as.person("Arne Henningsen"),
-      as.person("Geraldine Henningsen")),
-   year = "2011",
-   institution = "Institute of Food and Resource Economics, University of Copenhagen",
-   type = "FOI Working Paper",
-   number = "2011/9",
-   url = "https://EconPapers.repec.org/RePEc:foi:wpaper:2011_9",
+      as.person("G\\'{e}raldine Henningsen"),
+      as.person("Gerg\\H{o} Liter\\'{a}ti")),
+   year = "2021",
+   publisher = "Edward Elgar",
+   editor = personList( as.person( "Nigar Hashimzade" ),
+      as.person( "Michael A. Thornton" ) ),
+   booktitle = "Handbook of Research Methods and Applications in Empirical Microeconomics",
+   pages = "596–640",
+   doi = "10.4337/9781788976480.00030",
    textVersion = 
-      paste( "Henningsen, Arne and Geraldine Henningsen (2011):", 
+      paste( "Henningsen, Arne, Géraldine Henningsen, and Gergő Literáti (2021):", 
          "Econometric Estimation of the 'Constant Elasticity of Substitution'",
-         "Function in R: Package micEconCES,",
-         "FOI Working Paper No 2011/9,",
-         "Institute of Food and Resource Economics,University of Copenhagen,",
-         "https://econpapers.repec.org/RePEc:foi:wpaper:2011_9." )
+         "Function in R: the micEconCES Package.",
+         "In Hashimzade, N. and M. Thornton (editors),",
+         "Handbook of Research Methods and Applications in Empirical Microeconomics.",
+         "Edward Elgar, p. 596–640.",
+         "https://doi.org/10.4337/9781788976480.00030",
+         "(open access: https://bit.ly/3I5U310)." )
 )
